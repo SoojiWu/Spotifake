@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotifake | It Depends - Chris Brown ft. Bryson Tiller</title>
+    <link rel="icon" type="image/svg+xml" href="../../photos/spotifyICON/spotifake-favicon.svg">
+    <link rel="shortcut icon" href="../../photos/spotifyICON/spotifake-favicon.svg">
+    <meta name="theme-color" content="#09090E">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="it_depends.css">
+    <link rel="stylesheet" href="../song-theme.css">
+    <script src="../song-theme.js"></script>
+    <script src="../../scripts/appearance.js"></script>
+</head>
+<body>
+    <div class="ambient-glow" aria-hidden="true"></div>
+
+    <header class="top-nav">
+        <div class="nav-left">
+            <a href="../../pages/home.html" class="back-home-btn" title="Back to Spotifake Home">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to Home</span>
+            </a>
+            <a href="../../pages/home.html" class="brand-logo" aria-label="Spotifake Home">
+                <i class="fa-brands fa-spotify"></i>
+                <span>SPOTIFAKE</span>
+            </a>
+        </div>
+
+        <div class="nav-center">
+            <span class="track-badge">TRACK 1 OF 10 • BSIT PROJECT</span>
+        </div>
+
+        <div class="nav-right">
+            <a href="../song10_million_dollar_baby/million_dollar_baby.html" class="nav-song-btn" title="Previous: MILLION DOLLAR BABY">
+                <i class="fa-solid fa-backward-step"></i>
+                <span class="nav-btn-text">Prev</span>
+            </a>
+            <a href="../index.html" class="nav-all-songs-btn" title="All Song Pages">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>All 10 Pages</span>
+            </a>
+            <a href="../../pages/playlist.html" class="nav-all-songs-btn" title="Open Liked Songs Playlist"><i class="fa-solid fa-heart"></i> <span>Liked Songs</span>
+            </a>
+            <a href="../song2_with_you/with_you.html" class="nav-song-btn" title="Next: With You">
+                <span class="nav-btn-text">Next</span>
+                <i class="fa-solid fa-forward-step"></i>
+            </a>
+        </div>
+    </header>
+
+    <main class="song-layout">
+        <section class="player-card">
+            <div class="album-art-wrapper">
+                <img src="../../photos/ItDepends.jpg" alt="It Depends Cover Art" class="album-cover" id="albumCover">
+            </div>
+
+            <div class="track-meta">
+                <span class="genre-pill">Contemporary R&B • 2024</span>
+                <h1 class="track-title">It Depends</h1>
+                <p class="track-artist">Chris Brown ft. Bryson Tiller</p>
+            </div>
+
+            <audio id="audioPlayer" src="../../SONGS/Chris Brown - It Depends (Audio) ft. Bryson Tiller.mp3" preload="metadata"></audio>
+
+            <div class="controls-panel">
+                <div class="seek-container">
+                    <span id="currentTime" class="time-label">0:00</span>
+                    <input type="range" id="progressBar" min="0" max="100" value="0" step="1" aria-label="Song progress">
+                    <span id="duration" class="time-label">4:33</span>
+                </div>
+
+                
+                <!-- Live Equalizer Spectrum -->
+                <div class="song-visualizer" id="songVisualizer" aria-hidden="true" style="display:flex;align-items:flex-end;justify-content:center;gap:4px;height:24px;margin-bottom:12px;">
+                    <span class="vbar" style="width:4px;height:6px;background:var(--accent);border-radius:2px;transition:height 0.15s ease;"></span>
+                    <span class="vbar" style="width:4px;height:12px;background:var(--primary);border-radius:2px;transition:height 0.15s ease;"></span>
+                    <span class="vbar" style="width:4px;height:18px;background:var(--accent);border-radius:2px;transition:height 0.15s ease;"></span>
+                    <span class="vbar" style="width:4px;height:10px;background:var(--primary);border-radius:2px;transition:height 0.15s ease;"></span>
+                    <span class="vbar" style="width:4px;height:22px;background:var(--accent);border-radius:2px;transition:height 0.15s ease;"></span>
+                    <span class="vbar" style="width:4px;height:8px;background:var(--primary);border-radius:2px;transition:height 0.15s ease;"></span>
+                </div>
+            
+                <div class="main-buttons">
+                    <button type="button" id="prevLyricBtn" class="control-btn secondary" title="Skip to Previous Lyric Line">
+                        <i class="fa-solid fa-backward-step"></i>
+                        <span class="btn-label">Prev Line</span>
+                    </button>
+
+                    <button type="button" id="playBtn" class="control-btn play-main" title="Play">
+                        <i class="fa-solid fa-circle-play" id="playIcon"></i>
+                    </button>
+
+                    <button type="button" id="nextLyricBtn" class="control-btn secondary" title="Skip to Next Lyric Line">
+                        <i class="fa-solid fa-forward-step"></i>
+                        <span class="btn-label">Next Line</span>
+                    </button>
+                </div>
+
+                <div class="bottom-tools">
+                    <!-- Playback Speed Control -->
+                    <button type="button" id="playbackSpeedBtn" class="autoscroll-btn" title="Toggle Playback Speed">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span id="speedLabel">1.0x</span>
+                    </button>
+
+                    <!-- Favorite Button -->
+                    <button type="button" id="songFavBtn" class="autoscroll-btn" title="Toggle Favorite">
+                        <i class="fa-regular fa-heart" id="favIcon"></i>
+                        <span>Favorite</span>
+                    </button>
+            
+                    <div class="volume-box">
+                        <button type="button" id="muteBtn" class="mute-btn" title="Mute Volume">
+                            <i class="fa-solid fa-volume-high" id="volumeIcon"></i>
+                        </button>
+                        <input type="range" id="volumeBar" min="0" max="1" value="0.75" step="0.01" aria-label="Volume">
+                    </div>
+
+                    <button type="button" id="autoScrollToggle" class="autoscroll-btn active" title="Toggle Auto-Scroll">
+                        <i class="fa-solid fa-arrows-up-down"></i>
+                        <span>Auto-Scroll On</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="lyrics-card">
+            <header class="lyrics-header">
+                <div>
+                    <span class="lyrics-tag"><i class="fa-brands fa-spotify"></i> SPOTIFY LIVE SYNC</span>
+                    <h2>It Depends</h2>
+                    <p class="lyrics-hint"><i class="fa-regular fa-hand-pointer"></i> Click any line to skip audio playback directly</p>
+                </div>
+
+                <div class="lyrics-actions">
+                    <button type="button" id="skipTopBtn" class="pill-btn" title="Jump to start">
+                        <i class="fa-solid fa-arrow-up"></i> Top
+                    </button>
+                </div>
+            </header>
+
+            <div class="lyrics-scroll-box" id="lyricsBox">
+                
+                <p class="lyrics-line upcoming" data-time="0" data-index="0" tabindex="0" role="button" aria-label="Skip to 0:00: ♪ (Intro Instrumental) ♪">
+                    ♪ (Intro Instrumental) ♪
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="14" data-index="1" tabindex="0" role="button" aria-label="Skip to 0:14: You bad as hell, I treat you well, I will">
+                    You bad as hell, I treat you well, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="18" data-index="2" tabindex="0" role="button" aria-label="Skip to 0:18: It's good, I can tell, come give me hell, come here">
+                    It's good, I can tell, come give me hell, come here
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="23" data-index="3" tabindex="0" role="button" aria-label="Skip to 0:23: Your fairytale, under your spell, I am">
+                    Your fairytale, under your spell, I am
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="27" data-index="4" tabindex="0" role="button" aria-label="Skip to 0:27: She get Chanel, oh, when it all depends">
+                    She get Chanel, oh, when it all depends
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="32" data-index="5" tabindex="0" role="button" aria-label="Skip to 0:32: You screaming "yeah," can't call for help from here">
+                    You screaming "yeah," can't call for help from here
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="36" data-index="6" tabindex="0" role="button" aria-label="Skip to 0:36: You leaving welts, I feel your nails, for real">
+                    You leaving welts, I feel your nails, for real
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="41" data-index="7" tabindex="0" role="button" aria-label="Skip to 0:41: I eat you good, you sleepin' good, for real">
+                    I eat you good, you sleepin' good, for real
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="45" data-index="8" tabindex="0" role="button" aria-label="Skip to 0:45: I freak you well, I freak you well, I will">
+                    I freak you well, I freak you well, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="50" data-index="9" tabindex="0" role="button" aria-label="Skip to 0:50: I'll freak you right, I will">
+                    I'll freak you right, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="54" data-index="10" tabindex="0" role="button" aria-label="Skip to 0:54: I'll freak you right, I will">
+                    I'll freak you right, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="59" data-index="11" tabindex="0" role="button" aria-label="Skip to 0:59: I'll freak you like no one has ever, ever made you feel">
+                    I'll freak you like no one has ever, ever made you feel
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="64" data-index="12" tabindex="0" role="button" aria-label="Skip to 1:04: I'll freak you right, I will">
+                    I'll freak you right, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="68" data-index="13" tabindex="0" role="button" aria-label="Skip to 1:08: I'll freak you right, I will">
+                    I'll freak you right, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="73" data-index="14" tabindex="0" role="button" aria-label="Skip to 1:13: I'll freak, freak it like no one has ever made you feel, yeah">
+                    I'll freak, freak it like no one has ever made you feel, yeah
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="81" data-index="15" tabindex="0" role="button" aria-label="Skip to 1:21: I guess I done ran out of options">
+                    I guess I done ran out of options
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="85" data-index="16" tabindex="0" role="button" aria-label="Skip to 1:25: Can't keep fantasizin', oh-oh">
+                    Can't keep fantasizin', oh-oh
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="90" data-index="17" tabindex="0" role="button" aria-label="Skip to 1:30: I'm callin' you so we can lock in">
+                    I'm callin' you so we can lock in
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="95" data-index="18" tabindex="0" role="button" aria-label="Skip to 1:35: But you call me toxic">
+                    But you call me toxic
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="99" data-index="19" tabindex="0" role="button" aria-label="Skip to 1:39: You make it easy for me to believe in your lovin'">
+                    You make it easy for me to believe in your lovin'
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="104" data-index="20" tabindex="0" role="button" aria-label="Skip to 1:44: You better believe it, 'cause, baby, I'm leavin' with something">
+                    You better believe it, 'cause, baby, I'm leavin' with something
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="109" data-index="21" tabindex="0" role="button" aria-label="Skip to 1:49: Girl, it's better than the dick you had before">
+                    Girl, it's better than the dick you had before
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="113" data-index="22" tabindex="0" role="button" aria-label="Skip to 1:53: Smiling 'cause you know I know you know">
+                    Smiling 'cause you know I know you know
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="118" data-index="23" tabindex="0" role="button" aria-label="Skip to 1:58: You bad as hell, I treat you well, I will">
+                    You bad as hell, I treat you well, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="122" data-index="24" tabindex="0" role="button" aria-label="Skip to 2:02: It's good, I can tell, come give me hell, come here">
+                    It's good, I can tell, come give me hell, come here
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="127" data-index="25" tabindex="0" role="button" aria-label="Skip to 2:07: Your fairytale, under your spell, I am">
+                    Your fairytale, under your spell, I am
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="131" data-index="26" tabindex="0" role="button" aria-label="Skip to 2:11: She get Chanel, oh, when it all depends">
+                    She get Chanel, oh, when it all depends
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="136" data-index="27" tabindex="0" role="button" aria-label="Skip to 2:16: You screaming "yeah," can't call for help from here">
+                    You screaming "yeah," can't call for help from here
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="140" data-index="28" tabindex="0" role="button" aria-label="Skip to 2:20: You leaving welts, I feel your nails, for real">
+                    You leaving welts, I feel your nails, for real
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="145" data-index="29" tabindex="0" role="button" aria-label="Skip to 2:25: I eat you good, you sleepin' good, for real">
+                    I eat you good, you sleepin' good, for real
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="150" data-index="30" tabindex="0" role="button" aria-label="Skip to 2:30: I freak you well, I freak you well, I will">
+                    I freak you well, I freak you well, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="155" data-index="31" tabindex="0" role="button" aria-label="Skip to 2:35: Shawty wanna come find out what's good with me">
+                    Shawty wanna come find out what's good with me
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="159" data-index="32" tabindex="0" role="button" aria-label="Skip to 2:39: Well, girl, it all depends on what you need at night, hey">
+                    Well, girl, it all depends on what you need at night, hey
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="164" data-index="33" tabindex="0" role="button" aria-label="Skip to 2:44: She wan' do, I heard he let you go free at night">
+                    She wan' do, I heard he let you go free at night
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="169" data-index="34" tabindex="0" role="button" aria-label="Skip to 2:49: Don't you go love me outta spite">
+                    Don't you go love me outta spite
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="173" data-index="35" tabindex="0" role="button" aria-label="Skip to 2:53: Hey, hey">
+                    Hey, hey
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="176" data-index="36" tabindex="0" role="button" aria-label="Skip to 2:56: I don't wanna send the wrong signs, but I can read your mind">
+                    I don't wanna send the wrong signs, but I can read your mind
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="182" data-index="37" tabindex="0" role="button" aria-label="Skip to 3:02: Left you alone, you're all mine, you're all mine">
+                    Left you alone, you're all mine, you're all mine
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="187" data-index="38" tabindex="0" role="button" aria-label="Skip to 3:07: Tell me if now is the wrong time, I need a long time">
+                    Tell me if now is the wrong time, I need a long time
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="193" data-index="39" tabindex="0" role="button" aria-label="Skip to 3:13: I need a long time, I need a—">
+                    I need a long time, I need a—
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="197" data-index="40" tabindex="0" role="button" aria-label="Skip to 3:17: You bad as hell, I treat you well, I will">
+                    You bad as hell, I treat you well, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="202" data-index="41" tabindex="0" role="button" aria-label="Skip to 3:22: It's good, I can tell, come give me hell, come here">
+                    It's good, I can tell, come give me hell, come here
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="206" data-index="42" tabindex="0" role="button" aria-label="Skip to 3:26: Your fairytale, under your spell, I am">
+                    Your fairytale, under your spell, I am
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="211" data-index="43" tabindex="0" role="button" aria-label="Skip to 3:31: She get Chanel, oh, when it all depends">
+                    She get Chanel, oh, when it all depends
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="215" data-index="44" tabindex="0" role="button" aria-label="Skip to 3:35: You screaming "yeah," can't call for help from here">
+                    You screaming "yeah," can't call for help from here
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="220" data-index="45" tabindex="0" role="button" aria-label="Skip to 3:40: You leaving welts, I feel your nails, for real">
+                    You leaving welts, I feel your nails, for real
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="225" data-index="46" tabindex="0" role="button" aria-label="Skip to 3:45: I eat you good, you sleepin' good, for real">
+                    I eat you good, you sleepin' good, for real
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="229" data-index="47" tabindex="0" role="button" aria-label="Skip to 3:49: I freak you well, I freak you well, I will">
+                    I freak you well, I freak you well, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="234" data-index="48" tabindex="0" role="button" aria-label="Skip to 3:54: I'll freak you right, I will">
+                    I'll freak you right, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="239" data-index="49" tabindex="0" role="button" aria-label="Skip to 3:59: I'll freak you right, I will">
+                    I'll freak you right, I will
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="244" data-index="50" tabindex="0" role="button" aria-label="Skip to 4:04: I'll freak you like no one has ever made you feel, yeah">
+                    I'll freak you like no one has ever made you feel, yeah
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="255" data-index="51" tabindex="0" role="button" aria-label="Skip to 4:15: ♪ (Outro) ♪">
+                    ♪ (Outro) ♪
+                </p>
+            </div>
+
+            <footer class="lyrics-footer">
+                <span class="lyrics-credit">Spotifake Cyber Dark Edition • Deep Cyber Black & Loud Magenta</span>
+            </footer>
+        </section>
+    </main>
+
+    <script src="../../scripts/lyricsData.js"></script>
+    <script src="lyricsData.js"></script>
+    <script src="it_depends.js"></script>
+</body>
+</html>

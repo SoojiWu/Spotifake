@@ -1,0 +1,1406 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Spotifake — Cyber-themed personal music collection and audio player with Spotify-inspired features.">
+    <meta name="theme-color" content="#09090E">
+
+    <title>Spotifake | Cyber Dark Home</title>
+    <link rel="icon" type="image/svg+xml" href="../photos/spotifyICON/spotifake-favicon.svg">
+    <link rel="shortcut icon" href="../photos/spotifyICON/spotifake-favicon.svg">
+
+    <!-- Font Awesome 6.5+ -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- Google Fonts: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap"
+        rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../styles/HomeDesign.css">
+    <link rel="stylesheet" href="../styles/library.css">
+    <link rel="stylesheet" href="../styles/carousel.css">
+    <link rel="stylesheet" href="../styles/modal.css">
+    <link rel="stylesheet" href="../styles/appearance.css">
+    <script src="../scripts/appearance.js"></script>
+    <script src="../scripts/galleryPicker.js" defer></script>
+</head>
+
+<body class="home-page">
+    <!-- ================= CUSTOM CYBER CURSOR ================= -->
+    <div class="custom-cursor-dot" id="cursorDot" aria-hidden="true"></div>
+    <div class="custom-cursor-ring" id="cursorRing" aria-hidden="true"></div>
+
+    <!-- ================= NAVIGATION BAR ================= -->
+    <header class="top-bar">
+        <nav class="navbar" aria-label="Main navigation">
+            <div class="left-half">
+                <!-- Logo -->
+                <a class="logo" href="home.html" aria-label="Spotifake Home">
+                    <i class="fa-brands fa-spotify" aria-hidden="true"></i>
+                    <h1>SPOTIFAKE</h1>
+                </a>
+
+                <!-- Home Button -->
+                <a class="home-icon active" href="home.html" id="navHomeBtn" aria-label="Home" title="Home">
+                    <i class="fa-solid fa-house" aria-hidden="true"></i>
+                    <span>Home</span>
+                </a>
+
+                <!-- Search Bar -->
+                <form class="search-bar" id="searchForm" role="search">
+                    <label class="search-icon" for="searchInput">
+                        <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    </label>
+                    <input type="search" id="searchInput" class="input-box" placeholder="What do you want to play?"
+                        autocomplete="off" aria-label="Search songs and artists">
+                    <button type="button" id="clearSearch" class="clear-search-btn" aria-label="Clear search" hidden>
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </form>
+            </div>
+
+            <!-- College / Barangay Extension Project Branding -->
+            <div class="header-center">
+                <div class="project-badge" title="BSIT / IT Extension Project">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>BSIT-1B</span>
+                </div>
+            </div>
+
+            <!-- User Profile & Task Bar Trigger -->
+            <div class="right-half">
+                <a href="../song_pages/index.html" class="song-hub-btn" title="Open Song Pages Directory">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Song Pages</span>
+                </a>
+
+                <div class="profile-menu-container">
+                    <button type="button" class="profile-btn" id="profileBtn" aria-haspopup="true" aria-expanded="false"
+                        title="Account Menu">
+                        <img src="../photos/spotifyICON/lydbayot.jpg" alt="JSON.TTUM Avatar" class="profile-avatar">
+                        <span class="profile-name">JSON.TTUM</span>
+                        <i class="fa-solid fa-chevron-down profile-arrow"></i>
+                    </button>
+
+                    <!-- Interactive Task Bar Dropdown -->
+                    <div class="profile-taskbar" id="profileTaskbar" role="menu" aria-label="User Options">
+                        <div class="taskbar-header">
+                            <img src="../photos/spotifyICON/lydbayot.jpg" alt="User Avatar" class="taskbar-avatar">
+                            <div class="taskbar-user-info">
+                                <p class="taskbar-name">JSON.TTUM</p>
+                                <span class="taskbar-status"><i class="fa-solid fa-bolt"></i> Cyber VIP</span>
+                            </div>
+                        </div>
+
+                        <hr class="taskbar-divider">
+
+                        <button type="button" class="taskbar-item" id="taskAccount" role="menuitem">
+                            <i class="fa-solid fa-circle-user"></i>
+                            <span>Account</span>
+                        </button>
+
+                        <button type="button" class="taskbar-item" id="taskProfile" role="menuitem">
+                            <i class="fa-solid fa-id-card"></i>
+                            <span>Profile</span>
+                        </button>
+
+                        <button type="button" class="taskbar-item" id="taskRecents" role="menuitem">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                            <span>Recents</span>
+                            <span class="badge-count" id="recentsCount">0</span>
+                        </button>
+
+                        <button type="button" class="taskbar-item" id="taskSettings" role="menuitem">
+                            <i class="fa-solid fa-gear"></i>
+                            <span>Settings</span>
+                        </button>
+
+                        <hr class="taskbar-divider">
+
+                        <button type="button" class="taskbar-item logout" id="taskLogout" role="menuitem">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            <span>Log out</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+    <!-- ================= MAIN LAYOUT (3-COLUMN RESPONSIVE) ================= -->
+    <div class="main">
+
+        <!-- ================= LEFT SIDEBAR (LIBRARY & SONGS) ================= -->
+        <aside class="library-panel" aria-label="Your library">
+            <!-- Library Header -->
+            <div class="library">
+                <button type="button" class="library-title library-collapse-trigger" id="sidebarMinimizeBtn"
+                    aria-label="Toggle Library">
+                    <span class="collapse-slide-icon" aria-hidden="true">
+                        <!-- Spotify-style sidebar collapse icon [|<] -->
+                        <svg class="icon-collapse-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                            <line x1="9" y1="3" x2="9" y2="21"></line>
+                            <polyline points="16 15 13 12 16 9"></polyline>
+                        </svg>
+                        <!-- Spotify-style sidebar expand icon [>|] (shown on hover when collapsed) -->
+                        <svg class="icon-expand-svg" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+                            <line x1="9" y1="3" x2="9" y2="21"></line>
+                            <polyline points="13 9 16 12 13 15"></polyline>
+                        </svg>
+                        <!-- Default library icon when collapsed at rest -->
+                        <i class="fa-solid fa-lines-leaning icon-library-collapsed"></i>
+                    </span>
+                    <h2>Your Library</h2>
+                </button>
+                <div class="library-header-actions">
+                    <button type="button" class="add-library" id="sidebarCreatePlaylistBtn"
+                        title="Create a new playlist" aria-label="Create playlist">
+                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                    </button>
+                    <a href="library.html" class="add-library lib-expand-btn" id="sidebarExpandBtn" title="Open Full Screen Library (Music Keeps Playing)"
+                        aria-label="Open full library">
+                        <i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Library Filter Tabs (Playlists / Albums / Artists) -->
+            <div class="lib-tabs" role="tablist" aria-label="Library categories">
+                <button type="button" class="lib-tab active" data-lib-tab="playlists" role="tab"
+                    aria-selected="true">Playlists</button>
+                <button type="button" class="lib-tab" data-lib-tab="albums" role="tab"
+                    aria-selected="false">Albums</button>
+                <button type="button" class="lib-tab" data-lib-tab="artists" role="tab"
+                    aria-selected="false">Artists</button>
+            </div>
+
+            <!-- Library Sort Row (Search button removed per request) -->
+            <div class="lib-search-row">
+                <button type="button" class="lib-sort-btn" id="libSortBtn" title="Sort by Recents or Alphabetical">
+                    <span>Recents</span> <i class="fa-solid fa-list-ul"></i>
+                </button>
+            </div>
+
+            <!-- Library Items List (Spotify Style) -->
+            <ul class="sidebar-song-list" id="sidebarSongList" role="list" aria-label="Songs in your library">
+                <!-- Populated dynamically via Home.js -->
+            </ul>
+
+            <!-- Sidebar Project Footer Badge -->
+            <div class="sidebar-footer">
+                <div class="extension-pill">
+                    <i class="fa-solid fa-code"></i>
+                    <span>BSIT Extension Project</span>
+                </div>
+            </div>
+        </aside>
+
+
+        <!-- ================= MAIN DASHBOARD (CENTER) ================= -->
+        <main class="main-right-part">
+            <div id="homeDashboardView">
+
+                <!-- Mobile Spotify Top Pills + 2-Col Quick Picks Grid (< 768px only) -->
+                <div class="sp-mob-home-top" id="mobileHomeTopStrip">
+                    <button type="button" class="sp-mob-avatar-btn" id="mobileProfileTrigger" title="Account &amp; Settings" aria-label="Open profile menu">
+                        <img src="../photos/spotifyICON/lydbayot.jpg" alt="Profile Avatar">
+                    </button>
+                    <div class="sp-mob-filter-pills" role="tablist" aria-label="Mobile Home Filters">
+                        <button type="button" class="sp-mob-pill active" data-mob-cat="all" role="tab" aria-selected="true">All</button>
+                        <div class="sp-music-pill-group" id="mobileMusicPillGroup">
+                            <button type="button" class="sp-mob-pill sp-music-primary" data-mob-cat="music" role="tab" aria-selected="false">Music</button>
+                            <button type="button" class="sp-mob-pill sp-following-subpill" data-mob-cat="following" role="tab" aria-selected="false">Following</button>
+                        </div>
+                        <button type="button" class="sp-mob-pill" data-mob-cat="podcasts" role="tab" aria-selected="false">Podcasts</button>
+                    </div>
+                </div>
+
+                <section class="sp-mob-quick-picks" id="mobileQuickPicksGrid" aria-label="Quick Picks">
+                    <!-- Populated dynamically via Home.js -->
+                </section>
+
+                <!-- Hero Welcome Banner -->
+            <section class="hero-banner" id="heroBanner">
+                <!-- Decorative Theme-Specific Background Layers -->
+                <div class="hero-bg-decor" aria-hidden="true">
+                    <div class="hero-bg-grid"></div>
+                    <div class="hero-bg-orb hero-orb-magenta"></div>
+                    <div class="hero-bg-orb hero-orb-yellow"></div>
+                    <div class="hero-bg-vinyl">
+                        <div class="hero-vinyl-ring r1"></div>
+                        <div class="hero-vinyl-ring r2"></div>
+                        <div class="hero-vinyl-ring r3"></div>
+                        <div class="hero-vinyl-core"></div>
+                    </div>
+                    <svg class="hero-bg-wave" viewBox="0 0 1200 220" preserveAspectRatio="none">
+                        <path class="hero-wave-path-1" d="M0,150 C220,65 380,210 620,120 C840,35 1020,185 1200,95" fill="none" stroke-width="2.5" />
+                        <path class="hero-wave-path-2" d="M0,180 C260,115 440,25 700,145 C910,235 1060,80 1200,140" fill="none" stroke-width="1.8" stroke-dasharray="6 6" />
+                    </svg>
+                    <div class="hero-bg-eq">
+                        <span></span><span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span><span></span>
+                        <span></span><span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <div class="hero-corner-hud hud-tl"></div>
+                    <div class="hero-corner-hud hud-br"></div>
+                </div>
+
+                <div class="hero-content">
+                    <div class="hero-greeting-box">
+                        <span class="time-greeting-icon" id="greetingIcon">☀️</span>
+                        <h2 class="hero-greeting" id="heroGreeting">Good morning, JSON.TTUM</h2>
+                    </div>
+                    <p class="hero-subtext">Welcome to your ultimate Cyber-styled R&B and Neo-Soul audio hub.</p>
+
+                    <!-- Category Filter Pills -->
+                    <div class="category-filters" role="tablist" aria-label="Filter media categories">
+                        <button type="button" class="filter-pill active" data-category="all" role="tab"
+                            aria-selected="true">
+                            All
+                        </button>
+                        <div class="sp-music-pill-group" id="desktopMusicPillGroup">
+                            <button type="button" class="filter-pill sp-music-primary" data-category="music" role="tab"
+                                aria-selected="false">
+                                <i class="fa-solid fa-music"></i> Music
+                            </button>
+                            <button type="button" class="filter-pill sp-following-subpill" data-category="following" role="tab"
+                                aria-selected="false">
+                                Following
+                            </button>
+                        </div>
+                        <button type="button" class="filter-pill" data-category="podcasts" role="tab"
+                            aria-selected="false">
+                            <i class="fa-solid fa-podcast"></i> Featured Podcasts
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Featured Track Spotlight (Fanned Stacked Card Deck - Click to Shuffle in a Loop) -->
+                <div class="spotlight-deck-wrap" id="spotlightDeckWrap" title="Click card to shuffle to the next track">
+                    <!-- Dynamic rotating card stack populated by Home.js -->
+                </div>
+            </section>
+
+
+            <!-- MUSIC CARDS SECTION -->
+            <section class="music-section" aria-labelledby="favoritesHeading">
+                <div class="section-header-bar">
+                    <div class="header-titles">
+                        <h1 id="favoritesHeading">Favorite Songs</h1>
+                        <p class="section-desc">Hand-picked R&B, soul, and viral hits with live synchronized lyrics</p>
+                    </div>
+                    <div class="view-toggles">
+                        <span class="result-counter" id="resultCounter">Showing 10 of 10 songs</span>
+                    </div>
+                </div>
+
+                <!-- Search feedback -->
+                <p id="searchStatus" class="search-empty-state" role="status" aria-live="polite" hidden></p>
+
+                <!-- Active Artist/Album Filter Notification Banner -->
+                <div class="active-filter-banner" id="activeFilterBanner" style="display:none;">
+                    <div class="filter-title-wrap">
+                        <i class="fa-solid fa-filter" id="activeFilterIcon"></i>
+                        <span id="activeFilterText">Filtering collection songs</span>
+                    </div>
+                    <button type="button" class="clear-filter-btn" id="clearActiveFilterBtn">
+                        Show All 10 Songs <i class="fa-solid fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- SONG CARDS GRID (10 Songs with Real Album Covers & Favorite Heart Buttons) -->
+                <div class="songs" id="songGrid">
+
+                    <!-- SONG 1: It Depends -->
+                    <article class="music-card" data-song-id="1">
+                        <div class="card-image-wrap">
+                            <img src="../photos/ItDepends.jpg" alt="It Depends cover art" loading="lazy">
+                            <button class="music-play-btn" type="button" aria-label="Play It Depends" data-song-id="1">
+                                <i class="playMusic fa-solid fa-circle-play" aria-hidden="true"></i>
+                            </button>
+                            <!-- Real Favorite Heart Button -->
+                            <button class="card-heart-btn" type="button" aria-label="Favorite It Depends"
+                                data-song-id="1" title="Add to Favorites">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-info-wrap">
+                            <h3 class="img-title">It Depends</h3>
+                            <p class="img-description">Chris Brown ft. Bryson Tiller</p>
+                        </div>
+                        <div class="card-actions">
+                            <a href="../song_pages/song1_it_depends/it_depends.html" class="card-page-link"
+                                title="Open Dedicated Page">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- SONG 2: With You -->
+                    <article class="music-card" data-song-id="2">
+                        <div class="card-image-wrap">
+                            <img src="../photos/WithYou.jpg" alt="With You cover art" loading="lazy">
+                            <button class="music-play-btn" type="button" aria-label="Play With You" data-song-id="2">
+                                <i class="playMusic fa-solid fa-circle-play" aria-hidden="true"></i>
+                            </button>
+                            <button class="card-heart-btn" type="button" aria-label="Favorite With You" data-song-id="2"
+                                title="Add to Favorites">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-info-wrap">
+                            <h3 class="img-title">With You</h3>
+                            <p class="img-description">Chris Brown</p>
+                        </div>
+                        <div class="card-actions">
+                            <a href="../song_pages/song2_with_you/with_you.html" class="card-page-link"
+                                title="Open Dedicated Page">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- SONG 3: Shoulda Never -->
+                    <article class="music-card" data-song-id="3">
+                        <div class="card-image-wrap">
+                            <img src="../photos/ShouldaNever.jpg" alt="Shoulda Never cover art" loading="lazy">
+                            <button class="music-play-btn" type="button" aria-label="Play Shoulda Never"
+                                data-song-id="3">
+                                <i class="playMusic fa-solid fa-circle-play" aria-hidden="true"></i>
+                            </button>
+                            <button class="card-heart-btn" type="button" aria-label="Favorite Shoulda Never"
+                                data-song-id="3" title="Add to Favorites">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-info-wrap">
+                            <h3 class="img-title">Shoulda Never</h3>
+                            <p class="img-description">Kehlani ft. Usher</p>
+                        </div>
+                        <div class="card-actions">
+                            <a href="../song_pages/song3_shoulda_never/shoulda_never.html" class="card-page-link"
+                                title="Open Dedicated Page">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- SONG 4: Because of You -->
+                    <article class="music-card" data-song-id="4">
+                        <div class="card-image-wrap">
+                            <img src="../photos/BecauseofYou.jpg" alt="Because of You cover art" loading="lazy">
+                            <button class="music-play-btn" type="button" aria-label="Play Because of You"
+                                data-song-id="4">
+                                <i class="playMusic fa-solid fa-circle-play" aria-hidden="true"></i>
+                            </button>
+                            <button class="card-heart-btn" type="button" aria-label="Favorite Because of You"
+                                data-song-id="4" title="Add to Favorites">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-info-wrap">
+                            <h3 class="img-title">Because of You</h3>
+                            <p class="img-description">Ne-Yo</p>
+                        </div>
+                        <div class="card-actions">
+                            <a href="../song_pages/song4_because_of_you/because_of_you.html" class="card-page-link"
+                                title="Open Dedicated Page">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- SONG 5: Miss Independent -->
+                    <article class="music-card" data-song-id="5">
+                        <div class="card-image-wrap">
+                            <img src="../photos/MissIndependent.jpg" alt="Miss Independent cover art" loading="lazy">
+                            <button class="music-play-btn" type="button" aria-label="Play Miss Independent"
+                                data-song-id="5">
+                                <i class="playMusic fa-solid fa-circle-play" aria-hidden="true"></i>
+                            </button>
+                            <button class="card-heart-btn" type="button" aria-label="Favorite Miss Independent"
+                                data-song-id="5" title="Add to Favorites">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-info-wrap">
+                            <h3 class="img-title">Miss Independent</h3>
+                            <p class="img-description">Ne-Yo</p>
+                        </div>
+                        <div class="card-actions">
+                            <a href="../song_pages/song5_miss_independent/miss_independent.html" class="card-page-link"
+                                title="Open Dedicated Page">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- SONG 6: Sexy Love -->
+                    <article class="music-card" data-song-id="6">
+                        <div class="card-image-wrap">
+                            <img src="../photos/SexyLove.jpg" alt="Sexy Love cover art" loading="lazy">
+                            <button class="music-play-btn" type="button" aria-label="Play Sexy Love" data-song-id="6">
+                                <i class="playMusic fa-solid fa-circle-play" aria-hidden="true"></i>
+                            </button>
+                            <button class="card-heart-btn" type="button" aria-label="Favorite Sexy Love"
+                                data-song-id="6" title="Add to Favorites">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-info-wrap">
+                            <h3 class="img-title">Sexy Love</h3>
+                            <p class="img-description">Ne-Yo</p>
+                        </div>
+                        <div class="card-actions">
+                            <a href="../song_pages/song6_sexy_love/sexy_love.html" class="card-page-link"
+                                title="Open Dedicated Page">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- SONG 7: So Sick -->
+                    <article class="music-card" data-song-id="7">
+                        <div class="card-image-wrap">
+                            <img src="../photos/SoSick.jpg" alt="So Sick cover art" loading="lazy">
+                            <button class="music-play-btn" type="button" aria-label="Play So Sick" data-song-id="7">
+                                <i class="playMusic fa-solid fa-circle-play" aria-hidden="true"></i>
+                            </button>
+                            <button class="card-heart-btn" type="button" aria-label="Favorite So Sick" data-song-id="7"
+                                title="Add to Favorites">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-info-wrap">
+                            <h3 class="img-title">So Sick</h3>
+                            <p class="img-description">Ne-Yo</p>
+                        </div>
+                        <div class="card-actions">
+                            <a href="../song_pages/song7_so_sick/so_sick.html" class="card-page-link"
+                                title="Open Dedicated Page">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- SONG 8: Love Me Not -->
+                    <article class="music-card" data-song-id="8">
+                        <div class="card-image-wrap">
+                            <img src="../photos/LoveMeNot.jpg" alt="Love Me Not cover art" loading="lazy">
+                            <button class="music-play-btn" type="button" aria-label="Play Love Me Not" data-song-id="8">
+                                <i class="playMusic fa-solid fa-circle-play" aria-hidden="true"></i>
+                            </button>
+                            <button class="card-heart-btn" type="button" aria-label="Favorite Love Me Not"
+                                data-song-id="8" title="Add to Favorites">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-info-wrap">
+                            <h3 class="img-title">Love Me Not</h3>
+                            <p class="img-description">Ravyn Lenae</p>
+                        </div>
+                        <div class="card-actions">
+                            <a href="../song_pages/song8_love_me_not/love_me_not.html" class="card-page-link"
+                                title="Open Dedicated Page">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- SONG 9: Timeless -->
+                    <article class="music-card" data-song-id="9">
+                        <div class="card-image-wrap">
+                            <img src="../photos/Timeless.jpg" alt="Timeless cover art" loading="lazy">
+                            <button class="music-play-btn" type="button" aria-label="Play Timeless" data-song-id="9">
+                                <i class="playMusic fa-solid fa-circle-play" aria-hidden="true"></i>
+                            </button>
+                            <button class="card-heart-btn" type="button" aria-label="Favorite Timeless" data-song-id="9"
+                                title="Add to Favorites">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-info-wrap">
+                            <h3 class="img-title">Timeless</h3>
+                            <p class="img-description">The Weeknd ft. Playboi Carti</p>
+                        </div>
+                        <div class="card-actions">
+                            <a href="../song_pages/song9_timeless/timeless.html" class="card-page-link"
+                                title="Open Dedicated Page">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                    <!-- SONG 10: MILLION DOLLAR BABY -->
+                    <article class="music-card" data-song-id="10">
+                        <div class="card-image-wrap">
+                            <img src="../photos/MillionDollarBaby.jpg" alt="MILLION DOLLAR BABY cover art" loading="lazy">
+                            <button class="music-play-btn" type="button" aria-label="Play MILLION DOLLAR BABY"
+                                data-song-id="10">
+                                <i class="playMusic fa-solid fa-circle-play" aria-hidden="true"></i>
+                            </button>
+                            <button class="card-heart-btn" type="button" aria-label="Favorite MILLION DOLLAR BABY"
+                                data-song-id="10" title="Add to Favorites">
+                                <i class="fa-regular fa-heart"></i>
+                            </button>
+                        </div>
+                        <div class="card-info-wrap">
+                            <h3 class="img-title">MILLION DOLLAR BABY</h3>
+                            <p class="img-description">Tommy Richman</p>
+                        </div>
+                        <div class="card-actions">
+                            <a href="../song_pages/song10_million_dollar_baby/million_dollar_baby.html"
+                                class="card-page-link" title="Open Dedicated Page">
+                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            </a>
+                        </div>
+                    </article>
+
+                </div>
+            </section>
+
+            <!-- FEATURED PODCASTS SECTION (shown when podcasts filter active) -->
+            <section class="podcast-section" id="podcastSection" aria-labelledby="podcastsHeading" hidden>
+                <div class="section-header-bar">
+                    <div class="header-titles">
+                        <h1 id="podcastsHeading"><i class="fa-solid fa-podcast"></i> Featured Podcasts</h1>
+                        <p class="section-desc">These 10 tracks are featured in top music podcast episodes</p>
+                    </div>
+                </div>
+                <div class="podcast-grid" id="podcastGrid">
+                    <!-- Populated by Home.js -->
+                </div>
+            </section>
+
+            <!-- FOLLOWING ARTISTS & MUSIC FEED (shown when Following sub-pill is active) -->
+            <section class="following-section" id="followingSection" aria-labelledby="followingHeading" hidden>
+                <div class="section-header-bar">
+                    <div class="header-titles">
+                        <h1 id="followingHeading"><i class="fa-solid fa-user-check"></i> Following</h1>
+                        <p class="section-desc">Artists you follow and the music they have in Spotifake</p>
+                    </div>
+                </div>
+                <div class="sp-following-feed" id="followingFeedGrid">
+                    <!-- Populated dynamically via Home.js -->
+                </div>
+            </section>
+        </div><!-- /#homeDashboardView -->
+
+        <!-- ================= SPOTIFY PHONE SEARCH VIEW (< 768px) ================= -->
+        <div id="homeSearchView" class="sp-search-view" style="display:none;">
+            <header class="sp-mob-view-header">
+                <div class="sp-mob-view-title-group">
+                    <button type="button" class="sp-mob-avatar-btn" data-open-profile-menu aria-label="Profile Menu">
+                        <img src="../photos/spotifyICON/lydbayot.jpg" alt="Profile Avatar">
+                    </button>
+                    <h1>Search</h1>
+                </div>
+                <a href="../song_pages/index.html" class="sp-mob-header-icon" title="Song Pages Hub" aria-label="Song Pages Hub">
+                    <i class="fa-solid fa-folder-open"></i>
+                </a>
+            </header>
+
+            <div class="sp-mob-search-box-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="search" id="mobilePageSearchInput" placeholder="What do you want to listen to?" autocomplete="off" aria-label="Search tracks, artists, albums, playlists">
+                <button type="button" id="mobilePageClearSearch" hidden aria-label="Clear search">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <div id="mobileSearchResults" class="sp-mob-search-results" style="display:none;"></div>
+
+            <div id="mobileBrowseAllWrap">
+                <h2 class="sp-mob-subhead">Browse all</h2>
+                <div class="sp-mob-browse-grid" id="mobileBrowseGrid">
+                    <button type="button" class="sp-browse-card card-accent-yellow" data-browse="all">
+                        <span>All Songs</span>
+                        <img src="../photos/ItDepends.jpg" alt="" loading="lazy">
+                    </button>
+                    <button type="button" class="sp-browse-card card-accent-magenta" data-browse="liked">
+                        <span>Liked Songs</span>
+                        <img src="../photos/WithYou.jpg" alt="" loading="lazy">
+                    </button>
+                    <button type="button" class="sp-browse-card card-accent-cyan" data-browse="podcasts">
+                        <span>Podcasts</span>
+                        <img src="../photos/LoveMeNot.jpg" alt="" loading="lazy">
+                    </button>
+                    <button type="button" class="sp-browse-card card-accent-violet" data-browse="rnb">
+                        <span>Contemporary R&amp;B</span>
+                        <img src="../photos/Timeless.jpg" alt="" loading="lazy">
+                    </button>
+                    <button type="button" class="sp-browse-card card-accent-crimson" data-browse="classics">
+                        <span>2000s Soul Classics</span>
+                        <img src="../photos/SoSick.jpg" alt="" loading="lazy">
+                    </button>
+                    <button type="button" class="sp-browse-card card-accent-blue" data-browse="playlists">
+                        <span>Your Playlists</span>
+                        <img src="../photos/MillionDollarBaby.jpg" alt="" loading="lazy">
+                    </button>
+                </div>
+
+                <div class="sp-mob-discover-header">
+                    <h2 class="sp-mob-subhead">Discover something new</h2>
+                    <div class="sp-mob-discover-nav" aria-label="Scroll Discover cards">
+                        <button type="button" class="sp-discover-nav-btn" id="mobileDiscoverPrev" aria-label="Scroll Discover left">
+                            <i class="fa-solid fa-chevron-left"></i>
+                        </button>
+                        <button type="button" class="sp-discover-nav-btn" id="mobileDiscoverNext" aria-label="Scroll Discover right">
+                            <i class="fa-solid fa-chevron-right"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="sp-mob-discover-row" id="mobileDiscoverRow">
+                    <!-- Populated dynamically via Home.js -->
+                </div>
+            </div>
+        </div><!-- /#homeSearchView -->
+
+        <!-- ================= SPOTIFY-STYLE ALBUM & ARTIST PROFILE VIEW ================= -->
+        <div id="homeAlbumArtistView" class="sp-entity-view" style="display:none;"></div>
+
+        <!-- ================= EMBEDDED FULL LIBRARY VIEW (Zero audio interruption) ================= -->
+        <div id="homeLibraryView" class="library-container" style="display:none;width:100%;padding:4px 0 24px 0;">
+            <section class="lib-hero-header">
+                <div class="lib-title-row">
+                    <div class="lib-main-heading">
+                        <button type="button" class="sp-mob-avatar-btn sp-mob-only-inline" data-open-profile-menu aria-label="Profile Menu">
+                            <img src="../photos/spotifyICON/lydbayot.jpg" alt="Profile Avatar">
+                        </button>
+                        <i class="fa-solid fa-lines-leaning lib-heading-icon"></i>
+                        <h1>Your Library</h1>
+                        <span class="lib-total-pill" id="homeLibTotalCount">19 items</span>
+                    </div>
+
+                    <div class="lib-actions-row">
+                        <a href="../song_pages/index.html" class="sp-mob-lib-icon-btn sp-mob-only-inline" id="mobileLibSongPagesBtn" title="Song Pages Directory" aria-label="Song Pages">
+                            <i class="fa-solid fa-folder-open"></i>
+                        </a>
+                        <button type="button" class="sp-mob-lib-icon-btn sp-mob-only-inline" id="mobileLibSearchToggleBtn" title="Search Your Library" aria-label="Search library">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                        </button>
+                        <button type="button" class="lib-create-playlist-btn" id="homeLibCreatePlaylistBtn">
+                            <i class="fa-solid fa-plus"></i> Create playlist
+                        </button>
+                        <button type="button" class="lib-create-album-btn" id="homeLibCreateAlbumBtn" hidden>
+                            <i class="fa-solid fa-plus"></i> Create album
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Spotify Library Filter Tabs -->
+                <div class="lib-category-tabs" id="homeLibTabs" role="tablist">
+                    <button class="lib-cat-pill active" data-tab="playlists" role="tab" aria-selected="true">Playlists</button>
+                    <button class="lib-cat-pill" data-tab="albums" role="tab" aria-selected="false">Albums</button>
+                    <button class="lib-cat-pill" data-tab="artists" role="tab" aria-selected="false">Artists</button>
+                    <button class="lib-cat-pill" data-tab="recents" role="tab" aria-selected="false">Recents</button>
+                </div>
+
+                <!-- Library Toolbar -->
+                <div class="lib-toolbar">
+                    <div class="lib-search-box">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                        <input type="search" id="homeLibFilterInput" placeholder="Search in Your Library..." aria-label="Search within library">
+                    </div>
+
+                    <div class="lib-toolbar-right">
+                        <div class="lib-sort-dropdown">
+                            <label for="homeLibSortSelect"><i class="fa-solid fa-arrow-down-short-wide"></i> Sort by:</label>
+                            <select id="homeLibSortSelect" class="lib-select">
+                                <option value="recents" selected>Recents</option>
+                                <option value="az">Title (A-Z)</option>
+                                <option value="creator">Creator</option>
+                            </select>
+                        </div>
+
+                        <div class="lib-view-toggles" role="group" aria-label="View layout">
+                            <button type="button" class="view-btn active" id="homeLibViewGridBtn" title="Grid View" aria-pressed="true">
+                                <i class="fa-solid fa-grip"></i>
+                            </button>
+                            <button type="button" class="view-btn" id="homeLibViewListBtn" title="List View" aria-pressed="false">
+                                <i class="fa-solid fa-list"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="lib-content-section" aria-label="Library collection items">
+                <div class="lib-items-grid" id="homeLibItemsContainer">
+                    <!-- Populated dynamically via Home.js -->
+                </div>
+            </section>
+        </div><!-- /#homeLibraryView -->
+    </main>
+
+
+        <!-- ================= RIGHT COLUMN: SPOTIFY NOW PLAYING VIEW (3-COLUMN VIEW) ================= -->
+        <aside class="artist-detail-panel sp-npv-panel" id="artistDetailPanel" aria-label="Now Playing View">
+            <!-- Spotify Collapsed Vertical Rail (shown when minimized) -->
+            <button type="button" class="sp-npv-minimized-rail" id="restoreArtistPanelBtn" title="Show Now Playing view" aria-label="Show Now Playing view">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+
+            <!-- Top Header Bar: [Panel Collapse Icon] Album/Context Title ... [...] [Expand] -->
+            <div class="sp-npv-canvas-stage" aria-hidden="true">
+                <video class="sp-npv-canvas-video" id="npvCanvasVideo" muted loop playsinline preload="metadata"></video>
+                <div class="sp-npv-canvas-fade"></div>
+            </div>
+            <div class="artist-panel-header sp-npv-header">
+                <button type="button" class="sp-npv-collapse-btn" id="minimizeArtistPanel" title="Hide Now Playing view" aria-label="Hide Now Playing view">
+                    <i class="fa-solid fa-table-columns"></i>
+                </button>
+                <button type="button" id="panelSongNameHeader" class="panel-song-name sp-npv-context-title" title="Go to Album">11:11 (Deluxe)</button>
+                <div class="artist-panel-header-actions sp-npv-header-actions">
+                    <div class="sp-npv-dots-wrap">
+                        <button type="button" class="sp-npv-icon-btn" id="npvMoreBtn" title="More options" aria-label="More options" aria-expanded="false">
+                            <i class="fa-solid fa-ellipsis"></i>
+                        </button>
+                        <div class="sp-npv-dots-menu" id="npvMoreMenu" hidden>
+                            <button type="button" id="npvMenuAddPlaylist"><i class="fa-solid fa-plus"></i> Add to playlist</button>
+                            <button type="button" id="npvMenuToggleFav"><i class="fa-regular fa-heart"></i> Save to your Liked Songs</button>
+                            <button type="button" id="npvMenuGoAlbum"><i class="fa-solid fa-compact-disc"></i> Go to album</button>
+                            <button type="button" id="npvMenuGoArtist"><i class="fa-solid fa-user-check"></i> Go to artist</button>
+                            <button type="button" id="npvMenuShowCredits"><i class="fa-solid fa-sliders"></i> View song credits</button>
+                            <button type="button" id="npvMenuShare"><i class="fa-solid fa-arrow-up-from-bracket"></i> Share track link</button>
+                        </div>
+                    </div>
+                    <button type="button" class="sp-npv-icon-btn" id="npvExpandBtn" title="Open dedicated full-screen song page" aria-label="Expand Now Playing view">
+                        <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="artist-panel-content sp-npv-scroll" id="artistPanelContent">
+                <!-- 1. Square Album Cover Art / Spotify Canvas Window -->
+                <div class="artist-hero-image-wrap sp-npv-cover-wrap" id="npvCoverWrap" title="Click to play/pause">
+                    <img src="../photos/ItDepends.jpg" alt="Album cover" id="artistCoverImg">
+                    <div class="artist-badge-tag" id="artistBadgeTag">Contemporary R&B / TrapSoul</div>
+                </div>
+
+                <!-- 2. Track Title + Artists + Share & Plus Action Icons -->
+                <div class="sp-npv-track-bar">
+                    <div class="artist-header-titles sp-npv-track-titles">
+                        <h2 id="artistTrackTitle">It Depends</h2>
+                        <h4 id="artistNameHeading">Chris Brown, Bryson Tiller</h4>
+                    </div>
+                    <div class="sp-npv-track-actions">
+                        <button type="button" class="sp-npv-action-icon" id="npvShareBtn" title="Copy Song Link" aria-label="Share song">
+                            <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                        </button>
+                        <button type="button" class="sp-npv-action-icon" id="npvAddLikedBtn" title="Add to Liked Songs or Playlist" aria-label="Save to Your Library">
+                            <i class="fa-solid fa-circle-plus" id="npvAddLikedIcon"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 2B. Spotify Phone & Tablet Full Now Playing Transport Controls -->
+                <div class="sp-npv-mobile-transport" id="npvMobileTransport" aria-label="Now Playing Controls">
+                    <div class="sp-npv-seek-row">
+                        <input type="range" id="npvSeekSlider" min="0" max="100" value="0" step="1" aria-label="Seek song position">
+                        <div class="sp-npv-time-labels">
+                            <span id="npvCurrentTime">0:00</span>
+                            <span id="npvDuration">0:00</span>
+                        </div>
+                    </div>
+                    <div class="sp-npv-transport-btns">
+                        <button type="button" class="sp-npv-ctrl-btn" id="npvShuffleBtn" title="Shuffle" aria-label="Toggle shuffle">
+                            <i class="fa-solid fa-shuffle"></i>
+                        </button>
+                        <button type="button" class="sp-npv-ctrl-btn" id="npvPrevBtn" title="Previous" aria-label="Previous song">
+                            <i class="fa-solid fa-backward-step"></i>
+                        </button>
+                        <button type="button" class="sp-npv-ctrl-btn sp-npv-play-main" id="npvPlayBtn" title="Play / Pause" aria-label="Play or pause">
+                            <i class="fa-solid fa-circle-play" id="npvPlayIcon"></i>
+                        </button>
+                        <button type="button" class="sp-npv-ctrl-btn" id="npvNextBtn" title="Next" aria-label="Next song">
+                            <i class="fa-solid fa-forward-step"></i>
+                        </button>
+                        <button type="button" class="sp-npv-ctrl-btn" id="npvRepeatBtn" title="Repeat" aria-label="Toggle repeat">
+                            <i class="fa-solid fa-repeat"></i>
+                        </button>
+                    </div>
+                    <div class="sp-npv-utility-row">
+                        <div class="sp-npv-vol-wrap">
+                            <button type="button" class="sp-npv-util-btn" id="npvMuteBtn" title="Mute / Unmute" aria-label="Mute volume">
+                                <i class="fa-solid fa-volume-high" id="npvMuteIcon"></i>
+                            </button>
+                            <input type="range" id="npvVolumeSlider" min="0" max="1" value="0.75" step="0.01" aria-label="Volume">
+                        </div>
+                        <div class="sp-npv-util-actions">
+                            <button type="button" class="sp-npv-util-btn" id="npvQuickQueueBtn" title="Open Queue" aria-label="Queue">
+                                <i class="fa-solid fa-bars-staggered"></i> <span>Queue</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden Legacy Play Button kept for DOM compatibility if referenced -->
+                <button type="button" class="artist-play-now-btn" id="artistPlayNowBtn" style="display:none;">
+                    <i class="fa-solid fa-play"></i> Play This Track
+                </button>
+
+                <!-- 3. Lyrics Preview Card (Live Synchronized Preview -> Opens Full Center Lyrics) -->
+                <div class="sp-npv-lyrics-card" id="npvLyricsCard" role="button" tabindex="0" title="Click to view full synchronized lyrics">
+                    <div class="sp-npv-lyrics-top">
+                        <span class="sp-npv-card-label">Lyrics preview</span>
+                        <button type="button" class="sp-npv-pill-btn" id="npvShowLyricsPreviewBtn">Show lyrics</button>
+                    </div>
+                    <div class="sp-npv-lyrics-lines" id="npvLyricsPreviewLines">
+                        <p class="npv-lyric-line active">You bad as hell, I treat you well, I will</p>
+                        <p class="npv-lyric-line">It's good, I can tell, come give me hell, come here</p>
+                        <p class="npv-lyric-line">Your fairytale, under your spell, I am</p>
+                    </div>
+                </div>
+
+                <!-- 4. About the Artist Card (Photo Banner with "About the artist" overlay + Verified + Monthly Listeners + Follow + Bio) -->
+                <div class="sp-npv-artist-card" id="npvArtistCard">
+                    <div class="sp-npv-artist-photo-wrap" id="npvArtistPhotoWrap" role="button" tabindex="0" title="Open Artist Profile">
+                        <img src="../PFPs/ChrisBrownz.jpg" alt="Artist photo" id="npvArtistPhoto">
+                        <span class="sp-npv-artist-photo-title">About the artist</span>
+                    </div>
+                    <div class="sp-npv-artist-body">
+                        <div class="sp-npv-artist-name-row">
+                            <button type="button" class="sp-npv-artist-name-btn" id="npvArtistNameBtn">
+                                <span id="npvArtistNameText">Chris Brown</span>
+                                <span class="sp-npv-verified-icon" title="Verified Artist" aria-label="Verified Artist">
+                                    <i class="fa-solid fa-certificate" aria-hidden="true"></i>
+                                    <i class="fa-solid fa-check" aria-hidden="true"></i>
+                                </span>
+                            </button>
+                        </div>
+                        <div class="sp-npv-artist-stats-row">
+                            <div class="sp-npv-listeners" id="npvArtistListeners">54,820,410 monthly listeners</div>
+                            <button type="button" class="sp-npv-follow-btn" id="npvArtistFollowBtn">Follow</button>
+                        </div>
+                        <p class="sp-npv-artist-bio" id="artistBioText">Loading artist background...</p>
+                        <p class="sp-npv-song-story" id="artistSongStoryText"></p>
+                    </div>
+                </div>
+
+                <!-- 5. Credits Card ("Credits" + "Show all" + Main Artist with Follow + Producer + Mastering Engineer) -->
+                <div class="sp-npv-card sp-npv-credits-card" id="npvCreditsCard">
+                    <div class="sp-npv-card-header">
+                        <h4>Credits</h4>
+                        <button type="button" class="sp-npv-link-btn" id="npvShowAllCreditsBtn">Show all</button>
+                    </div>
+                    <div class="sp-npv-credits-list" id="npvCreditsList">
+                        <!-- Populated dynamically by Home.js -->
+                    </div>
+                </div>
+
+                <!-- 6. Next in Queue Card ("Next in queue" + "Open queue" + Next Track Row) -->
+                <div class="sp-npv-card sp-npv-queue-card" id="npvQueueCard">
+                    <div class="sp-npv-card-header">
+                        <h4>Next in queue</h4>
+                        <button type="button" class="sp-npv-link-btn" id="npvOpenQueueBtn">Open queue</button>
+                    </div>
+                    <div class="sp-npv-next-item" id="npvNextQueueItem" role="button" tabindex="0" title="Click to play next track now">
+                        <!-- Populated dynamically by Home.js -->
+                    </div>
+                </div>
+
+                <!-- Hidden legacy elements kept for safety -->
+                <ul class="artist-notable-list" id="artistNotableList" style="display:none;"></ul>
+                <div class="artist-page-direct-link" style="display:none;">
+                    <a href="../song_pages/song1_it_depends/it_depends.html" id="artistDedicatedPageLink">View lyrics</a>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+
+    <!-- ================= PERSISTENT BOTTOM AUDIO PLAYER BAR ================= -->
+    <footer class="player-bar" aria-label="Music player">
+
+        <!-- Local audio playback -->
+        <audio id="audioPlayer" preload="metadata"></audio>
+
+        <!-- Currently Playing Song Info -->
+        <div class="now-bar">
+            <div class="now-playing-cover-wrap">
+                <img src="../photos/ItDepends.jpg" alt="Currently playing song cover" id="currentSongImage">
+            </div>
+
+            <div class="now-playing-info">
+                <p class="img-title-info" id="currentSongTitle">It Depends</p>
+                <p class="img-des-info" id="currentSongArtist">Chris Brown ft. Bryson Tiller</p>
+            </div>
+
+            <!-- Heart / Favorite Button on player bar -->
+            <button type="button" class="player-heart-btn" id="playerFavBtn" aria-label="Toggle favorite"
+                title="Add to Favorites">
+                <i class="fa-regular fa-heart"></i>
+            </button>
+
+            <!-- Live Animated Music Visualizer Bars -->
+            <div class="music-visualizer" id="musicVisualizer" aria-hidden="true" title="Audio Visualizer">
+                <span class="bar bar-1"></span>
+                <span class="bar bar-2"></span>
+                <span class="bar bar-3"></span>
+                <span class="bar bar-4"></span>
+            </div>
+        </div>
+
+
+        <!-- Center Player Controls -->
+        <div class="music-controller">
+            <div class="player">
+                <!-- Shuffle -->
+                <button type="button" id="shuffle" class="player-control" aria-label="Toggle shuffle"
+                    aria-pressed="false" title="Shuffle">
+                    <i class="player-btns fa-solid fa-shuffle" aria-hidden="true"></i>
+                </button>
+
+                <!-- Previous -->
+                <button type="button" id="backward" class="player-control" aria-label="Previous song" title="Previous">
+                    <i class="player-btns fa-solid fa-backward-step" aria-hidden="true"></i>
+                </button>
+
+                <!-- Play / Pause -->
+                <button type="button" id="play" class="player-control play-btn-main" aria-label="Play music"
+                    title="Play">
+                    <i class="player-btns fa-solid fa-circle-play" aria-hidden="true"></i>
+                </button>
+
+                <!-- Next -->
+                <button type="button" id="forward" class="player-control" aria-label="Next song" title="Next">
+                    <i class="player-btns fa-solid fa-forward-step" aria-hidden="true"></i>
+                </button>
+
+                <!-- Repeat -->
+                <button type="button" id="repeat" class="player-control" aria-label="Repeat mode" aria-pressed="false"
+                    title="Repeat off">
+                    <i class="player-btns fa-solid fa-repeat" aria-hidden="true"></i>
+                </button>
+            </div>
+
+            <!-- Song Progress Slider with Elapsed & Remaining Time -->
+            <div class="progress-container">
+                <span id="currentTime">0:00</span>
+                <input type="range" id="progressBar" min="0" max="100" value="0" step="1" aria-label="Song progress">
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+
+
+        <!-- Additional Player Controls -->
+        <div class="player-extra">
+            <!-- Play Queue -->
+            <button type="button" id="queueButton" class="lyrics-toggle queue-toggle-btn" aria-label="Open Play Queue"
+                title="Queue">
+                <i class="fa-solid fa-bars-staggered" aria-hidden="true"></i>
+            </button>
+
+            <!-- Volume Control with Mute Toggle -->
+            <div class="volume-container">
+                <button type="button" id="muteButton" aria-label="Mute volume" aria-pressed="false" title="Mute">
+                    <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                </button>
+                <input type="range" id="volumeBar" min="0" max="1" value="0.75" step="0.01" aria-label="Volume">
+            </div>
+
+            <!-- Fullscreen Lyrics Toggle -->
+            <button type="button" id="playerLyricsFullscreenBtn" class="lyrics-toggle fullscreen-lyrics-btn"
+                aria-label="Fullscreen lyrics" aria-pressed="false" title="Fullscreen lyrics">
+                <i class="fa-solid fa-expand" aria-hidden="true"></i>
+            </button>
+        </div>
+
+    </footer>
+
+
+    <!-- ================= TASK BAR MODALS ================= -->
+
+    <!-- 1. Account Modal -->
+    <div class="cyber-modal-overlay" id="modalAccount" role="dialog" aria-modal="true"
+        aria-labelledby="accountModalTitle" hidden>
+        <div class="cyber-modal">
+            <header class="cyber-modal-header">
+                <h3 id="accountModalTitle"><i class="fa-solid fa-circle-user"></i> Account Overview</h3>
+                <button type="button" class="modal-close" data-close="modalAccount"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div class="cyber-modal-body">
+                <div class="modal-user-card">
+                    <img src="../photos/spotifyICON/lydbayot.jpg" alt="Profile Avatar" class="modal-user-avatar">
+                    <div>
+                        <h4>JSON.TTUM</h4>
+                        <p class="modal-user-email">json.ttum@spotifake.io</p>
+                        <span class="modal-badge"><i class="fa-solid fa-shield-halved"></i> Premium Cyber Plan</span>
+                    </div>
+                </div>
+                <div class="modal-info-list">
+                    <div class="info-row"><span>Subscription</span><strong>Active • Renews Nov 2027</strong></div>
+                    <div class="info-row"><span>Audio Quality</span><strong>Lossless Cyber 320kbps</strong></div>
+                    <div class="info-row"><span>Academic Course</span><strong>BSIT Extension Web Project</strong></div>
+                    <div class="info-row"><span>Device</span><strong>Web App Client</strong></div>
+                </div>
+            </div>
+            <footer class="cyber-modal-footer">
+                <button type="button" class="modal-btn-primary" data-close="modalAccount">Done</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 2. Profile Modal -->
+    <div class="cyber-modal-overlay" id="modalProfile" role="dialog" aria-modal="true"
+        aria-labelledby="profileModalTitle" hidden>
+        <div class="cyber-modal">
+            <header class="cyber-modal-header">
+                <h3 id="profileModalTitle"><i class="fa-solid fa-id-card"></i> User Profile</h3>
+                <button type="button" class="modal-close" data-close="modalProfile"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div class="cyber-modal-body">
+                <div class="modal-profile-header">
+                    <img src="../photos/spotifyICON/lydbayot.jpg" alt="User Avatar" class="profile-big-avatar">
+                    <h2>JSON.TTUM</h2>
+                    <p class="profile-tagline">"Music hits harder in Deep Cyber Black & Neon Yellow."</p>
+                </div>
+                <div class="profile-stats-grid">
+                    <div class="stat-box">
+                        <span class="stat-num" id="statFavoritesCount">0</span>
+                        <span class="stat-label">Favorites</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-num">10</span>
+                        <span class="stat-label">Collection Songs</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-num" id="statPlaysCount">0</span>
+                        <span class="stat-label">Tracks Played</span>
+                    </div>
+                </div>
+                <div class="favorite-genres">
+                    <h5>Top Genres</h5>
+                    <div class="genre-tags">
+                        <span class="gtag">Contemporary R&B</span>
+                        <span class="gtag">TrapSoul</span>
+                        <span class="gtag">Synth Funk</span>
+                        <span class="gtag">Classic 2000s R&B</span>
+                    </div>
+                </div>
+            </div>
+            <footer class="cyber-modal-footer">
+                <button type="button" class="modal-btn-primary" data-close="modalProfile">Close</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 3. Recents Modal -->
+    <div class="cyber-modal-overlay" id="modalRecents" role="dialog" aria-modal="true"
+        aria-labelledby="recentsModalTitle" hidden>
+        <div class="cyber-modal">
+            <header class="cyber-modal-header">
+                <h3 id="recentsModalTitle"><i class="fa-solid fa-clock-rotate-left"></i> Recently Played Songs</h3>
+                <button type="button" class="modal-close" data-close="modalRecents"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div class="cyber-modal-body">
+                <p class="modal-sub">Click any track below to instantly replay it.</p>
+                <ul class="recents-list" id="recentsListContainer">
+                    <li class="empty-recents">No songs played yet. Start playing a track!</li>
+                </ul>
+            </div>
+            <footer class="cyber-modal-footer">
+                <button type="button" class="modal-btn-secondary" id="clearRecentsBtn">Clear History</button>
+                <button type="button" class="modal-btn-primary" data-close="modalRecents">Close</button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- 4. Settings Modal -->
+    <div class="cyber-modal-overlay" id="modalSettings" role="dialog" aria-modal="true"
+        aria-labelledby="settingsModalTitle" hidden>
+        <div class="cyber-modal">
+            <header class="cyber-modal-header">
+                <h3 id="settingsModalTitle"><i class="fa-solid fa-gear"></i> App Settings</h3>
+                <button type="button" class="modal-close" data-close="modalSettings"><i
+                        class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div class="cyber-modal-body">
+
+                <!-- Appearance Mode Switcher -->
+                <div class="setting-item setting-item-appearance">
+                    <div class="appearance-header-row">
+                        <div>
+                            <strong>Appearance Mode</strong>
+                            <p id="settingAppearanceStatus">Classic Spotifake Cyber Dark canvas</p>
+                        </div>
+                    </div>
+                    <div class="appearance-mode-grid" role="group" aria-label="Appearance Mode">
+                        <button type="button" class="appearance-mode-btn" data-appearance-option="light" aria-pressed="false">
+                            <span class="mode-preview-swatch swatch-light"><i class="fa-solid fa-sun"></i></span>
+                            <span>Light</span>
+                        </button>
+                        <button type="button" class="appearance-mode-btn is-active" data-appearance-option="dark" aria-pressed="true">
+                            <span class="mode-preview-swatch swatch-dark"><i class="fa-solid fa-moon"></i></span>
+                            <span>Dark</span>
+                        </button>
+                        <button type="button" class="appearance-mode-btn" data-appearance-option="system" aria-pressed="false">
+                            <span class="mode-preview-swatch swatch-system"><i class="fa-solid fa-circle-half-stroke"></i></span>
+                            <span>System</span>
+                        </button>
+                        <button type="button" class="appearance-mode-btn" data-appearance-option="pure-black" aria-pressed="false">
+                            <span class="mode-preview-swatch swatch-pure-black"><i class="fa-solid fa-star"></i></span>
+                            <span>Pure Black</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Theme Switcher -->
+                <div class="setting-item">
+                    <div>
+                        <strong>Color Theme</strong>
+                        <p>Switch the app color palette live</p>
+                    </div>
+                    <select class="setting-select" id="settingTheme">
+                        <option value="cyber" selected>&#9889; Cyber Yellow &amp; Magenta</option>
+                        <option value="emerald">&#127925; Classic Spotify Emerald</option>
+                        <option value="cyberpunk">&#128156; Cyberpunk Violet</option>
+                        <option value="crimson">&#128308; Blood Moon Crimson</option>
+                        <option value="electric-blue">&#128309; Midnight Electric Blue</option>
+                    </select>
+                </div>
+
+                <!-- Custom Cursor Toggle -->
+                <div class="setting-item">
+                    <div>
+                        <strong>Custom Cyber Cursor</strong>
+                        <p>Enable interactive neon ring &amp; cursor dot follower</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="settingCursorToggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <!-- Hide Home Hero Banner on Phones Only -->
+                <div class="setting-item">
+                    <div>
+                        <strong>Hide Welcome Banner (Phones Only)</strong>
+                        <p>Remove the Home welcome banner &amp; shuffling deck on mobile</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="settingHideMobileHeroToggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <!-- Volume Normalization -->
+                <div class="setting-item">
+                    <div>
+                        <strong>Volume Normalization</strong>
+                        <p>Keep consistent volume across all tracks</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="settingNormalizeToggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+
+                <!-- Audio Crossfade -->
+                <div class="setting-item">
+                    <div>
+                        <strong>Audio Crossfade</strong>
+                        <p>Smooth transition between playback tracks</p>
+                    </div>
+                    <select class="setting-select" id="settingCrossfade">
+                        <option value="0">Off</option>
+                        <option value="2">2 seconds</option>
+                        <option value="4" selected>4 seconds</option>
+                        <option value="6">6 seconds</option>
+                        <option value="8">8 seconds</option>
+                    </select>
+                </div>
+
+                <!-- Current Theme Swatches -->
+                <div class="setting-item theme-preview-row" id="themePreviewRow">
+                    <div>
+                        <strong>Active Theme</strong>
+                        <p id="themePreviewName">&#9889; Cyber Yellow &amp; Magenta</p>
+                    </div>
+                    <div class="theme-swatch-row" id="themeSwatchRow">
+                        <span class="swatch" style="background:#09090E;" title="Base"></span>
+                        <span class="swatch" style="background:#FFEA00;" title="Primary"></span>
+                        <span class="swatch" style="background:#FF007F;" title="Accent"></span>
+                    </div>
+                </div>
+            </div>
+            <footer class="cyber-modal-footer">
+                <button type="button" class="modal-btn-primary" data-close="modalSettings">Save &amp; Close</button>
+            </footer>
+        </div>
+    </div>
+
+
+    <!-- ================= SPOTIFY-STYLE CREATE PLAYLIST BOTTOM SHEET (< 768px) ================= -->
+    <div class="sp-create-sheet-backdrop" id="mobileCreateBackdrop" hidden></div>
+    <section class="sp-create-sheet" id="mobileCreateSheet" role="dialog" aria-modal="true" aria-label="Playlist actions" hidden>
+        <div class="sp-create-sheet-handle" aria-hidden="true"></div>
+        <button type="button" class="sp-create-sheet-item" id="sheetCreatePlaylistAction">
+            <span class="sp-create-icon"><i class="fa-solid fa-music"></i></span>
+            <span class="sp-create-text">
+                <strong>Playlist</strong>
+                <small>Create a playlist with songs &amp; custom cover</small>
+            </span>
+        </button>
+        <button type="button" class="sp-create-sheet-item" id="sheetAddCurrentSongAction">
+            <span class="sp-create-icon"><i class="fa-solid fa-circle-plus"></i></span>
+            <span class="sp-create-text">
+                <strong>Add current song to playlist</strong>
+                <small>Save the active track to any custom playlist</small>
+            </span>
+        </button>
+        <button type="button" class="sp-create-sheet-item" id="sheetOpenLikedAction">
+            <span class="sp-create-icon"><i class="fa-solid fa-heart"></i></span>
+            <span class="sp-create-text">
+                <strong>Liked Songs</strong>
+                <small>Open and play your favorited playlist tracks</small>
+            </span>
+        </button>
+        <button type="button" class="sp-create-sheet-item" id="sheetManagePlaylistsAction">
+            <span class="sp-create-icon"><i class="fa-solid fa-list-check"></i></span>
+            <span class="sp-create-text">
+                <strong>Manage playlists</strong>
+                <small>Edit covers, rename, or add &amp; remove tracks</small>
+            </span>
+        </button>
+    </section>
+
+    <!-- ================= MOBILE BOTTOM NAVIGATION (< 768px) ================= -->
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+        <a href="home.html" class="mobile-nav-item active" id="mobileHomeBtn" aria-label="Home">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <button type="button" class="mobile-nav-item" id="mobileSearchBtn" aria-label="Search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Search</span>
+        </button>
+        <a href="library.html" class="mobile-nav-item" id="mobileLibraryBtn" aria-label="Your Library">
+            <i class="fa-solid fa-lines-leaning"></i>
+            <span>Your Library</span>
+        </a>
+        <button type="button" class="mobile-nav-item" id="mobileFavBtn" aria-label="Liked Songs">
+            <i class="fa-solid fa-heart"></i>
+            <span>Liked</span>
+        </button>
+        <button type="button" class="mobile-nav-item mobile-create-nav-btn" id="mobileCreateBtn" aria-label="Create Playlist" aria-expanded="false">
+            <span class="sp-nav-create-badge"><i class="fa-solid fa-plus" id="mobileCreateIcon"></i></span>
+            <span id="mobileCreateLabel">Create</span>
+        </button>
+    </nav>
+
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script src="../scripts/lyricsData.js"></script>
+    <script src="../song_pages/song1_it_depends/lyricsData.js"></script>
+    <script src="../song_pages/song2_with_you/lyricsData.js"></script>
+    <script src="../song_pages/song3_shoulda_never/lyricsData.js"></script>
+    <script src="../song_pages/song4_because_of_you/lyricsData.js"></script>
+    <script src="../song_pages/song5_miss_independent/lyricsData.js"></script>
+    <script src="../song_pages/song6_sexy_love/lyricsData.js"></script>
+    <script src="../song_pages/song7_so_sick/lyricsData.js"></script>
+    <script src="../song_pages/song8_love_me_not/lyricsData.js"></script>
+    <script src="../song_pages/song9_timeless/lyricsData.js"></script>
+    <script src="../song_pages/song10_million_dollar_baby/lyricsData.js"></script>
+    <script src="../scripts/playlistManager.js"></script>
+    <script src="../scripts/albumManager.js"></script>
+    <script src="../scripts/queueManager.js"></script>
+    <script src="../scripts/Home.js"></script>
+
+    <!-- Create Album Modal -->
+    <div class="modal-backdrop" id="createAlbumModal">
+      <div class="modal" style="max-width:440px;">
+        <h3><i class="fa-solid fa-compact-disc"></i> Create Album</h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Set album details, cover art, and choose tracks to include.</p>
+        <input type="text" id="albName" placeholder="Album title" required />
+        <div class="alb-modal-row">
+          <input type="text" id="albArtist" placeholder="Artist name" />
+          <input type="number" id="albYear" placeholder="Year" min="1950" max="2099" />
+        </div>
+        <label style="display:block;font-size:12px;color:#aaa;margin-bottom:4px;text-align:left;"><i class="fa-solid fa-image"></i> Album Cover Art:</label>
+        <input type="file" id="albImg" accept="image/*" />
+        <label style="display:block;font-size:12px;color:#aaa;margin-bottom:6px;text-align:left;"><i class="fa-solid fa-music"></i> Select Tracks:</label>
+        <div id="albTrackCheckboxes" class="alb-track-pick-list"></div>
+        <div class="modal-actions">
+          <button id="albCreateBtn" class="modal-btn-save">Create Album</button>
+          <button id="albCancelBtn" class="modal-btn-cancel">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Create Playlist Modal -->
+    <div class="modal-backdrop" id="createPlaylistModal">
+      <div class="modal">
+        <h3><i class="fa-solid fa-plus"></i> Create Playlist</h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Set up your custom playlist name, bio description, and profile picture.</p>
+        <input type="text" id="plName" placeholder="Playlist name" required />
+        <textarea id="plDesc" placeholder="Description / Bio (e.g. Late night cyber vibes)"></textarea>
+        <label style="display:block;font-size:12px;color:#aaa;margin-bottom:4px;text-align:left;"><i class="fa-solid fa-image"></i> Playlist Profile Picture:</label>
+        <input type="file" id="plImg" accept="image/*" />
+        <div class="modal-actions">
+          <button id="plCreateBtn">Create</button>
+          <button id="plCancelBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Playlist Profile Modal -->
+    <div class="modal-backdrop" id="editPlaylistModal">
+      <div class="modal">
+        <h3><i class="fa-solid fa-pen-to-square"></i> Edit Playlist Profile</h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Update playlist title, bio text, or upload a new profile picture.</p>
+        <input type="text" id="editPlName" placeholder="Playlist name" required />
+        <textarea id="editPlDesc" placeholder="Description / Bio text"></textarea>
+        <label style="display:block;font-size:12px;color:#aaa;margin-bottom:4px;text-align:left;"><i class="fa-solid fa-image"></i> Change Profile Picture:</label>
+        <input type="file" id="editPlImg" accept="image/*" />
+        <div class="modal-actions">
+          <button id="editPlSaveBtn">Save Changes</button>
+          <button id="editPlCancelBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-backdrop" id="deleteConfirmModal">
+      <div class="modal">
+        <h3><i class="fa-solid fa-triangle-exclamation"></i> Delete Playlist</h3>
+        <p>Are you sure you want to delete this playlist? This action cannot be undone.</p>
+        <div class="modal-actions">
+          <button id="delConfirmBtn">Delete</button>
+          <button id="delCancelBtn">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add Songs to Playlist Modal -->
+    <div class="modal-backdrop" id="addSongsModal">
+      <div class="modal" style="max-width:440px;">
+        <h3><i class="fa-solid fa-music"></i> Manage Songs</h3>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:10px;">Select songs to add or remove from <strong id="addSongsPlTitle" style="color:var(--neon-yellow);">Playlist</strong></p>
+        <div id="addSongsList" style="max-height:280px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:4px;">
+          <!-- Populated dynamically via Home.js -->
+        </div>
+        <div class="modal-actions" style="margin-top:14px;">
+          <button id="addSongsCloseBtn">Done</button>
+        </div>
+      </div>
+    </div>
+</body>
+
+</html>

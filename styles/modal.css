@@ -1,0 +1,250 @@
+/* ========================================================
+    Modal / Confirm Dialog Styles — Spotifake Cyber Theme
+   ======================================================== */
+
+/* Shared Backdrop */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(4px);
+}
+
+/* Shared Modal Card */
+.modal-backdrop>.modal {
+    background: #0d0d14;
+    border: 2px solid var(--loud-magenta, #FF007F);
+    border-radius: 14px;
+    padding: 1.8rem;
+    max-width: 360px;
+    width: 92%;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    box-shadow: 0 0 30px rgba(255, 0, 127, 0.2);
+    animation: modalSlideIn 0.25s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal h3 {
+    margin: 0 0 1rem 0;
+    color: var(--neon-yellow, #FFEA00);
+    font-size: 1.15rem;
+    font-weight: 900;
+}
+
+.modal p {
+    color: #bbb;
+    font-size: 0.9rem;
+    margin: 0 0 0.8rem 0;
+}
+
+/* Inputs inside modals */
+.modal input[type="text"],
+.modal textarea {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1.5px solid #333;
+    border-radius: 8px;
+    background: #151520;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.modal input[type="text"]:focus,
+.modal textarea:focus {
+    border-color: var(--loud-magenta, #FF007F);
+}
+
+.modal textarea {
+    min-height: 60px;
+    resize: vertical;
+}
+
+.modal input[type="file"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 8px;
+    margin-bottom: 10px;
+    color: #999;
+    font-size: 0.85rem;
+}
+
+/* Action Buttons Row */
+.modal .modal-actions {
+    margin-top: 1.2rem;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.modal button {
+    border: none;
+    padding: 0.5rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.85rem;
+    font-family: 'Montserrat', sans-serif;
+    transition: all 0.2s;
+}
+
+/* Primary action (Create / Delete) */
+.modal #plCreateBtn,
+.modal #delConfirmBtn,
+.modal .modal-btn-save {
+    background: var(--loud-magenta, #FF007F);
+    color: #fff;
+}
+
+.modal #plCreateBtn:hover,
+.modal .modal-btn-save:hover {
+    background: #e60072;
+    transform: scale(1.03);
+}
+
+.modal #delConfirmBtn {
+    background: #e53e3e;
+    color: #fff;
+}
+
+.modal #delConfirmBtn:hover {
+    background: #c53030;
+}
+
+/* Cancel / secondary */
+.modal #plCancelBtn,
+.modal #delCancelBtn,
+.modal .modal-btn-cancel {
+    background: #282834;
+    color: #ccc;
+}
+
+.modal #plCancelBtn:hover,
+.modal #delCancelBtn:hover,
+.modal .modal-btn-cancel:hover {
+    background: #3a3a4a;
+}
+
+/* ========================================
+    Create Album Modal Extras
+   ======================================== */
+.modal input[type="number"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    border: 1.5px solid #333;
+    border-radius: 8px;
+    background: #151520;
+    color: #fff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.9rem;
+    margin-bottom: 10px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.modal input[type="number"]:focus {
+    border-color: var(--loud-magenta, #FF007F);
+}
+
+.alb-modal-row {
+    display: grid;
+    grid-template-columns: 1fr 110px;
+    gap: 10px;
+}
+
+.alb-track-pick-list {
+    max-height: 175px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.025);
+}
+
+.alb-track-pick-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.16s ease;
+    text-align: left;
+}
+
+.alb-track-pick-row:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.alb-track-pick-row input[type="checkbox"] {
+    accent-color: var(--loud-magenta, #FF007F);
+    width: 15px;
+    height: 15px;
+    flex-shrink: 0;
+}
+
+.alb-track-pick-row img {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+.alb-track-pick-meta {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.alb-track-pick-meta strong {
+    font-size: 12.5px;
+    color: var(--text-primary, #fff);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.alb-track-pick-meta small {
+    font-size: 11px;
+    color: var(--text-muted, #94a3b8);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ========================================
+    Library-Specific Delete Confirmation
+   ======================================== */
+#deleteConfirmModal>.modal {
+    border-color: #e53e3e;
+    box-shadow: 0 0 30px rgba(229, 62, 62, 0.25);
+}
+
+#deleteConfirmModal .modal h3 {
+    color: #e53e3e;
+}

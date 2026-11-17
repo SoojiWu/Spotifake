@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Spotifake | Cyber Dark Login with authentic authentication flow and audio engine initialization.">
+    <meta name="theme-color" content="#09090E">
+
+    <title>Spotifake | Cyber Login</title>
+    <link rel="icon" type="image/svg+xml" href="photos/spotifyICON/spotifake-favicon.svg">
+    <link rel="shortcut icon" href="photos/spotifyICON/spotifake-favicon.svg">
+
+    <!-- Font Awesome 6.5+ -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- Google Fonts: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="styles/DesignFake.css">
+    <script src="scripts/appearance.js"></script>
+    <script src="scripts/LoginMAIN.js" defer></script>
+</head>
+
+<body>
+    <main class="login-page">
+        <section class="login-container" aria-label="Spotifake login card">
+
+            <!-- Academic Extension Project Badge -->
+            <div class="project-top-tag">
+                <span class="tag-pulse-dot" aria-hidden="true"></span>
+                <i class="fa-solid fa-graduation-cap"></i>
+                <span>BSIT-1B</span>
+            </div>
+
+            <!-- Circular Personal Logo with Vinyl Orbit Halo -->
+            <div class="avatar-stage">
+                <div class="avatar-orbit-ring" aria-hidden="true"></div>
+                <div class="avatar-orbit-ring ring-inner" aria-hidden="true"></div>
+                <div class="logo-circle" title="JSON.TTUM Spotifake Avatar">
+                    <img src="photos/spotifyICON/lydbayot.jpg" alt="Spotifake VIP Avatar">
+                </div>
+            </div>
+
+            <!-- Welcome Header -->
+            <header class="welcome-header">
+                <h1>
+                    WELKAM BAK<br>
+                    <span>JSON.TTUM</span>
+                </h1>
+                <p>Your cyber R&amp;B and Neo-Soul sanctuary is ready.</p>
+                <div class="header-wave-divider" aria-hidden="true">
+                    <span class="hw-line"></span>
+                    <div class="hw-bars">
+                        <span></span><span></span><span></span><span></span><span></span>
+                    </div>
+                    <span class="hw-line"></span>
+                </div>
+            </header>
+
+            <!-- Login Form -->
+            <form id="login-form" class="login-form" novalidate>
+
+                <div class="form-group">
+                    <label for="email"><i class="fa-solid fa-envelope"></i> Email Address</label>
+                    <div class="input-shell">
+                        <input id="email" name="email" type="email" placeholder="json.ttum@gmail.com"
+                            autocomplete="username" value="json.ttum@gmail.com" required>
+                        <span class="input-energy-rail" aria-hidden="true"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="password"><i class="fa-solid fa-lock"></i> Password</label>
+                    <div class="input-shell has-toggle">
+                        <input id="password" name="password" type="password" placeholder="••••••••••••"
+                            autocomplete="current-password" value="cybervip2025" required>
+                        <button type="button" id="togglePasswordBtn" class="pw-peek-btn"
+                            aria-label="Show password" aria-pressed="false" title="Show password">
+                            <i class="fa-regular fa-eye" aria-hidden="true"></i>
+                        </button>
+                        <span class="input-energy-rail" aria-hidden="true"></span>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-label" for="remember-me">
+                        <input id="remember-me" name="remember-me" type="checkbox" checked>
+                        <span>Remember me</span>
+                    </label>
+                    <span class="guest-hint"><i class="fa-solid fa-bolt"></i> Quick Login Ready</span>
+                </div>
+
+                <!-- Neon Yellow & Magenta Login Button -->
+                <button id="enter" class="login-button" type="submit" aria-label="Log in to Spotifake">
+                    <span>Log in to Spotifake</span>
+                    <span class="button-arrow" aria-hidden="true"><i class="fa-solid fa-arrow-right"></i></span>
+                </button>
+
+                <p id="login-message" class="login-message" role="status" aria-live="polite"></p>
+            </form>
+
+        </section>
+    </main>
+
+    <!-- ================= UNIQUE CYBER LOADING SCREEN OVERLAY ================= -->
+    <div class="cyber-login-loader" id="loginLoader" role="status" aria-live="polite" hidden>
+        <div class="loader-backdrop"></div>
+        <div class="loader-content">
+            <!-- Pulsing Cyber Equalizer Spectrum -->
+            <div class="cyber-spectrum" aria-hidden="true">
+                <span class="cbar cbar-1"></span>
+                <span class="cbar cbar-2"></span>
+                <span class="cbar cbar-3"></span>
+                <span class="cbar cbar-4"></span>
+                <span class="cbar cbar-5"></span>
+                <span class="cbar cbar-6"></span>
+                <span class="cbar cbar-7"></span>
+                <span class="cbar cbar-8"></span>
+            </div>
+
+            <!-- Glowing Cyber Ring -->
+            <div class="cyber-ring-wrap" aria-hidden="true">
+                <div class="cyber-ring"></div>
+                <i class="fa-brands fa-spotify cyber-ring-icon"></i>
+            </div>
+
+            <!-- HUD Text & Status -->
+            <div class="loader-text-group">
+                <h3 class="loader-title">AUTHENTICATING VIP SESSION</h3>
+                <p class="loader-status" id="loaderStatus">Initializing Spotifake cyber audio engine...</p>
+            </div>
+
+            <!-- Neon Progress Bar -->
+            <div class="loader-progress-track">
+                <div class="loader-progress-fill" id="loaderFill"></div>
+            </div>
+
+            <div class="loader-pct" id="loaderPct">0%</div>
+        </div>
+    </div>
+    <!-- ================= CYBER AUDIO STAGE BACKGROUND ================= -->
+    <div class="cyber-bg-stage" aria-hidden="true">
+        <!-- 0. Interactive Ambient Particle Field Canvas -->
+        <canvas id="loginFxCanvas" class="bg-fx-canvas"></canvas>
+
+        <!-- 1. Drifting Aurora Nebulas & Interactive Cursor Spotlight -->
+        <div class="bg-aurora-layer">
+            <div class="aurora-orb orb-1"></div>
+            <div class="aurora-orb orb-2"></div>
+            <div class="aurora-orb orb-3"></div>
+            <div class="bg-cursor-glow"></div>
+        </div>
+
+        <!-- 2. Diagonal Sweeping Cyber Laser Spotlights -->
+        <div class="bg-laser-beams">
+            <span class="laser-beam beam-left"></span>
+            <span class="laser-beam beam-right"></span>
+            <span class="laser-beam beam-center"></span>
+        </div>
+
+        <!-- 3. Concentric Pulsing Soundwave & Orbital Vinyl Rings Behind Card -->
+        <div class="bg-sound-rings">
+            <span class="sound-ring ring-1"></span>
+            <span class="sound-ring ring-2"></span>
+            <span class="sound-ring ring-3"></span>
+            <span class="sound-ring ring-pulse"></span>
+        </div>
+
+        <!-- 4. 3D Perspective Synthwave Floor Grid & Neon Horizon -->
+        <div class="bg-horizon-beam"></div>
+        <div class="bg-grid-floor">
+            <div class="bg-grid-plane"></div>
+        </div>
+
+        <!-- 5. Twinkling Synth Star-Dust Particles -->
+        <div class="bg-star-dust">
+            <span class="star-s s1"></span>
+            <span class="star-s s2"></span>
+            <span class="star-s s3"></span>
+            <span class="star-s s4"></span>
+            <span class="star-s s5"></span>
+            <span class="star-s s6"></span>
+            <span class="star-s s7"></span>
+            <span class="star-s s8"></span>
+            <span class="star-s s9"></span>
+            <span class="star-s s10"></span>
+            <span class="star-s s11"></span>
+            <span class="star-s s12"></span>
+        </div>
+
+        <!-- 6. Subtle Cyber Scanlines & Edge HUD Accents -->
+        <div class="bg-scanlines"></div>
+        <div class="bg-hud-corners">
+            <span class="hud-corner tl"></span>
+            <span class="hud-corner tr"></span>
+            <span class="hud-corner bl"></span>
+            <span class="hud-corner br"></span>
+        </div>
+
+        <!-- 7. Floating Music & Audio Badges (Positioned above the music bar area) -->
+        <div class="floating-particle p1"><i class="fa-solid fa-music"></i></div>
+        <div class="floating-particle p2"><i class="fa-solid fa-headphones"></i></div>
+        <div class="floating-particle p3"><i class="fa-solid fa-compact-disc"></i></div>
+        <div class="floating-particle p4"><i class="fa-solid fa-sliders"></i></div>
+        <div class="floating-particle p5"><i class="fa-solid fa-bolt"></i></div>
+        <div class="floating-particle p6"><i class="fa-solid fa-music"></i></div>
+
+        <!-- 8. Neon Equalizer Floor Reflection + Bouncing Music Bars -->
+        <div class="bg-eq-ambient-floor"></div>
+        <div class="bg-full-eq">
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+            <span class="eq-b"></span><span class="eq-b"></span><span class="eq-b"></span><span
+                class="eq-b"></span><span class="eq-b"></span>
+        </div>
+    </div>
+</body>
+
+</html>

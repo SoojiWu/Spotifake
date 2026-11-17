@@ -1,0 +1,701 @@
+/* ==========================================================
+   Spotifake | Appearance Mode Stylesheet
+   Modes: Light, Dark (default), System (resolved), Pure Black
+   ========================================================== */
+
+/* Smooth theme transition on root surfaces */
+html,
+body,
+.top-bar,
+.left-sidebar,
+.main-content,
+.right-artist-panel,
+.player-bar,
+.cyber-modal,
+.mobile-bottom-nav {
+    transition: background-color 0.22s ease, color 0.22s ease, border-color 0.22s ease;
+}
+
+/* ==========================================================
+   1. SETTINGS UI: APPEARANCE MODE PICKER
+   ========================================================== */
+.setting-item-appearance {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+}
+
+.appearance-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+}
+
+.appearance-mode-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+    width: 100%;
+}
+
+.appearance-mode-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 10px 6px;
+    border-radius: 12px;
+    background: var(--canvas-card);
+    border: 1.5px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform var(--trans-fast), border-color var(--trans-fast), background-color var(--trans-fast), color var(--trans-fast), box-shadow var(--trans-fast);
+}
+
+.appearance-mode-btn:hover {
+    transform: translateY(-2px);
+    border-color: var(--border-yellow);
+    color: var(--text-primary);
+}
+
+.appearance-mode-btn.is-active {
+    border-color: var(--neon-yellow);
+    background: rgba(255, 234, 0, 0.12);
+    color: var(--text-primary);
+    box-shadow: 0 0 14px var(--neon-yellow-glow);
+}
+
+.mode-preview-swatch {
+    width: 34px;
+    height: 22px;
+    border-radius: 6px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+}
+
+.mode-preview-swatch.swatch-light {
+    background: linear-gradient(135deg, #ffffff 0%, #e4e9f5 100%);
+    color: #d97706;
+    border-color: rgba(15, 23, 42, 0.18);
+}
+
+.mode-preview-swatch.swatch-dark {
+    background: linear-gradient(135deg, #171722 0%, #09090e 100%);
+    color: #ffea00;
+}
+
+.mode-preview-swatch.swatch-system {
+    background: linear-gradient(135deg, #f3f5fa 50%, #09090e 50%);
+    color: var(--loud-magenta);
+    text-shadow: 0 0 6px rgba(0, 0, 0, 0.45);
+}
+
+.mode-preview-swatch.swatch-pure-black {
+    background: #000000;
+    color: #ff007f;
+    border-color: rgba(255, 0, 127, 0.45);
+}
+
+@media (max-width: 520px) {
+    .appearance-mode-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+/* ==========================================================
+   2. PURE BLACK MODE (TRUE #000000 OLED)
+   ========================================================== */
+html[data-appearance="pure-black"] {
+    --base-canvas: #000000;
+    --canvas-card: #040406;
+    --canvas-surface: #0a0a0d;
+    --canvas-surface-hover: #141418;
+    --border-subtle: rgba(255, 255, 255, 0.12);
+}
+
+html[data-appearance="pure-black"] body,
+html[data-appearance="pure-black"] .library-page-main,
+html[data-appearance="pure-black"] .playlist-page-main,
+html[data-appearance="pure-black"] .left-sidebar,
+html[data-appearance="pure-black"] .main-content,
+html[data-appearance="pure-black"] .library-card,
+html[data-appearance="pure-black"] .music-card {
+    background-color: #000000;
+}
+
+html[data-appearance="pure-black"] .top-bar {
+    background: rgba(0, 0, 0, 0.94);
+    border-bottom-color: rgba(255, 255, 255, 0.12);
+}
+
+html[data-appearance="pure-black"] .player-bar {
+    background: #000000;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+html[data-appearance="pure-black"] .mobile-bottom-nav {
+    background: rgba(0, 0, 0, 0.98);
+    border-top-color: rgba(255, 255, 255, 0.12);
+}
+
+html[data-appearance="pure-black"] .right-artist-panel,
+html[data-appearance="pure-black"] .artist-detail-panel,
+html[data-appearance="pure-black"] .sp-npv-panel {
+    background: #000000 !important;
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+html[data-appearance="pure-black"] .sp-npv-header {
+    background: linear-gradient(180deg, #000000 0%, rgba(0, 0, 0, 0.96) 100%);
+}
+
+html[data-appearance="pure-black"] .artist-detail-panel.is-collapsed:not(.drawer-open) {
+    background: #000000 !important;
+}
+
+html[data-appearance="pure-black"] .cyber-modal,
+html[data-appearance="pure-black"] .profile-taskbar,
+html[data-appearance="pure-black"] .sp-user-dots-menu,
+html[data-appearance="pure-black"] .sp-npv-dots-menu,
+html[data-appearance="pure-black"] .modal-backdrop > .modal {
+    background: #050507;
+    border-color: rgba(255, 255, 255, 0.16);
+}
+
+html[data-appearance="pure-black"] .sp-profile-details-modal,
+html[data-appearance="pure-black"] .sp-final-profile-card,
+html[data-appearance="pure-black"] .lyrics-panel {
+    background: linear-gradient(180deg, #07070a 0%, #000000 100%);
+}
+
+html[data-appearance="pure-black"] .lyrics-overlay {
+    background: rgba(0, 0, 0, 0.95);
+}
+
+html[data-appearance="pure-black"] .setting-select,
+html[data-appearance="pure-black"] .lib-select,
+html[data-appearance="pure-black"] .sp-tracklist,
+html[data-appearance="pure-black"] .sp-discover-card,
+html[data-appearance="pure-black"] .sp-Entity-card,
+html[data-appearance="pure-black"] .sp-profile-socials-card,
+html[data-appearance="pure-black"] .sp-social-link-card,
+html[data-appearance="pure-black"] .sp-artist-about-card {
+    background: #050507;
+}
+
+html[data-appearance="pure-black"] .sp-profile-details-input,
+html[data-appearance="pure-black"] .sp-profile-details-input option,
+html[data-appearance="pure-black"] .sp-final-select option,
+html[data-appearance="pure-black"] .modal input[type="text"],
+html[data-appearance="pure-black"] .modal input[type="number"],
+html[data-appearance="pure-black"] .modal textarea {
+    background: #08080b;
+}
+
+html[data-appearance="pure-black"] .sp-create-sheet {
+    background: #050507;
+    border-top: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+/* ==========================================================
+   3. LIGHT MODE (CRISP CYBER DAYLIGHT)
+   ========================================================== */
+html[data-appearance="light"] {
+    color-scheme: light;
+    --base-canvas: #F3F5FA;
+    --canvas-card: #FFFFFF;
+    --canvas-surface: #E7ECF5;
+    --canvas-surface-hover: #DCE3F0;
+    --text-primary: #11131D;
+    --text-secondary: #43485E;
+    --text-muted: #5F667E;
+    --border-subtle: rgba(15, 23, 42, 0.12);
+    --border-cyber: rgba(217, 0, 108, 0.30);
+    --border-yellow: rgba(202, 138, 4, 0.36);
+}
+
+/* Light-readable accent text helper for cyber yellow-on-light contrast */
+html[data-appearance="light"][data-theme="cyber"] {
+    --neon-yellow-dim: #A16207;
+}
+
+html[data-appearance="light"] .appearance-mode-btn.is-active {
+    background: rgba(255, 234, 0, 0.24);
+    border-color: #D97706;
+    color: #11131D;
+    box-shadow: 0 4px 14px rgba(217, 119, 6, 0.22);
+}
+
+html[data-appearance="light"] body {
+    background: var(--base-canvas);
+    color: var(--text-primary);
+}
+
+/* Topbar & Branding */
+html[data-appearance="light"] .top-bar {
+    background: rgba(255, 255, 255, 0.90);
+    border-bottom: 1px solid var(--border-subtle);
+    box-shadow: 0 2px 14px rgba(15, 23, 42, 0.05);
+}
+
+html[data-appearance="light"] .logo h1 {
+    background: linear-gradient(90deg, var(--loud-magenta) 0%, #11131D 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+html[data-appearance="light"] .home-icon,
+html[data-appearance="light"] .search-bar {
+    background: #F4F6FB;
+    border-color: rgba(15, 23, 42, 0.14);
+}
+
+html[data-appearance="light"] .input-box,
+html[data-appearance="light"] .profile-name,
+html[data-appearance="light"] .taskbar-name,
+html[data-appearance="light"] .badge-count,
+html[data-appearance="light"] .header-titles h1,
+html[data-appearance="light"] .lib-main-heading h1,
+html[data-appearance="light"] #homeLibraryView .lib-main-heading h1,
+html[data-appearance="light"] .sp-mob-lib-icon-btn,
+html[data-appearance="light"] .sp-mob-view-title-group h1,
+html[data-appearance="light"] .sp-mob-subhead,
+html[data-appearance="light"] .sp-section-heading,
+html[data-appearance="light"] .img-title,
+html[data-appearance="light"] .img-title-info,
+html[data-appearance="light"] .sidebar-song-title,
+html[data-appearance="light"] .box-text h3,
+html[data-appearance="light"] .podcast-title,
+html[data-appearance="light"] .lib-card-title,
+html[data-appearance="light"] #homeLibraryView .lib-items-grid.list-view .lib-card-title,
+html[data-appearance="light"] .track-row-title,
+html[data-appearance="light"] .sp-track-title,
+html[data-appearance="light"] .sp-discover-title,
+html[data-appearance="light"] .sp-search-res-row,
+html[data-appearance="light"] .sp-search-res-meta strong,
+html[data-appearance="light"] .sp-Entity-card h4,
+html[data-appearance="light"] .sp-user-top-header h2,
+html[data-appearance="light"] .sp-user-artist-circle-card h4,
+html[data-appearance="light"] .artist-header-titles h2,
+html[data-appearance="light"] .artist-notable-list li,
+html[data-appearance="light"] .sp-npv-context-title,
+html[data-appearance="light"] .lyrics-header h2,
+html[data-appearance="light"] .cyber-modal-header h3,
+html[data-appearance="light"] .setting-item strong,
+html[data-appearance="light"] .modal-user-card h4,
+html[data-appearance="light"] .info-row strong,
+html[data-appearance="light"] .recents-item-title,
+html[data-appearance="light"] .sp-profile-details-modal,
+html[data-appearance="light"] .sp-final-profile-card,
+html[data-appearance="light"] .sp-final-name,
+html[data-appearance="light"] .sp-final-meta-pill .meta-val,
+html[data-appearance="light"] .sp-create-sheet-item,
+html[data-appearance="light"] .sp-create-text strong,
+html[data-appearance="light"] .sp-discover-artist-chip-info strong,
+html[data-appearance="light"] .playlist-alert-banner {
+    color: var(--text-primary) !important;
+}
+
+/* Panels & Shells */
+html[data-appearance="light"] .left-sidebar,
+html[data-appearance="light"] .music-card,
+html[data-appearance="light"] .library-card,
+html[data-appearance="light"] .sp-Entity-card,
+html[data-appearance="light"] .sp-discover-card,
+html[data-appearance="light"] .sp-profile-socials-card,
+html[data-appearance="light"] .sp-artist-about-card,
+html[data-appearance="light"] .sp-tracklist {
+    background: var(--canvas-card);
+    border-color: var(--border-subtle);
+    box-shadow: 0 4px 18px rgba(15, 23, 42, 0.05);
+}
+
+html[data-appearance="light"] .music-card.is-current {
+    background: linear-gradient(160deg, rgba(255, 234, 0, 0.16) 0%, #FFFFFF 75%);
+    border-color: var(--border-yellow);
+}
+
+html[data-appearance="light"] .right-artist-panel,
+html[data-appearance="light"] .artist-detail-panel,
+html[data-appearance="light"] .sp-npv-panel {
+    background: var(--canvas-card) !important;
+    border-color: var(--border-subtle);
+}
+
+html[data-appearance="light"] .sp-npv-header {
+    background: linear-gradient(180deg, #FFFFFF 0%, rgba(255, 255, 255, 0.96) 100%);
+    border-bottom-color: var(--border-subtle);
+}
+
+html[data-appearance="light"] .artist-detail-panel.is-collapsed:not(.drawer-open) {
+    background: #FFFFFF !important;
+}
+
+html[data-appearance="light"] .player-bar {
+    background: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid var(--border-subtle);
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.06);
+}
+
+html[data-appearance="light"] .mobile-bottom-nav {
+    background: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid var(--border-subtle);
+    box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06);
+}
+
+/* Pills, Chips, Buttons & Secondary Controls */
+html[data-appearance="light"] .lib-tab,
+html[data-appearance="light"] .lib-search-wrap,
+html[data-appearance="light"] .filter-pill,
+html[data-appearance="light"] .sp-mob-pill,
+html[data-appearance="light"] .sp-mob-header-icon,
+html[data-appearance="light"] .sp-quick-pick-tile,
+html[data-appearance="light"] .lib-cat-pill,
+html[data-appearance="light"] .lib-back-home-btn,
+html[data-appearance="light"] .lib-manage-songs-btn,
+html[data-appearance="light"] .lib-artist-share-btn,
+html[data-appearance="light"] .playlist-restore-btn,
+html[data-appearance="light"] .sp-meta-artist-chip,
+html[data-appearance="light"] .close-lyrics,
+html[data-appearance="light"] .gtag,
+html[data-appearance="light"] .sp-create-icon,
+html[data-appearance="light"] .sp-user-artist-circle-card,
+html[data-appearance="light"] .artist-notable-list li,
+html[data-appearance="light"] .sp-social-link-card,
+html[data-appearance="light"] .sp-final-meta-pill,
+html[data-appearance="light"] .sp-final-bio-box,
+html[data-appearance="light"] .info-row,
+html[data-appearance="light"] .sp-discover-artist-chip,
+html[data-appearance="light"] .sp-following-discover-box,
+html[data-appearance="light"] .sp-profile-details-close {
+    background: rgba(15, 23, 42, 0.05);
+    border-color: rgba(15, 23, 42, 0.12);
+    color: var(--text-primary);
+}
+
+html[data-appearance="light"] .lib-cat-pill:hover,
+html[data-appearance="light"] .filter-pill:hover,
+html[data-appearance="light"] .sp-mob-pill:hover,
+html[data-appearance="light"] .playlist-restore-btn:hover {
+    background: rgba(15, 23, 42, 0.11);
+}
+
+html[data-appearance="light"] .filter-pill.active,
+html[data-appearance="light"] .lib-cat-pill.active,
+html[data-appearance="light"] .sp-mob-pill.active {
+    background: var(--neon-yellow);
+    color: #09090E !important;
+    border-color: var(--neon-yellow);
+}
+
+html[data-appearance="light"] .lib-search-input,
+html[data-appearance="light"] .lib-search-box input,
+html[data-appearance="light"] .lib-select,
+html[data-appearance="light"] .playlist-filter-wrap input,
+html[data-appearance="light"] .setting-select {
+    color: var(--text-primary);
+}
+
+html[data-appearance="light"] .setting-select,
+html[data-appearance="light"] .lib-select,
+html[data-appearance="light"] .sp-profile-details-input,
+html[data-appearance="light"] .sp-profile-details-input option,
+html[data-appearance="light"] .sp-final-textarea,
+html[data-appearance="light"] .sp-final-select option,
+html[data-appearance="light"] .modal input[type="text"],
+html[data-appearance="light"] .modal input[type="number"],
+html[data-appearance="light"] .modal textarea {
+    background: #FFFFFF;
+    color: var(--text-primary);
+    border-color: rgba(15, 23, 42, 0.18);
+}
+
+html[data-appearance="light"] .alb-track-pick-list {
+    background: rgba(15, 23, 42, 0.03);
+    border-color: rgba(15, 23, 42, 0.12);
+}
+
+html[data-appearance="light"] .alb-track-pick-row:hover {
+    background: rgba(15, 23, 42, 0.06);
+}
+
+html[data-appearance="light"] .modal #delCancelBtn,
+html[data-appearance="light"] .modal .modal-btn-cancel {
+    background: #E2E8F0;
+    color: #11131D;
+}
+
+html[data-appearance="light"] .modal #delCancelBtn:hover,
+html[data-appearance="light"] .modal .modal-btn-cancel:hover {
+    background: #CBD5E1;
+}
+
+html[data-appearance="light"] .slider {
+    background-color: #CBD5E1;
+}
+
+/* Modals, Menus & Sheets */
+html[data-appearance="light"] .cyber-modal-overlay {
+    background: rgba(15, 23, 42, 0.45);
+}
+
+html[data-appearance="light"] .cyber-modal,
+html[data-appearance="light"] .profile-taskbar,
+html[data-appearance="light"] .sp-user-dots-menu,
+html[data-appearance="light"] .sp-npv-dots-menu,
+html[data-appearance="light"] .sp-create-sheet,
+html[data-appearance="light"] .modal-backdrop > .modal {
+    background: #FFFFFF;
+    color: var(--text-primary);
+    border-color: var(--border-subtle);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18);
+}
+
+html[data-appearance="light"] .cyber-modal-footer {
+    background: rgba(15, 23, 42, 0.03);
+    border-top-color: var(--border-subtle);
+}
+
+html[data-appearance="light"] .taskbar-divider {
+    background: rgba(15, 23, 42, 0.1);
+}
+
+html[data-appearance="light"] .sp-profile-details-modal,
+html[data-appearance="light"] .sp-final-profile-card {
+    background: linear-gradient(180deg, #FFFFFF 0%, #F1F4FA 100%);
+    border-color: rgba(15, 23, 42, 0.14);
+}
+
+html[data-appearance="light"] .modal p,
+html[data-appearance="light"] .modal input[type="file"] {
+    color: var(--text-secondary);
+}
+
+/* Lyrics Panel in Light Mode */
+html[data-appearance="light"] .lyrics-overlay {
+    background: rgba(243, 245, 250, 0.88);
+}
+
+html[data-appearance="light"] .lyrics-panel {
+    background: linear-gradient(150deg, #FFFFFF 0%, #EEF2FB 65%, #F9EBF4 100%);
+    border-color: var(--border-cyber);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.16);
+}
+
+html[data-appearance="light"] .lyrics-line.current {
+    color: var(--loud-magenta) !important;
+}
+
+/* Ensure yellow text-on-light stays high contrast in Light Mode */
+html[data-appearance="light"][data-theme="cyber"] .greeting-text,
+html[data-appearance="light"][data-theme="cyber"] .lib-heading-icon,
+html[data-appearance="light"][data-theme="cyber"] .playlist-tag,
+html[data-appearance="light"][data-theme="cyber"] .sp-discover-artist-chip-info button,
+html[data-appearance="light"][data-theme="cyber"] .sp-discover-tag,
+html[data-appearance="light"][data-theme="cyber"] .sp-following-discover-box h3 {
+    color: var(--neon-yellow-dim);
+}
+
+/* Preserve white typography on dark artwork banners & gradient hero cards */
+html[data-appearance="light"] .hero-banner,
+html[data-appearance="light"] .hero-banner h1,
+html[data-appearance="light"] .hero-banner p,
+html[data-appearance="light"] .featured-spotlight,
+html[data-appearance="light"] .featured-spotlight h3,
+html[data-appearance="light"] .sp-discover-overlay,
+html[data-appearance="light"] .sp-discover-overlay .sp-discover-title,
+html[data-appearance="light"] .sp-browse-card span,
+html[data-appearance="light"] .sp-quick-pick-thumb.liked-grad,
+html[data-appearance="light"] .sp-quick-pick-thumb.pl-grad,
+html[data-appearance="light"] .lib-card-liked-bg,
+html[data-appearance="light"] .playlist-gradient-heart,
+html[data-appearance="light"] .playlist-hero-banner,
+html[data-appearance="light"] .playlist-hero-banner .playlist-title,
+html[data-appearance="light"] .playlist-hero-banner .playlist-author-row,
+html[data-appearance="light"] .playlist-hero-banner .playlist-desc,
+html[data-appearance="light"] .sp-user-profile-hero,
+html[data-appearance="light"] .sp-user-hero-label,
+html[data-appearance="light"] .sp-user-hero-name,
+html[data-appearance="light"] .sp-user-hero-stats strong,
+html[data-appearance="light"] .sp-user-avatar-overlay,
+html[data-appearance="light"] .sp-final-avatar-wrap .avatar-cam-overlay {
+    color: #FFFFFF !important;
+}
+
+html[data-appearance="light"] .playlist-hero-banner {
+    background: linear-gradient(135deg, #4b1088 0%, #31175a 55%, #1d1532 100%);
+}
+
+html[data-appearance="light"] .sp-hero {
+    background: linear-gradient(135deg, rgba(255, 0, 127, 0.14) 0%, rgba(255, 234, 0, 0.14) 45%, #FFFFFF 100%);
+}
+
+html[data-appearance="light"] .sp-hero-title {
+    color: var(--text-primary) !important;
+}
+
+html[data-appearance="light"] .sp-npv-verified-icon .fa-check {
+    color: #09090E !important;
+}
+
+/* Light Mode overrides for Spotify-Only Badges & Spotify Album Link Box */
+html[data-appearance="light"] .sp-album-spotify-box {
+    background: linear-gradient(135deg, rgba(22, 163, 74, 0.12) 0%, #FFFFFF 70%);
+    border-color: rgba(22, 163, 74, 0.4);
+    box-shadow: 0 4px 16px rgba(22, 163, 74, 0.08);
+}
+
+html[data-appearance="light"] .sp-spotify-box-title {
+    color: var(--text-primary);
+}
+
+html[data-appearance="light"] .sp-spotify-url-box {
+    background: #F0FAF3;
+    border-color: rgba(22, 163, 74, 0.34);
+}
+
+html[data-appearance="light"] .sp-spotify-url-box:hover {
+    background: #DCF5E4;
+    border-color: #16A34A;
+}
+
+html[data-appearance="light"] .sp-spotify-url-text {
+    color: #15803D;
+}
+
+html[data-appearance="light"] .sp-spotify-only-badge,
+html[data-appearance="light"] .sp-spotify-row-link {
+    color: #15803D;
+    background: rgba(22, 163, 74, 0.11);
+    border-color: rgba(22, 163, 74, 0.36);
+}
+
+html[data-appearance="light"] .sp-spotify-row-link:hover {
+    background: #16A34A;
+    color: #FFFFFF;
+}
+
+/* Light Mode overrides for Play Queue Modal & Controls */
+html[data-appearance="light"] .sp-queue-row,
+html[data-appearance="light"] .sp-queue-picker-row,
+html[data-appearance="light"] .sp-queue-picker-wrap {
+    background: #F4F6FB;
+    border-color: var(--border-subtle);
+}
+
+html[data-appearance="light"] .sp-queue-row:hover {
+    background: #EAEEF7;
+    border-color: var(--loud-magenta);
+}
+
+html[data-appearance="light"] .sp-queue-row.is-custom-row {
+    background: rgba(255, 200, 0, 0.14);
+    border-color: rgba(180, 120, 0, 0.35);
+}
+
+html[data-appearance="light"] .sp-queue-picker-search {
+    background: #FFFFFF;
+    color: var(--text-primary);
+    border-color: var(--border-subtle);
+}
+
+html[data-appearance="light"] .sp-queue-picker-meta strong,
+html[data-appearance="light"] .sp-queue-mini-btn,
+html[data-appearance="light"] .sp-queue-ctrl-btn,
+html[data-appearance="light"] .sp-queue-now-card .sp-npv-next-title {
+    color: var(--text-primary);
+}
+
+html[data-appearance="light"] .sp-queue-mini-btn,
+html[data-appearance="light"] .sp-queue-ctrl-btn {
+    background: #FFFFFF;
+    border-color: var(--border-subtle);
+}
+
+html[data-appearance="light"] .sp-queued-pill {
+    background: rgba(180, 120, 0, 0.14);
+    color: #9A5800;
+    border-color: rgba(180, 120, 0, 0.4);
+}
+
+html[data-appearance="light"] .card-add-to-queue-btn {
+    background: #FFFFFF;
+    border-color: var(--border-subtle);
+    color: var(--text-secondary);
+}
+
+html[data-appearance="light"] .sp-shared-toast {
+    background: #FFFFFF;
+    color: var(--text-primary);
+}
+
+/* Preserve rich stage readability on Light Mode Spotify Lyrics View */
+html[data-appearance="light"] .sp-lyrics-stage {
+    background: linear-gradient(150deg, #5c0c3f 0%, #37092a 55%, #1d0c24 100%);
+    border-color: rgba(219, 39, 119, 0.45);
+}
+
+html[data-appearance="light"] .sp-lyrics-stage-track h2,
+html[data-appearance="light"] .sp-lyrics-stage .sp-stage-lyric-line {
+    color: rgba(255, 255, 255, 0.72);
+}
+
+html[data-appearance="light"] .sp-lyrics-stage .sp-stage-lyric-line.is-active {
+    color: #FFEE00;
+}
+
+/* Light Mode Custom Animated Dropdown */
+html[data-appearance="light"] .sp-select-trigger {
+    background: #FFFFFF;
+    color: var(--text-primary);
+    border-color: var(--border-subtle);
+}
+
+html[data-appearance="light"] .sp-select-trigger:hover,
+html[data-appearance="light"] .sp-select-trigger.is-open {
+    background: #F4F7FC;
+    border-color: var(--neon-yellow);
+}
+
+html[data-appearance="light"] .sp-select-menu {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(219, 39, 119, 0.35);
+    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.18);
+}
+
+html[data-appearance="light"] .sp-select-option {
+    color: var(--text-primary);
+}
+
+html[data-appearance="light"] .sp-select-option:hover {
+    background: rgba(15, 23, 42, 0.06);
+    color: var(--text-primary);
+}
+
+html[data-appearance="light"] .sp-select-option.is-selected {
+    background: rgba(255, 200, 0, 0.16);
+    border-color: rgba(180, 120, 0, 0.45);
+    color: #854d0e;
+}
+
+html[data-appearance="light"] .sp-select-check {
+    color: #b45309;
+}
+
+html[data-appearance="pure-black"] .sp-select-trigger {
+    background: #000000;
+}
+
+html[data-appearance="pure-black"] .sp-select-menu {
+    background: rgba(6, 6, 10, 0.98);
+}

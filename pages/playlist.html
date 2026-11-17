@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Spotifake | Liked Songs Playlist with functional track management, remove action, and live playback.">
+    <meta name="theme-color" content="#09090E">
+
+    <title>Spotifake | Liked Songs Playlist</title>
+    <link rel="icon" type="image/svg+xml" href="../photos/spotifyICON/spotifake-favicon.svg">
+    <link rel="shortcut icon" href="../photos/spotifyICON/spotifake-favicon.svg">
+
+    <!-- Font Awesome 6.5+ -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+        integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+
+    <!-- Google Fonts: Montserrat -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap"
+        rel="stylesheet">
+
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="../styles/HomeDesign.css">
+    <link rel="stylesheet" href="../styles/playlist.css">
+    <link rel="stylesheet" href="../styles/appearance.css">
+    <script src="../scripts/appearance.js"></script>
+</head>
+
+<body>
+    <!-- ================= CUSTOM CYBER CURSOR ================= -->
+    <div class="custom-cursor-dot" id="cursorDot" aria-hidden="true"></div>
+    <div class="custom-cursor-ring" id="cursorRing" aria-hidden="true"></div>
+
+    <!-- ================= TOP NAVIGATION BAR ================= -->
+    <header class="top-bar">
+        <nav class="navbar" aria-label="Main navigation">
+            <div class="left-half">
+                <a class="logo" href="home.html" aria-label="Spotifake Home">
+                    <i class="fa-brands fa-spotify" aria-hidden="true"></i>
+                    <h1>SPOTIFAKE</h1>
+                </a>
+
+                <a class="home-icon" href="home.html" aria-label="Back to Home" title="Home">
+                    <i class="fa-solid fa-house" aria-hidden="true"></i>
+                    <span>Home</span>
+                </a>
+            </div>
+
+            <div class="header-center">
+                <div class="project-badge" title="BSIT / IT Extension Project">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    <span>BSIT EXTENSION PROJECT</span>
+                </div>
+            </div>
+
+            <div class="right-half">
+                <a href="../song_pages/index.html" class="song-hub-btn" title="Open Song Pages Directory">
+                    <i class="fa-solid fa-folder-open"></i>
+                    <span>Song Pages</span>
+                </a>
+
+                <div class="profile-menu-container">
+                    <button type="button" class="profile-btn" id="profileBtn" aria-haspopup="true" aria-expanded="false" title="Account Menu">
+                        <img src="../photos/spotifyICON/lydbayot.jpg" alt="JSON.TTUM Avatar" class="profile-avatar">
+                        <span class="profile-name">JSON.TTUM</span>
+                        <i class="fa-solid fa-chevron-down profile-arrow"></i>
+                    </button>
+
+                    <div class="profile-taskbar" id="profileTaskbar" role="menu" aria-label="User Options">
+                        <div class="taskbar-header">
+                            <img src="../photos/spotifyICON/lydbayot.jpg" alt="User Avatar" class="taskbar-avatar">
+                            <div class="taskbar-user-info">
+                                <p class="taskbar-name">JSON.TTUM</p>
+                                <span class="taskbar-status"><i class="fa-solid fa-bolt"></i> Cyber VIP</span>
+                            </div>
+                        </div>
+                        <hr class="taskbar-divider">
+                        <a href="home.html" class="taskbar-item" role="menuitem"><i class="fa-solid fa-house"></i><span>Home</span></a>
+                        <a href="library.html" class="taskbar-item" role="menuitem"><i class="fa-solid fa-lines-leaning"></i><span>Library</span></a>
+                        <button type="button" class="taskbar-item" id="taskSettings" role="menuitem"><i class="fa-solid fa-gear"></i><span>Settings</span></button>
+                        <hr class="taskbar-divider">
+                        <a href="../LoginMAIN.html" class="taskbar-item logout" role="menuitem"><i class="fa-solid fa-arrow-right-from-bracket"></i><span>Log out</span></a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+
+    <!-- ================= PLAYLIST MAIN CONTENT ================= -->
+    <main class="playlist-page-main">
+        <div class="playlist-container">
+
+            <!-- Spotify Style Big Gradient Header -->
+            <section class="playlist-hero-banner" id="playlistHeroBanner">
+                <div class="playlist-hero-cover-wrap">
+                    <div class="playlist-gradient-heart">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
+                </div>
+
+                <div class="playlist-hero-details">
+                    <span class="playlist-tag"><i class="fa-solid fa-lock-open"></i> Public Playlist</span>
+                    <h1 class="playlist-title">Liked Songs</h1>
+                    <p class="playlist-desc">Your personal sanctuary of hand-picked favorites, featuring live synchronized lyrics and lossless cyber audio.</p>
+
+                    <div class="playlist-author-row">
+                        <img src="../photos/spotifyICON/lydbayot.jpg" alt="Author" class="playlist-author-avatar">
+                        <span class="playlist-author-name">JSON.TTUM</span>
+                        <span class="bullet">•</span>
+                        <span class="playlist-stat-count" id="playlistTrackCount">10 songs</span>
+                        <span class="bullet">•</span>
+                        <span class="playlist-stat-duration" id="playlistTotalDuration">37 min 42 sec</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Action Bar (Play, Shuffle, Filter, Restore) -->
+            <section class="playlist-action-bar">
+                <button type="button" class="playlist-main-play-btn" id="playlistPlayAllBtn" title="Play All Liked Songs">
+                    <i class="fa-solid fa-play" id="playlistPlayIcon"></i>
+                </button>
+
+                <button type="button" class="playlist-action-icon-btn" id="playlistShuffleBtn" title="Shuffle playlist">
+                    <i class="fa-solid fa-shuffle"></i>
+                </button>
+
+                <button type="button" class="playlist-action-icon-btn is-favorite" id="playlistHeartBtn" title="Playlist favorited">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+
+                <div class="playlist-filter-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input type="search" id="playlistSearchInput" placeholder="Filter in playlist..." aria-label="Filter songs in this playlist">
+                </div>
+
+                <button type="button" class="playlist-restore-btn" id="restoreSongsBtn" title="Restore all 10 collection songs">
+                    <i class="fa-solid fa-rotate-left"></i> Restore All Songs
+                </button>
+            </section>
+
+
+            <!-- Playlist Notification Message -->
+            <div class="playlist-alert-banner" id="playlistAlert" hidden>
+                <i class="fa-solid fa-circle-check"></i>
+                <span id="playlistAlertText">Track removed from playlist</span>
+            </div>
+
+
+            <!-- Tracklist Table (Spotify Style with Working Remove Action) -->
+            <section class="playlist-table-section" aria-label="Songs list">
+                <div class="playlist-table-header">
+                    <div class="col-num">#</div>
+                    <div class="col-title">Title</div>
+                    <div class="col-album">Album</div>
+                    <div class="col-date">Date Added</div>
+                    <div class="col-time"><i class="fa-regular fa-clock"></i></div>
+                    <div class="col-action">Action</div>
+                </div>
+
+                <div class="playlist-tracks-body" id="playlistTracksList">
+                    <!-- Populated dynamically via playlist.js -->
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+
+    <!-- ================= PERSISTENT BOTTOM AUDIO PLAYER BAR ================= -->
+    <footer class="player-bar" aria-label="Music player">
+        <audio id="audioPlayer" preload="metadata"></audio>
+
+        <div class="now-bar">
+            <div class="now-playing-cover-wrap">
+                <img src="../photos/ItDepends.jpg" alt="Current Song" id="currentSongImage">
+            </div>
+            <div class="now-playing-info">
+                <p class="img-title-info" id="currentSongTitle">It Depends</p>
+                <p class="img-des-info" id="currentSongArtist">Chris Brown ft. Bryson Tiller</p>
+            </div>
+            <button type="button" class="player-heart-btn" id="playerFavBtn" aria-label="Toggle favorite">
+                <i class="fa-regular fa-heart"></i>
+            </button>
+            <div class="music-visualizer" id="musicVisualizer" aria-hidden="true">
+                <span class="bar bar-1"></span>
+                <span class="bar bar-2"></span>
+                <span class="bar bar-3"></span>
+                <span class="bar bar-4"></span>
+            </div>
+        </div>
+
+        <div class="music-controller">
+            <div class="player">
+                <button type="button" id="shuffle" class="player-control" aria-label="Shuffle" title="Shuffle">
+                    <i class="player-btns fa-solid fa-shuffle"></i>
+                </button>
+                <button type="button" id="backward" class="player-control" aria-label="Previous">
+                    <i class="player-btns fa-solid fa-backward-step"></i>
+                </button>
+                <button type="button" id="play" class="player-control play-btn-main" aria-label="Play">
+                    <i class="player-btns fa-solid fa-circle-play"></i>
+                </button>
+                <button type="button" id="forward" class="player-control" aria-label="Next">
+                    <i class="player-btns fa-solid fa-forward-step"></i>
+                </button>
+                <button type="button" id="repeat" class="player-control" aria-label="Repeat" title="Repeat off">
+                    <i class="player-btns fa-solid fa-repeat"></i>
+                </button>
+            </div>
+            <div class="progress-container">
+                <span id="currentTime">0:00</span>
+                <input type="range" id="progressBar" min="0" max="100" value="0" step="1" aria-label="Progress">
+                <span id="duration">0:00</span>
+            </div>
+        </div>
+
+        <div class="player-extra">
+            <button type="button" id="queueButton" class="lyrics-toggle queue-toggle-btn" aria-label="Open Play Queue" title="Queue">
+                <i class="fa-solid fa-bars-staggered" aria-hidden="true"></i>
+            </button>
+            <div class="volume-container">
+                <button type="button" id="muteButton" aria-label="Mute">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <input type="range" id="volumeBar" min="0" max="1" value="0.75" step="0.01" aria-label="Volume">
+            </div>
+        </div>
+    </footer>
+
+
+    <!-- ================= SETTINGS MODAL ================= -->
+    <div class="cyber-modal-overlay" id="modalSettings" role="dialog" aria-modal="true" aria-labelledby="settingsModalTitle" hidden>
+        <div class="cyber-modal">
+            <header class="cyber-modal-header">
+                <h3 id="settingsModalTitle"><i class="fa-solid fa-gear"></i> App Settings</h3>
+                <button type="button" class="modal-close" data-close="modalSettings"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <div class="cyber-modal-body">
+                <!-- Appearance Mode Switcher -->
+                <div class="setting-item setting-item-appearance">
+                    <div class="appearance-header-row">
+                        <div>
+                            <strong>Appearance Mode</strong>
+                            <p id="settingAppearanceStatus">Classic Spotifake Cyber Dark canvas</p>
+                        </div>
+                    </div>
+                    <div class="appearance-mode-grid" role="group" aria-label="Appearance Mode">
+                        <button type="button" class="appearance-mode-btn" data-appearance-option="light" aria-pressed="false">
+                            <span class="mode-preview-swatch swatch-light"><i class="fa-solid fa-sun"></i></span>
+                            <span>Light</span>
+                        </button>
+                        <button type="button" class="appearance-mode-btn is-active" data-appearance-option="dark" aria-pressed="true">
+                            <span class="mode-preview-swatch swatch-dark"><i class="fa-solid fa-moon"></i></span>
+                            <span>Dark</span>
+                        </button>
+                        <button type="button" class="appearance-mode-btn" data-appearance-option="system" aria-pressed="false">
+                            <span class="mode-preview-swatch swatch-system"><i class="fa-solid fa-circle-half-stroke"></i></span>
+                            <span>System</span>
+                        </button>
+                        <button type="button" class="appearance-mode-btn" data-appearance-option="pure-black" aria-pressed="false">
+                            <span class="mode-preview-swatch swatch-pure-black"><i class="fa-solid fa-star"></i></span>
+                            <span>Pure Black</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="setting-item">
+                    <div>
+                        <strong>Color Theme</strong>
+                        <p>Switch the app color palette live</p>
+                    </div>
+                    <select class="setting-select" id="settingTheme">
+                        <option value="cyber" selected>⚡ Cyber Yellow &amp; Magenta</option>
+                        <option value="emerald">🎵 Classic Spotify Emerald</option>
+                        <option value="cyberpunk">💜 Cyberpunk Violet</option>
+                        <option value="crimson">🔴 Blood Moon Crimson</option>
+                        <option value="electric-blue">🔵 Midnight Electric Blue</option>
+                    </select>
+                </div>
+
+                <div class="setting-item">
+                    <div>
+                        <strong>Custom Cyber Cursor</strong>
+                        <p>Enable interactive neon ring follower</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="settingCursorToggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+            <footer class="cyber-modal-footer">
+                <button type="button" class="modal-btn-primary" data-close="modalSettings">Done</button>
+            </footer>
+        </div>
+    </div>
+
+
+    <!-- ================= MOBILE BOTTOM NAVIGATION (< 768px) ================= -->
+    <nav class="mobile-bottom-nav" aria-label="Mobile navigation">
+        <a href="home.html" class="mobile-nav-item" aria-label="Home">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="home.html#searchInput" class="mobile-nav-item" aria-label="Search">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <span>Search</span>
+        </a>
+        <a href="library.html" class="mobile-nav-item" aria-label="Your Library">
+            <i class="fa-solid fa-lines-leaning"></i>
+            <span>Library</span>
+        </a>
+        <a href="playlist.html?id=liked" class="mobile-nav-item active" aria-label="Favorites">
+            <i class="fa-solid fa-heart"></i>
+            <span>Favorites</span>
+        </a>
+    </nav>
+
+    <!-- ================= JAVASCRIPT ================= -->
+    <script src="../scripts/lyricsData.js"></script>
+    <script src="../scripts/queueManager.js"></script>
+    <script src="../scripts/playlist.js"></script>
+</body>
+
+</html>

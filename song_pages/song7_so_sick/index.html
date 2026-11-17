@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spotifake | So Sick - Ne-Yo</title>
+    <link rel="icon" type="image/svg+xml" href="../../photos/spotifyICON/spotifake-favicon.svg">
+    <link rel="shortcut icon" href="../../photos/spotifyICON/spotifake-favicon.svg">
+    <meta name="theme-color" content="#09090E">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="so_sick.css">
+    <link rel="stylesheet" href="../song-theme.css">
+    <script src="../song-theme.js"></script>
+    <script src="../../scripts/appearance.js"></script>
+</head>
+<body>
+    <div class="ambient-glow" aria-hidden="true"></div>
+
+    <header class="top-nav">
+        <div class="nav-left">
+            <a href="../../pages/home.html" class="back-home-btn" title="Back to Spotifake Home">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to Home</span>
+            </a>
+            <a href="../../pages/home.html" class="brand-logo" aria-label="Spotifake Home">
+                <i class="fa-brands fa-spotify"></i>
+                <span>SPOTIFAKE</span>
+            </a>
+        </div>
+
+        <div class="nav-center">
+            <span class="track-badge">TRACK 7 OF 10 • BSIT PROJECT</span>
+        </div>
+
+        <div class="nav-right">
+            <a href="../song6_sexy_love/sexy_love.html" class="nav-song-btn" title="Previous: Sexy Love">
+                <i class="fa-solid fa-backward-step"></i>
+                <span class="nav-btn-text">Prev</span>
+            </a>
+            <a href="../index.html" class="nav-all-songs-btn" title="All Song Pages">
+                <i class="fa-solid fa-folder-open"></i>
+                <span>All 10 Pages</span>
+            </a>
+            <a href="../../pages/playlist.html" class="nav-all-songs-btn" title="Open Liked Songs Playlist"><i class="fa-solid fa-heart"></i> <span>Liked Songs</span>
+            </a>
+            <a href="../song8_love_me_not/love_me_not.html" class="nav-song-btn" title="Next: Love Me Not">
+                <span class="nav-btn-text">Next</span>
+                <i class="fa-solid fa-forward-step"></i>
+            </a>
+        </div>
+    </header>
+
+    <main class="song-layout">
+        <section class="player-card">
+            <div class="album-art-wrapper">
+                <img src="../../photos/SoSick.jpg" alt="So Sick Cover Art" class="album-cover" id="albumCover">
+            </div>
+
+            <div class="track-meta">
+                <span class="genre-pill">Acoustic R&B Ballad • 2006</span>
+                <h1 class="track-title">So Sick</h1>
+                <p class="track-artist">Ne-Yo</p>
+            </div>
+
+            <audio id="audioPlayer" src="../../SONGS/Ne-Yo - So Sick (Official Music Video).mp3" preload="metadata"></audio>
+
+            <div class="controls-panel">
+                <div class="seek-container">
+                    <span id="currentTime" class="time-label">0:00</span>
+                    <input type="range" id="progressBar" min="0" max="100" value="0" step="1" aria-label="Song progress">
+                    <span id="duration" class="time-label">3:29</span>
+                </div>
+
+                
+                <!-- Live Equalizer Spectrum -->
+                <div class="song-visualizer" id="songVisualizer" aria-hidden="true" style="display:flex;align-items:flex-end;justify-content:center;gap:4px;height:24px;margin-bottom:12px;">
+                    <span class="vbar" style="width:4px;height:6px;background:var(--accent);border-radius:2px;transition:height 0.15s ease;"></span>
+                    <span class="vbar" style="width:4px;height:12px;background:var(--primary);border-radius:2px;transition:height 0.15s ease;"></span>
+                    <span class="vbar" style="width:4px;height:18px;background:var(--accent);border-radius:2px;transition:height 0.15s ease;"></span>
+                    <span class="vbar" style="width:4px;height:10px;background:var(--primary);border-radius:2px;transition:height 0.15s ease;"></span>
+                    <span class="vbar" style="width:4px;height:22px;background:var(--accent);border-radius:2px;transition:height 0.15s ease;"></span>
+                    <span class="vbar" style="width:4px;height:8px;background:var(--primary);border-radius:2px;transition:height 0.15s ease;"></span>
+                </div>
+            
+                <div class="main-buttons">
+                    <button type="button" id="prevLyricBtn" class="control-btn secondary" title="Skip to Previous Lyric Line">
+                        <i class="fa-solid fa-backward-step"></i>
+                        <span class="btn-label">Prev Line</span>
+                    </button>
+
+                    <button type="button" id="playBtn" class="control-btn play-main" title="Play">
+                        <i class="fa-solid fa-circle-play" id="playIcon"></i>
+                    </button>
+
+                    <button type="button" id="nextLyricBtn" class="control-btn secondary" title="Skip to Next Lyric Line">
+                        <i class="fa-solid fa-forward-step"></i>
+                        <span class="btn-label">Next Line</span>
+                    </button>
+                </div>
+
+                <div class="bottom-tools">
+                    <!-- Playback Speed Control -->
+                    <button type="button" id="playbackSpeedBtn" class="autoscroll-btn" title="Toggle Playback Speed">
+                        <i class="fa-solid fa-gauge-high"></i>
+                        <span id="speedLabel">1.0x</span>
+                    </button>
+
+                    <!-- Favorite Button -->
+                    <button type="button" id="songFavBtn" class="autoscroll-btn" title="Toggle Favorite">
+                        <i class="fa-regular fa-heart" id="favIcon"></i>
+                        <span>Favorite</span>
+                    </button>
+            
+                    <div class="volume-box">
+                        <button type="button" id="muteBtn" class="mute-btn" title="Mute Volume">
+                            <i class="fa-solid fa-volume-high" id="volumeIcon"></i>
+                        </button>
+                        <input type="range" id="volumeBar" min="0" max="1" value="0.75" step="0.01" aria-label="Volume">
+                    </div>
+
+                    <button type="button" id="autoScrollToggle" class="autoscroll-btn active" title="Toggle Auto-Scroll">
+                        <i class="fa-solid fa-arrows-up-down"></i>
+                        <span>Auto-Scroll On</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <section class="lyrics-card">
+            <header class="lyrics-header">
+                <div>
+                    <span class="lyrics-tag"><i class="fa-brands fa-spotify"></i> SPOTIFY LIVE SYNC</span>
+                    <h2>So Sick</h2>
+                    <p class="lyrics-hint"><i class="fa-regular fa-hand-pointer"></i> Click any line to skip audio playback directly</p>
+                </div>
+
+                <div class="lyrics-actions">
+                    <button type="button" id="skipTopBtn" class="pill-btn" title="Jump to start">
+                        <i class="fa-solid fa-arrow-up"></i> Top
+                    </button>
+                </div>
+            </header>
+
+            <div class="lyrics-scroll-box" id="lyricsBox">
+                
+                <p class="lyrics-line upcoming" data-time="0" data-index="0" tabindex="0" role="button" aria-label="Skip to 0:00: Mmm, mmm, yeah">
+                    Mmm, mmm, yeah
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="6" data-index="1" tabindex="0" role="button" aria-label="Skip to 0:06: Do, do, do, do, do, do, do-do">
+                    Do, do, do, do, do, do, do-do
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="12" data-index="2" tabindex="0" role="button" aria-label="Skip to 0:12: Oh, yeah">
+                    Oh, yeah
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="14" data-index="3" tabindex="0" role="button" aria-label="Skip to 0:14: Gotta change my answering machine">
+                    Gotta change my answering machine
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="17" data-index="4" tabindex="0" role="button" aria-label="Skip to 0:17: Now that I'm alone">
+                    Now that I'm alone
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="20" data-index="5" tabindex="0" role="button" aria-label="Skip to 0:20: 'Cause right now it says that we">
+                    'Cause right now it says that we
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="23" data-index="6" tabindex="0" role="button" aria-label="Skip to 0:23: Can't come to the phone">
+                    Can't come to the phone
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="26" data-index="7" tabindex="0" role="button" aria-label="Skip to 0:26: And I know it makes no sense">
+                    And I know it makes no sense
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="29" data-index="8" tabindex="0" role="button" aria-label="Skip to 0:29: 'Cause you walked out the door">
+                    'Cause you walked out the door
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="32" data-index="9" tabindex="0" role="button" aria-label="Skip to 0:32: But it's the only way I hear your voice anymore">
+                    But it's the only way I hear your voice anymore
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="38" data-index="10" tabindex="0" role="button" aria-label="Skip to 0:38: (It's ridiculous)">
+                    (It's ridiculous)
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="40" data-index="11" tabindex="0" role="button" aria-label="Skip to 0:40: It's been months and for some reason I just">
+                    It's been months and for some reason I just
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="43" data-index="12" tabindex="0" role="button" aria-label="Skip to 0:43: (Can't get over us)">
+                    (Can't get over us)
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="46" data-index="13" tabindex="0" role="button" aria-label="Skip to 0:46: And I'm stronger than this, yeah">
+                    And I'm stronger than this, yeah
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="49" data-index="14" tabindex="0" role="button" aria-label="Skip to 0:49: (Enough is enough)">
+                    (Enough is enough)
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="52" data-index="15" tabindex="0" role="button" aria-label="Skip to 0:52: No more walkin' round with my head down">
+                    No more walkin' round with my head down
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="55" data-index="16" tabindex="0" role="button" aria-label="Skip to 0:55: I'm so over being blue, cryin' over you">
+                    I'm so over being blue, cryin' over you
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="60" data-index="17" tabindex="0" role="button" aria-label="Skip to 1:00: And I'm so sick of love songs, so tired of tears">
+                    And I'm so sick of love songs, so tired of tears
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="66" data-index="18" tabindex="0" role="button" aria-label="Skip to 1:06: So done with wishing you were still here">
+                    So done with wishing you were still here
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="72" data-index="19" tabindex="0" role="button" aria-label="Skip to 1:12: Said I'm so sick of love songs, so sad and slow">
+                    Said I'm so sick of love songs, so sad and slow
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="78" data-index="20" tabindex="0" role="button" aria-label="Skip to 1:18: So why can't I turn off the radio?">
+                    So why can't I turn off the radio?
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="84" data-index="21" tabindex="0" role="button" aria-label="Skip to 1:24: Gotta fix that calendar I have">
+                    Gotta fix that calendar I have
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="87" data-index="22" tabindex="0" role="button" aria-label="Skip to 1:27: That's marked July 15th">
+                    That's marked July 15th
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="90" data-index="23" tabindex="0" role="button" aria-label="Skip to 1:30: Because since there's no more you">
+                    Because since there's no more you
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="93" data-index="24" tabindex="0" role="button" aria-label="Skip to 1:33: There's no more anniversary">
+                    There's no more anniversary
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="96" data-index="25" tabindex="0" role="button" aria-label="Skip to 1:36: I'm so fed up with my thoughts of you">
+                    I'm so fed up with my thoughts of you
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="100" data-index="26" tabindex="0" role="button" aria-label="Skip to 1:40: And memories of a love that we once knew">
+                    And memories of a love that we once knew
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="105" data-index="27" tabindex="0" role="button" aria-label="Skip to 1:45: And I'm so sick of love songs, so tired of tears">
+                    And I'm so sick of love songs, so tired of tears
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="111" data-index="28" tabindex="0" role="button" aria-label="Skip to 1:51: So done with wishing you were still here">
+                    So done with wishing you were still here
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="117" data-index="29" tabindex="0" role="button" aria-label="Skip to 1:57: Said I'm so sick of love songs, so sad and slow">
+                    Said I'm so sick of love songs, so sad and slow
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="123" data-index="30" tabindex="0" role="button" aria-label="Skip to 2:03: So why can't I turn off the radio?">
+                    So why can't I turn off the radio?
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="129" data-index="31" tabindex="0" role="button" aria-label="Skip to 2:09: Leave me alone, leave me alone">
+                    Leave me alone, leave me alone
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="134" data-index="32" tabindex="0" role="button" aria-label="Skip to 2:14: Stupid love songs">
+                    Stupid love songs
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="138" data-index="33" tabindex="0" role="button" aria-label="Skip to 2:18: Hey, yeah, turn it off, turn it off">
+                    Hey, yeah, turn it off, turn it off
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="142" data-index="34" tabindex="0" role="button" aria-label="Skip to 2:22: A little louder, oh">
+                    A little louder, oh
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="147" data-index="35" tabindex="0" role="button" aria-label="Skip to 2:27: And I'm so sick of love songs, so tired of tears">
+                    And I'm so sick of love songs, so tired of tears
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="153" data-index="36" tabindex="0" role="button" aria-label="Skip to 2:33: So done with wishing you were still here">
+                    So done with wishing you were still here
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="159" data-index="37" tabindex="0" role="button" aria-label="Skip to 2:39: Said I'm so sick of love songs, so sad and slow">
+                    Said I'm so sick of love songs, so sad and slow
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="165" data-index="38" tabindex="0" role="button" aria-label="Skip to 2:45: So why can't I turn off the radio?">
+                    So why can't I turn off the radio?
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="171" data-index="39" tabindex="0" role="button" aria-label="Skip to 2:51: Why can't I turn off the radio?">
+                    Why can't I turn off the radio?
+                </p>
+                
+                <p class="lyrics-line upcoming" data-time="185" data-index="40" tabindex="0" role="button" aria-label="Skip to 3:05: ♪ (Outro) ♪">
+                    ♪ (Outro) ♪
+                </p>
+            </div>
+
+            <footer class="lyrics-footer">
+                <span class="lyrics-credit">Spotifake Cyber Dark Edition • Deep Cyber Black & Loud Magenta</span>
+            </footer>
+        </section>
+    </main>
+
+    <script src="../../scripts/lyricsData.js"></script>
+    <script src="lyricsData.js"></script>
+    <script src="so_sick.js"></script>
+</body>
+</html>

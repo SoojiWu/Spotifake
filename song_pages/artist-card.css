@@ -1,0 +1,20 @@
+.artist-card {
+  background: var(--canvas, #09090E);
+  border: 2px solid var(--accent, #FF007F);
+  border-radius: 12px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8rem;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.artist-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 0 12px var(--accent);
+}
+.artist-pfp { width: 80px; height: 80px; border-radius: 50%; }
+.song-title { color: var(--primary, #FFEA00); font-size: 1.5rem; }
+.artist-bio { color: #fff; text-align: center; max-width: 260px; }
+.notable-heading { color: var(--primary, #FFEA00); margin-top: 1rem; }
+.notable-tracks { list-style: none; padding: 0; margin: 0; color: #ddd; }
