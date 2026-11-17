@@ -2034,7 +2034,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     $("#taskLogout")?.addEventListener("click", () => {
         sessionStorage.removeItem("spotifake-user");
-        window.location.href = "../LoginMAIN.html";
+        localStorage.removeItem("spotifake-user");
+        window.location.href = "../index.html";
     });
     $("#taskSettings")?.addEventListener("click", () => $("#modalSettings")?.removeAttribute("hidden"));
 

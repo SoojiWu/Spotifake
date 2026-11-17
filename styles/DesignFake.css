@@ -1877,3 +1877,57 @@ html[data-appearance="light"] .pw-peek-btn:hover {
     color: #be185d;
     background: rgba(15, 23, 42, 0.06);
 }
+
+/* Mobile Chrome can mispaint text inside the blurred, animated 3D card. */
+@media (max-width: 767px) {
+    html,
+    body {
+        height: auto;
+        min-height: 100%;
+        overflow-x: hidden;
+        overflow-y: auto;
+    }
+
+    .login-page {
+        height: auto;
+        min-height: 100vh;
+        min-height: 100dvh;
+        overflow: visible;
+        padding: 20px 16px;
+        perspective: none;
+    }
+
+    .login-container {
+        background: #15131f;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        transform-style: flat;
+        transform: none;
+        animation: none;
+        transition: none;
+    }
+
+    .login-container::before,
+    .login-container::after {
+        content: none;
+    }
+
+    .welcome-header h1 span {
+        background: none;
+        color: #ffea00;
+        filter: none;
+        animation: none;
+    }
+
+    html[data-appearance="pure-black"] .login-container {
+        background: #08080c;
+    }
+
+    html[data-appearance="light"] .login-container {
+        background: #fff;
+    }
+
+    html[data-appearance="light"] .welcome-header h1 span {
+        color: #b45309;
+    }
+}

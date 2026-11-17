@@ -5421,12 +5421,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Task Logout (preserve saved profile/name in localStorage so Login page greets with current name)
+    // Preserve the saved profile so the login page can greet the current user.
     const taskLogout = $("#taskLogout");
     if (taskLogout) {
         taskLogout.addEventListener("click", () => {
             sessionStorage.removeItem("spotifake-user");
-            window.location.href = "../LoginMAIN.html";
+            localStorage.removeItem("spotifake-user");
+            window.location.href = "../index.html";
         });
     }
 
