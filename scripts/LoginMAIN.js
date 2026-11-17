@@ -122,6 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Trigger the Unique Cyber Loading Screen Animation
         if (loginLoader) {
+            document.body.classList.add("is-loading");
             loginLoader.removeAttribute("hidden");
 
             const stages = [
@@ -423,6 +424,7 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             function renderFx() {
+                if (document.body.classList.contains("is-loading")) return;
                 time += 0.016;
                 cursorSpeed *= 0.85;
                 ctx.clearRect(0, 0, cw, ch);
