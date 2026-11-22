@@ -321,6 +321,11 @@ document.addEventListener("DOMContentLoaded", () => {
             getRepeatMode: () => repeatMode,
             isShuffleEnabled: () => isShuffle,
             setShuffleEnabled: (val, silent) => setShuffleModeState(val, silent),
+            queueHost: artistDetailPanel,
+            onQueueOpen: () => {
+                if (isLyricsFullscreen) exitLyricsFullscreen();
+                openArtistPanel();
+            },
             onToast: (msg) => showToast(msg),
             onStateChange: () => {
                 if (typeof renderNpvCreditsAndQueue === "function" && typeof currentNpvSongId !== "undefined") {
@@ -480,6 +485,8 @@ document.addEventListener("DOMContentLoaded", () => {
             npvAddLikedBtn.classList.toggle("is-saved", isFavNpv);
             npvAddLikedIcon.className = isFavNpv ? "fa-solid fa-circle-check" : "fa-solid fa-circle-plus";
         }
+
+        syncCenterLyricsSaveButton();
     }
 
     /* ==========================================================
@@ -815,7 +822,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     let activeSidebarTab = "playlists";
-    let sidebarSortOrder = "recents"; // "recents" or "az"
+    let sidebarSortOrder = "recents";
+    let sidebarViewMode = "list";
     let activeSidebarItemId = null;
 
     /** Keeps pinned/liked playlists first while sorting remaining items case-insensitively. */
@@ -831,6 +839,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function setupSidebarSongs() {
         if (!sidebarSongList) return;
         sidebarSongList.replaceChildren();
+        sidebarSongList.dataset.view = sidebarViewMode;
 
         let itemsToRender = [];
 
@@ -848,6 +857,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     title: pl.title,
                     subtitle: `Playlist • ${pl.songs ? pl.songs.length : 0} song${(pl.songs && pl.songs.length !== 1) ? 's' : ''}`,
                     cover: pl.cover || null,
+                    creator: pl.creator || "",
                     isCustom: true,
                     customData: pl
                 });
@@ -855,18 +865,45 @@ document.addEventListener("DOMContentLoaded", () => {
         } else if (activeSidebarTab === "albums") {
             itemsToRender = getAllAlbums().map(alb => ({
                 ...alb,
+                creator: alb.artistName || alb.creator || "",
                 subtitle: `Album • ${alb.artistName}`
             }));
         } else if (activeSidebarTab === "artists") {
             itemsToRender = SIDEBAR_DATA.artists.map(art => ({
                 ...art,
+                creator: art.artistName || art.title,
                 subtitle: `Artist • ${(ARTIST_PROFILES[art.artistName] && ARTIST_PROFILES[art.artistName].genre) || "Verified Artist"}`
             }));
         }
 
-        // Apply sort (keep pinned Liked Songs first, sort remaining items A-Z)
+        // Keep pinned items first while applying the selected library sort.
         if (sidebarSortOrder === "az") {
             sortKeepingPinnedFirst(itemsToRender, "title");
+        } else if (sidebarSortOrder === "creator") {
+            sortKeepingPinnedFirst(itemsToRender, "creator");
+        } else if (sidebarSortOrder === "recently-added") {
+            const addedAt = item => Number(String(item.id || "").match(/(\d{10,})$/)?.[1] || 0);
+            itemsToRender.sort((a, b) => {
+                const aPinned = Boolean(a.pinned || a.isLiked);
+                const bPinned = Boolean(b.pinned || b.isLiked);
+                if (aPinned !== bPinned) return aPinned ? -1 : 1;
+                return addedAt(b) - addedAt(a);
+            });
+        }
+
+        const sidebarQuery = $("#sidebarLibrarySearch")?.value.trim().toLowerCase();
+        if (sidebarQuery) {
+            itemsToRender = itemsToRender.filter(item =>
+                item.title.toLowerCase().includes(sidebarQuery) ||
+                (item.subtitle || "").toLowerCase().includes(sidebarQuery)
+            );
+            if (itemsToRender.length === 0) {
+                const empty = document.createElement("li");
+                empty.className = "sidebar-search-empty";
+                empty.textContent = "No results found";
+                sidebarSongList.appendChild(empty);
+                return;
+            }
         }
 
         itemsToRender.forEach(item => {
@@ -877,6 +914,7 @@ document.addEventListener("DOMContentLoaded", () => {
             li.dataset.itemId = item.id;
             li.setAttribute("role", "button");
             li.setAttribute("tabindex", "0");
+            li.setAttribute("aria-label", [item.title, item.subtitle].filter(Boolean).join(", "));
 
             const pinBadge = item.pinned ? '<span class="sidebar-pin-badge"><i class="fa-solid fa-thumbtack"></i></span> ' : '';
             const imgClass = activeSidebarTab === "artists" ? "sidebar-artist-avatar" : "sidebar-song-cover";
@@ -885,7 +923,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 li.innerHTML = `
                     <div class="sidebar-liked-cover"><i class="fa-solid fa-heart" style="color:#fff;"></i></div>
                     <div class="sidebar-song-info">
-                        <p class="sidebar-song-title" style="color:var(--neon-yellow);font-weight:900;">Liked Songs</p>
+                        <p class="sidebar-song-title">Liked Songs</p>
                         <p class="sidebar-song-artist">${pinBadge}${item.subtitle}</p>
                     </div>
                 `;
@@ -1215,6 +1253,8 @@ document.addEventListener("DOMContentLoaded", () => {
             if (icon) {
                 icon.className = `fa-solid ${isLyricsFullscreen ? "fa-compress" : "fa-expand"}`;
             }
+            const label = playerBtn.querySelector(".player-extra-label");
+            if (label) label.textContent = isLyricsFullscreen ? "Exit" : "Fullscreen";
         }
     }
 
@@ -1247,6 +1287,9 @@ document.addEventListener("DOMContentLoaded", () => {
         isDraggingFsScrollbar = false;
         clearLyricsFsIdleTimer();
         clearLyricsFsScrollTimer();
+        // Keep the player visible when the fullscreen-only animation rule is removed.
+        const playerBar = $(".player-bar");
+        if (playerBar) playerBar.style.animation = "none";
         document.body.classList.remove("sp-lyrics-fullscreen", "sp-lyrics-fs-idle", "sp-lyrics-fs-scroll-peek");
         syncFullscreenLyricsButtons();
 
@@ -1406,11 +1449,35 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.classList.toggle("is-active", idx === activeIdx);
             btn.classList.toggle("is-past", activeIdx !== -1 && idx < activeIdx);
             if (idx === activeIdx && scrollBox) {
-                const targetTop = btn.offsetTop - (scrollBox.clientHeight / 2) + (btn.clientHeight / 2);
+                const lineTopInScrollBox = scrollBox.scrollTop + btn.getBoundingClientRect().top - scrollBox.getBoundingClientRect().top;
+                const targetTop = lineTopInScrollBox - (scrollBox.clientHeight / 2) + (btn.clientHeight / 2);
                 scrollBox.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
             }
         });
     }
+
+    function syncCenterLyricsPlayButton() {
+        const button = $("#spLyricsPlayBtn");
+        if (!button) return;
+        const playing = !audio.paused;
+        button.innerHTML = `<i class="fa-solid fa-${playing ? "pause" : "play"}"></i>`;
+        button.setAttribute("aria-label", `${playing ? "Pause" : "Play"} ${getCurrentSong()?.title || "song"}`);
+    }
+
+    function syncCenterLyricsSaveButton() {
+        const button = $("#spLyricsSaveBtn");
+        if (!button) return;
+        const songId = Number(homeAlbumArtistView?.dataset.lyricsSongId);
+        const saved = favorites.has(songId);
+        button.classList.toggle("is-saved", saved);
+        button.setAttribute("aria-pressed", String(saved));
+        button.setAttribute("aria-label", saved ? "Remove from Liked Songs" : "Add to Liked Songs");
+        button.title = saved ? "Remove from Liked Songs" : "Add to Liked Songs";
+        button.innerHTML = `<i class="fa-solid fa-${saved ? "check" : "plus"}"></i>`;
+    }
+
+    audio.addEventListener("play", syncCenterLyricsPlayButton);
+    audio.addEventListener("pause", syncCenterLyricsPlayButton);
 
     function displayLyricsPreviewView(songId) {
         const targetId = Number(songId) || getCurrentSong().id;
@@ -1429,6 +1496,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const lines = SONG_LYRICS[song.id] || [];
         const usesMmss = lines.some(item => Number(item.time) >= 300);
+        const primaryArtist = song.artist.split(/\s+ft\.|,/i)[0].trim();
+        const artistPhoto = ARTIST_PROFILES[primaryArtist]?.pfp || song.cover;
 
         homeAlbumArtistView.innerHTML = `
             <div class="sp-back-bar">
@@ -1437,21 +1506,33 @@ document.addEventListener("DOMContentLoaded", () => {
                 </button>
             </div>
             <section class="sp-lyrics-stage">
-                <div class="sp-lyrics-stage-header">
+                <div class="sp-lyrics-stage-header" style="--lyrics-cover: url('${song.cover}')">
                     <div class="sp-lyrics-stage-track">
                         <img src="${song.cover}" alt="${song.title}">
-                        <div>
+                        <div class="sp-lyrics-stage-copy">
+                            <span class="sp-lyrics-stage-type">Song</span>
                             <h2>${song.title}</h2>
-                            <p>${song.artist}</p>
+                            <div class="sp-lyrics-stage-artist">
+                                <img src="${artistPhoto}" alt="${primaryArtist}">
+                                <p>${song.artist}</p>
+                            </div>
                         </div>
                     </div>
-                    <div class="sp-lyrics-stage-tools">
-                        <button type="button" class="sp-queue-mini-btn" id="spLyricsFullscreenBtn" aria-pressed="false" title="Fullscreen lyrics">
-                            <i class="fa-solid fa-expand"></i> Fullscreen
-                        </button>
+                </div>
+                <div class="sp-lyrics-stage-actions">
+                    <button type="button" class="sp-lyrics-stage-play" id="spLyricsPlayBtn" aria-label="Play ${song.title}" title="Play or pause">
+                        <i class="fa-solid fa-play"></i>
+                    </button>
+                    <button type="button" class="sp-lyrics-stage-save" id="spLyricsSaveBtn" aria-label="Add to Liked Songs" aria-pressed="false" title="Add to Liked Songs">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+                <div class="sp-lyrics-stage-body">
+                    <div class="sp-lyrics-stage-main">
+                        <h3>Lyrics</h3>
+                        <div class="sp-lyrics-stage-scroll" id="spLyricsStageScroll"></div>
                     </div>
                 </div>
-                <div class="sp-lyrics-stage-scroll" id="spLyricsStageScroll"></div>
                 <div class="sp-lyrics-fs-scrollbar" id="spLyricsFsScrollbar" aria-hidden="true">
                     <div class="sp-lyrics-fs-thumb" id="spLyricsFsThumb"></div>
                 </div>
@@ -1510,12 +1591,24 @@ document.addEventListener("DOMContentLoaded", () => {
             if (previousCenterView === "library") showFullLibraryView();
             else showHomeDashboardView();
         });
-        homeAlbumArtistView.querySelector("#spLyricsFullscreenBtn")?.addEventListener("click", toggleLyricsFullscreen);
+        homeAlbumArtistView.querySelector("#spLyricsPlayBtn")?.addEventListener("click", () => playButton?.click());
+        homeAlbumArtistView.querySelector("#spLyricsSaveBtn")?.addEventListener("click", () => {
+            toggleFavorite(song.id);
+            setupSidebarSongs();
+            showToast(favorites.has(song.id) ? "Added to Liked Songs" : "Removed from Liked Songs");
+        });
+        syncCenterLyricsPlayButton();
+        syncCenterLyricsSaveButton();
         syncFullscreenLyricsButtons();
 
         syncCenterLyricsView(audio.currentTime || 0, true);
         requestAnimationFrame(updateLyricsFsScrollbarThumb);
     }
+
+    artistDedicatedPageLink?.addEventListener("click", event => {
+        event.preventDefault();
+        displayLyricsPreviewView(currentNpvSongId);
+    });
 
     function renderNpvCreditsAndQueue(songId) {
         const id = Number(songId) || getCurrentSong().id;
@@ -1850,6 +1943,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const homeDashboardView = $("#homeDashboardView");
     const homeSearchView = $("#homeSearchView");
     const homeLibraryView = $("#homeLibraryView");
+    const homeLibraryExpansionLayer = $("#homeLibraryExpansionLayer");
+    const homeLibraryOriginalParent = homeLibraryView?.parentElement;
     const homeAlbumArtistView = $("#homeAlbumArtistView");
     const activeFilterBanner = $("#activeFilterBanner");
     const activeFilterText = $("#activeFilterText");
@@ -1858,7 +1953,34 @@ document.addEventListener("DOMContentLoaded", () => {
     let followedArtists = new Set(JSON.parse(localStorage.getItem("spotifake_followed_artists") || "[]"));
     let savedAlbums = new Set(JSON.parse(localStorage.getItem("spotifake_saved_albums") || "[]"));
     let previousCenterView = "dashboard"; // "dashboard" | "library"
-    let userPickedHomeLibLayout = false;
+    let libraryOverlayAnimation;
+
+    function restoreCenteredModal() {
+        const panel = homeAlbumArtistView?.querySelector(".sp-centered-modal-panel");
+        if (!panel) return;
+        const overlay = document.getElementById(panel.dataset.modalOverlay);
+        panel.classList.remove("sp-centered-modal-panel");
+        delete panel.dataset.modalOverlay;
+        overlay?.appendChild(panel);
+    }
+
+    function resetLibraryOverlay() {
+        libraryOverlayAnimation?.cancel();
+        libraryOverlayAnimation = null;
+        if (homeLibraryView) homeLibraryView.style.width = "";
+        $(".main")?.classList.remove("library-overlay-opening", "library-overlay-open", "library-overlay-closing");
+        $("#sidebarExpandBtn")?.setAttribute("aria-expanded", "false");
+        const expandedSortMenu = $("#homeLibSortMenu");
+        if (expandedSortMenu) expandedSortMenu.hidden = true;
+        $("#homeLibSortBtn")?.setAttribute("aria-expanded", "false");
+        if (homeLibraryView?.parentElement === homeLibraryExpansionLayer) {
+            homeLibraryOriginalParent?.appendChild(homeLibraryView);
+        }
+        if (homeLibraryExpansionLayer) {
+            homeLibraryExpansionLayer.hidden = true;
+            homeLibraryExpansionLayer.setAttribute("aria-hidden", "true");
+        }
+    }
 
     function setNavActive(which) {
         const navHome = $("#navHomeBtn");
@@ -1867,7 +1989,15 @@ document.addEventListener("DOMContentLoaded", () => {
         if (navLib) navLib.classList.toggle("active", which === "library");
     }
 
-    function showEntityPageView(keepFullscreen = false) {
+    function showEntityPageView(keepFullscreen = false, accountView = false) {
+        restoreCenteredModal();
+        resetLibraryOverlay();
+        if (!accountView && document.body.classList.contains("mobile-account-page")) {
+            document.body.classList.remove("mobile-account-page");
+            if (new URLSearchParams(location.search).get("view") === "account") {
+                history.pushState(null, "", "home.html");
+            }
+        }
         if (!keepFullscreen) {
             exitLyricsFullscreen();
             if (window.innerWidth < 1024) closeArtistPanelDrawer();
@@ -1891,6 +2021,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function showFullLibraryView(e) {
         if (e) e.preventDefault();
+        restoreCenteredModal();
+        const expandFromSidebar = e?.currentTarget?.id === "sidebarExpandBtn" && window.innerWidth >= 1024;
+        if (!expandFromSidebar) resetLibraryOverlay();
         exitLyricsFullscreen();
         if (!homeLibraryView || !homeDashboardView) return;
         homeDashboardView.style.display = "none";
@@ -1902,16 +2035,61 @@ document.addEventListener("DOMContentLoaded", () => {
         homeLibraryView.style.display = "block";
         setNavActive("library");
         syncLyricsPreviewToggleLabel();
-        if (window.innerWidth < 768 && !userPickedHomeLibLayout) {
-            setHomeLibLayout("list");
+        if (expandFromSidebar) {
+            const selectedTab = $("#homeLibTabs .lib-cat-pill.active");
+            const matchingTab = $(`#homeLibTabs .lib-cat-pill[data-tab="${activeSidebarTab}"]`);
+            if (matchingTab && matchingTab !== selectedTab) {
+                selectedTab?.classList.remove("active");
+                selectedTab?.setAttribute("aria-selected", "false");
+                matchingTab.classList.add("active");
+                matchingTab.setAttribute("aria-selected", "true");
+            }
+            const sidebarQuery = $("#sidebarLibrarySearch")?.value || "";
+            const expandedSearch = $("#homeLibFilterInput");
+            if (expandedSearch) expandedSearch.value = sidebarQuery;
         }
+        // Widen a sidebar list into its corresponding cover grid, then restore
+        // the untouched sidebar mode when the overlay closes.
+        const expandedMode = sidebarViewMode === "list" ? "grid"
+            : sidebarViewMode === "compact" ? "compact-grid" : sidebarViewMode;
+        setHomeLibLayout(expandFromSidebar ? expandedMode : sidebarViewMode);
+        syncLibrarySortControls();
         renderHomeLibrary();
         const mainArea = $(".main-right-part");
         if (mainArea) mainArea.scrollTop = 0;
+        if (expandFromSidebar) {
+            const mainLayout = $(".main");
+            if (homeDashboardView) homeDashboardView.style.display = "";
+            homeLibraryExpansionLayer?.appendChild(homeLibraryView);
+            if (homeLibraryExpansionLayer) {
+                homeLibraryExpansionLayer.hidden = false;
+                homeLibraryExpansionLayer.setAttribute("aria-hidden", "false");
+            }
+            mainLayout?.classList.remove("library-overlay-closing");
+            mainLayout?.classList.add("library-overlay-opening");
+            const expandedSearchBox = $("#homeLibraryView .lib-search-box");
+            const sidebarSearchBox = $(".library-panel .lib-search-wrap");
+            if (expandedSearchBox && sidebarSearchBox) {
+                expandedSearchBox.style.transition = "none";
+                const expandedSearchLeft = expandedSearchBox.getBoundingClientRect().left;
+                const sidebarSearchLeft = sidebarSearchBox.getBoundingClientRect().left;
+                expandedSearchBox.style.setProperty("--library-search-start-x", `${sidebarSearchLeft - expandedSearchLeft}px`);
+                expandedSearchBox.getBoundingClientRect();
+                expandedSearchBox.style.transition = "";
+            }
+            $("#sidebarExpandBtn")?.setAttribute("aria-expanded", "true");
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                if (mainLayout?.classList.contains("library-overlay-opening")) {
+                    mainLayout.classList.add("library-overlay-open");
+                }
+            }));
+        }
     }
 
     function showHomeDashboardView(e) {
         if (e) e.preventDefault();
+        restoreCenteredModal();
+        resetLibraryOverlay();
         exitLyricsFullscreen();
         if (!homeLibraryView || !homeDashboardView) return;
         homeLibraryView.style.display = "none";
@@ -1927,6 +2105,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function showMobileSearchView(e) {
         if (e) e.preventDefault();
+        restoreCenteredModal();
+        resetLibraryOverlay();
         exitLyricsFullscreen();
         if (!homeSearchView) return;
         if (homeDashboardView) homeDashboardView.style.display = "none";
@@ -1960,6 +2140,45 @@ document.addEventListener("DOMContentLoaded", () => {
     ["#sidebarExpandBtn", "#navLibraryBtn", "#mobileLibraryBtn"].forEach(sel => {
         const el = $(sel);
         if (el) el.addEventListener("click", showFullLibraryView);
+    });
+    $("#homeLibCollapseBtn")?.addEventListener("click", () => {
+        const mainLayout = $(".main");
+        if (!mainLayout?.classList.contains("library-overlay-opening") || mainLayout.classList.contains("library-overlay-closing")) return;
+        const expandedWidth = homeLibraryExpansionLayer.getBoundingClientRect().width;
+        const sidebarWidth = $(".library-panel").getBoundingClientRect().width;
+        homeLibraryView.style.width = `${homeLibraryView.getBoundingClientRect().width}px`;
+        mainLayout.classList.add("library-overlay-closing");
+        let finished = false;
+        const finishCollapse = () => {
+            if (finished) return;
+            finished = true;
+            if (mainLayout.classList.contains("library-overlay-closing")) showHomeDashboardView();
+        };
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            requestAnimationFrame(finishCollapse);
+        } else {
+            libraryOverlayAnimation = homeLibraryExpansionLayer.animate([
+                { width: `${expandedWidth}px`, opacity: 1, offset: 0 },
+                { width: `${expandedWidth + (sidebarWidth - expandedWidth) * 0.65}px`, opacity: 1, offset: 0.65 },
+                { width: `${sidebarWidth}px`, opacity: 0, offset: 1 }
+            ], {
+                duration: 520,
+                easing: "cubic-bezier(0.22, 1, 0.36, 1)",
+                fill: "forwards"
+            });
+            libraryOverlayAnimation.onfinish = finishCollapse;
+        }
+    });
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && $(".main")?.classList.contains("library-overlay-open")) {
+            $("#homeLibCollapseBtn")?.click();
+        }
+    });
+    window.addEventListener("resize", () => {
+        if (window.innerWidth < 1024 && $(".main")?.classList.contains("library-overlay-opening")) {
+            resetLibraryOverlay();
+            showFullLibraryView();
+        }
     });
     $("#navHomeBtn")?.addEventListener("click", goToHomeUndisturbed);
     document.querySelectorAll('a.logo[href="home.html"]').forEach(el => {
@@ -3262,9 +3481,8 @@ document.addEventListener("DOMContentLoaded", () => {
             });
         }
         const filterInput = $("#homeLibFilterInput");
-        const sortSelect = $("#homeLibSortSelect");
         const query = filterInput ? filterInput.value.trim().toLowerCase() : "";
-        const sortBy = sortSelect ? sortSelect.value : "recents";
+        const sortBy = sidebarSortOrder;
 
         let items = getHomeLibraryItems(tab);
         if (query) {
@@ -3272,6 +3490,14 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         if (sortBy === "az" || sortBy === "creator") {
             sortKeepingPinnedFirst(items, sortBy === "az" ? "title" : "creator");
+        } else if (sortBy === "recently-added") {
+            const addedAt = item => Number(String(item.id || "").match(/(\d{10,})$/)?.[1] || 0);
+            items.sort((a, b) => {
+                const aPinned = Boolean(a.pinned || a.isLiked);
+                const bPinned = Boolean(b.pinned || b.isLiked);
+                if (aPinned !== bPinned) return aPinned ? -1 : 1;
+                return addedAt(b) - addedAt(a);
+            });
         }
 
         const total = $("#homeLibTotalCount");
@@ -3288,7 +3514,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         items.forEach(item => {
             const card = document.createElement("article");
-            card.className = "lib-card";
+            card.className = `lib-card${item.isLiked ? " is-liked" : ""}`;
             card.setAttribute("role", "button");
             card.setAttribute("tabindex", "0");
 
@@ -3446,30 +3672,21 @@ document.addEventListener("DOMContentLoaded", () => {
             homeLibTabs.forEach(p => { p.classList.remove("active"); p.setAttribute("aria-selected", "false"); });
             pill.classList.add("active");
             pill.setAttribute("aria-selected", "true");
+            if (pill.dataset.tab !== "recents") {
+                const sidebarTab = $(`.lib-tab[data-lib-tab="${pill.dataset.tab}"]`);
+                if (sidebarTab && !sidebarTab.classList.contains("active")) sidebarTab.click();
+            }
             renderHomeLibrary();
         });
     });
     $("#homeLibFilterInput")?.addEventListener("input", renderHomeLibrary);
-    $("#homeLibSortSelect")?.addEventListener("change", renderHomeLibrary);
-
-    const homeLibGridBtn = $("#homeLibViewGridBtn");
-    const homeLibListBtn = $("#homeLibViewListBtn");
     function setHomeLibLayout(mode) {
         const container = $("#homeLibItemsContainer");
-        if (container) container.classList.toggle("list-view", mode === "list");
-        homeLibGridBtn?.classList.toggle("active", mode === "grid");
-        homeLibListBtn?.classList.toggle("active", mode === "list");
-        homeLibGridBtn?.setAttribute("aria-pressed", String(mode === "grid"));
-        homeLibListBtn?.setAttribute("aria-pressed", String(mode === "list"));
+        if (!container) return;
+        container.dataset.view = mode;
+        container.classList.toggle("list-view", mode === "list" || mode === "compact");
     }
-    homeLibGridBtn?.addEventListener("click", () => {
-        userPickedHomeLibLayout = true;
-        setHomeLibLayout("grid");
-    });
-    homeLibListBtn?.addEventListener("click", () => {
-        userPickedHomeLibLayout = true;
-        setHomeLibLayout("list");
-    });
+    setHomeLibLayout(sidebarViewMode);
     $("#mobileLibSearchToggleBtn")?.addEventListener("click", () => {
         const searchBox = $("#homeLibraryView .lib-search-box");
         const filterInp = $("#homeLibFilterInput");
@@ -3584,6 +3801,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         artistDetailPanel.addEventListener("pointerdown", (e) => {
             if (window.innerWidth >= 1024 || !artistDetailPanel.classList.contains("drawer-open")) return;
+            if (artistDetailPanel.classList.contains("queue-view-open")) return;
             if (e.target.closest("input, button, a")) return;
             const onHeader = Boolean(e.target.closest(".sp-npv-header"));
             const atTop = !npvScroll || npvScroll.scrollTop <= 2;
@@ -3744,11 +3962,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (npvExpandBtn) {
         npvExpandBtn.addEventListener("click", () => {
-            const s = songs.find(x => x.id === currentNpvSongId) || getCurrentSong();
-            if (s && s.pageUrl) {
-                savePlaybackState(true);
-                window.location.href = s.pageUrl;
-            }
+            if (window.innerWidth < 1024) closeArtistPanelDrawer();
+            displayLyricsPreviewView(currentNpvSongId);
         });
     }
 
@@ -3884,6 +4099,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (index === currentIndex && audio.src) {
             if (!audio.paused && !audio.ended) {
                 pauseTrack();
+                return false;
             } else {
                 if (audio.ended) audio.currentTime = 0;
                 playTrack();
@@ -3891,6 +4107,7 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             loadTrack(index, true);
         }
+        return true;
     }
 
     function updateCardStates() {
@@ -3947,7 +4164,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     e.stopPropagation();
                     card.classList.add("has-entered");
                     card.style.animationDelay = "";
-                    handleCardPlay(index);
+                    if (handleCardPlay(index)) displayLyricsPreviewView(song.id);
                 });
             }
             if (heartBtn) {
@@ -3987,8 +4204,10 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (e.target.closest("button") || e.target.closest("a")) return;
                 card.classList.add("has-entered");
                 card.style.animationDelay = "";
-                handleCardPlay(index);
-                updateArtistDetails(song.id);
+                if (handleCardPlay(index)) {
+                    updateArtistDetails(song.id);
+                    displayLyricsPreviewView(song.id);
+                }
             });
         });
     }
@@ -4191,6 +4410,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         const canCrossfade =
+            meta.autoTransition === true &&
             autoplay &&
             crossfadeSeconds > 0 &&
             !audio.paused &&
@@ -4302,9 +4522,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         if (currentIndex < songs.length - 1) {
-            loadTrack(currentIndex + 1, true);
+            loadTrack(currentIndex + 1, true, { autoTransition: isAutoEnded });
         } else if (repeatMode === "all" || !isAutoEnded) {
-            loadTrack(0, true);
+            loadTrack(0, true, { autoTransition: isAutoEnded });
         } else {
             audio.pause();
             audio.currentTime = 0;
@@ -4428,6 +4648,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 e.stopPropagation();
                 const idxToPlay = Number(card.dataset.songIdx ?? spotlightTrackIndex);
                 loadTrack(idxToPlay, true);
+                displayLyricsPreviewView(songs[idxToPlay]?.id);
             });
         }
         return card;
@@ -4951,8 +5172,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     syncUserProfileHeaderUI();
 
-    /* Open Final Profile Card Modal (for #taskProfile — Read-Only Showcase Card) */
-    function openFinalProfileCardModal() {
+    /* Show the profile card in the center column on desktop. */
+    function openFinalProfileCardModal(inCenter = false) {
         let existing = document.getElementById("spFinalProfileCardBackdrop");
         if (existing) existing.remove();
 
@@ -5047,6 +5268,19 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
         `;
 
+        if (inCenter && window.innerWidth >= 1024 && homeAlbumArtistView) {
+            showEntityPageView(false, true);
+            homeAlbumArtistView.replaceChildren();
+            const page = createCenteredProfilePage("Profile", "fa-id-card");
+            page.classList.add("sp-center-profile-content");
+            const card = backdrop.querySelector(".sp-final-profile-card");
+            card.querySelector("#spFinalCloseBtn")?.remove();
+            page.append(...card.children);
+            homeAlbumArtistView.appendChild(page);
+            homeAlbumArtistView.dataset.activeView = "profile";
+            return;
+        }
+
         backdrop.querySelector("#spFinalCloseBtn")?.addEventListener("click", () => backdrop.remove());
         bindSafeBackdropClose(backdrop, () => backdrop.remove());
         document.body.appendChild(backdrop);
@@ -5055,7 +5289,7 @@ document.addEventListener("DOMContentLoaded", () => {
     /* Open Spotify-style "Profile details" Edit Modal (from Account -> Edit profile) */
     function openUserEditProfileModal() {
         let backdrop = document.getElementById("spProfileDetailsBackdrop");
-        if (backdrop) backdrop.remove();
+        if (backdrop) return;
 
         const rawAvatar = userProfile.avatar || DEFAULT_USER_AVATAR;
         let pendingAvatar = window.SpotifakePaths ? window.SpotifakePaths.asset(rawAvatar) : rawAvatar;
@@ -5109,6 +5343,31 @@ document.addEventListener("DOMContentLoaded", () => {
         `;
         document.body.appendChild(backdrop);
 
+        const scrollY = window.scrollY;
+        const body = document.body;
+        const previousBodyStyle = {
+            position: body.style.position,
+            top: body.style.top,
+            left: body.style.left,
+            width: body.style.width,
+            overflow: body.style.overflow
+        };
+        body.style.position = "fixed";
+        body.style.top = `-${scrollY}px`;
+        body.style.left = "0";
+        body.style.width = "100%";
+        body.style.overflow = "hidden";
+
+        function closeProfileDetailsModal() {
+            if (!backdrop.isConnected) return;
+            backdrop.remove();
+            Object.assign(body.style, previousBodyStyle);
+            const previousScrollBehavior = document.documentElement.style.scrollBehavior;
+            document.documentElement.style.scrollBehavior = "auto";
+            window.scrollTo(0, scrollY);
+            document.documentElement.style.scrollBehavior = previousScrollBehavior;
+        }
+
         const avatarTrigger = backdrop.querySelector("#spAvatarPickerTrigger");
         const avatarInput = backdrop.querySelector("#spAvatarFileInput");
         const avatarPreview = backdrop.querySelector("#spAvatarPickerPreview");
@@ -5150,8 +5409,8 @@ document.addEventListener("DOMContentLoaded", () => {
             reader.readAsDataURL(file);
         });
 
-        backdrop.querySelector("#spProfileDetailsCloseBtn")?.addEventListener("click", () => backdrop.remove());
-        bindSafeBackdropClose(backdrop, () => backdrop.remove());
+        backdrop.querySelector("#spProfileDetailsCloseBtn")?.addEventListener("click", closeProfileDetailsModal);
+        bindSafeBackdropClose(backdrop, closeProfileDetailsModal);
 
         backdrop.querySelector("#spProfileDetailsSaveBtn")?.addEventListener("click", () => {
             userProfile.name = (nameInput?.value || "").trim() || "JSON.TTUM";
@@ -5162,7 +5421,7 @@ document.addEventListener("DOMContentLoaded", () => {
             userProfile.avatar = pendingAvatar || DEFAULT_USER_AVATAR;
             userProfile.banner = pendingBanner || null;
             saveUserProfileToStorage();
-            backdrop.remove();
+            closeProfileDetailsModal();
             displayUserProfileInView();
             showToast("Profile updated!");
         });
@@ -5192,7 +5451,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function displayUserProfileInView() {
         if (!homeAlbumArtistView) return;
-        showEntityPageView();
+        showEntityPageView(false, true);
         homeAlbumArtistView.replaceChildren();
 
         const customPls = getCustomPlaylistsFromStorage();
@@ -5205,12 +5464,22 @@ document.addEventListener("DOMContentLoaded", () => {
         const backBar = document.createElement("div");
         backBar.className = "sp-back-bar";
         backBar.innerHTML = `
-            <button type="button" class="sp-back-btn" id="spUserBackHomeBtn">
-                <i class="fa-solid fa-arrow-left"></i> Back to Home
+            <button type="button" class="sp-back-btn" id="spUserBackHomeBtn" aria-label="Back">
+                <i class="fa-solid fa-arrow-left"></i><span class="sp-account-back-label"> Back to Home</span>
             </button>
+            <h2 class="sp-account-mobile-title">Account</h2>
+            <span class="sp-account-header-spacer" aria-hidden="true"></span>
         `;
         homeAlbumArtistView.appendChild(backBar);
-        backBar.querySelector("#spUserBackHomeBtn")?.addEventListener("click", showHomeDashboardView);
+        backBar.querySelector("#spUserBackHomeBtn")?.addEventListener("click", () => {
+            const params = new URLSearchParams(location.search);
+            if (window.matchMedia("(max-width: 767px)").matches && params.get("view") === "account") {
+                const from = params.get("from");
+                location.href = ["home.html", "library.html", "playlist.html"].includes(from) ? from : "home.html";
+            } else {
+                showHomeDashboardView();
+            }
+        });
 
         // Hero Banner (with customizable banner & circular PFP)
         const hero = document.createElement("section");
@@ -5351,6 +5620,35 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    function createCenteredProfilePage(title, icon) {
+        const page = document.createElement("section");
+        page.className = "sp-center-profile-page";
+        const header = document.createElement("header");
+        header.className = "sp-center-profile-header";
+        header.innerHTML = `
+            <button type="button" class="sp-back-btn"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Back to Home</button>
+            <h1><i class="fa-solid ${icon}" aria-hidden="true"></i> ${title}</h1>
+        `;
+        header.querySelector(".sp-back-btn")?.addEventListener("click", () => showHomeDashboardView());
+        page.appendChild(header);
+        return page;
+    }
+
+    function showCenteredProfileModal(modalId, title, icon) {
+        const overlay = document.getElementById(modalId);
+        const panel = overlay?.querySelector(".cyber-modal");
+        if (!panel || !homeAlbumArtistView) return;
+        showEntityPageView(false, true);
+        homeAlbumArtistView.replaceChildren();
+        const page = createCenteredProfilePage(title, icon);
+        panel.dataset.modalOverlay = modalId;
+        panel.classList.add("sp-centered-modal-panel");
+        page.appendChild(panel);
+        homeAlbumArtistView.appendChild(page);
+        homeAlbumArtistView.dataset.activeView = modalId === "modalRecents" ? "recents" : "settings";
+        if (modalId === "modalRecents") renderRecentsList();
+    }
+
     // Account opens the Spotify-style User Account page
     const taskAccountBtn = $("#taskAccount");
     if (taskAccountBtn) {
@@ -5361,23 +5659,23 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Profile opens the Final Profile Card (PFP, Banner, Gender, Age, Description, Bio)
+    // Profile opens in the center column on desktop.
     const taskProfileBtn = $("#taskProfile");
     if (taskProfileBtn) {
         taskProfileBtn.addEventListener("click", () => {
             if (profileTaskbar) profileTaskbar.classList.remove("open");
             if (profileBtn) profileBtn.setAttribute("aria-expanded", "false");
-            openFinalProfileCardModal(false);
+            openFinalProfileCardModal(window.innerWidth >= 1024);
         });
     }
 
-    // Modal Triggers for Recents & Settings
+    // Recents and Settings use the center column on desktop.
     const modalMap = {
-        taskRecents: "modalRecents",
-        taskSettings: "modalSettings"
+        taskRecents: { modalId: "modalRecents", title: "Recents", icon: "fa-clock-rotate-left" },
+        taskSettings: { modalId: "modalSettings", title: "Settings", icon: "fa-gear" }
     };
 
-    Object.entries(modalMap).forEach(([btnId, modalId]) => {
+    Object.entries(modalMap).forEach(([btnId, { modalId, title, icon }]) => {
         const btn = $(`#${btnId}`);
         const modal = $(`#${modalId}`);
 
@@ -5385,7 +5683,8 @@ document.addEventListener("DOMContentLoaded", () => {
             btn.addEventListener("click", () => {
                 profileTaskbar.classList.remove("open");
                 profileBtn.setAttribute("aria-expanded", "false");
-                openModal(modalId);
+                if (window.innerWidth >= 1024) showCenteredProfileModal(modalId, title, icon);
+                else openModal(modalId);
             });
         }
     });
@@ -5403,6 +5702,10 @@ document.addEventListener("DOMContentLoaded", () => {
     function closeModal(modalId) {
         const modal = $(`#${modalId}`);
         if (!modal) return;
+        if (homeAlbumArtistView?.querySelector(`.sp-centered-modal-panel[data-modal-overlay="${modalId}"]`)) {
+            showHomeDashboardView();
+            return;
+        }
         modal.setAttribute("hidden", "true");
         document.body.style.overflow = "";
     }
@@ -6345,6 +6648,10 @@ document.addEventListener("DOMContentLoaded", () => {
    ========================================================== */
     const libTabs = $$(".lib-tab");
     const libSortBtn = $("#libSortBtn");
+    const libSortMenu = $("#libSortMenu");
+    const homeLibSortBtn = $("#homeLibSortBtn");
+    const homeLibSortMenu = $("#homeLibSortMenu");
+    const sidebarLibrarySearch = $("#sidebarLibrarySearch");
     const sidebarMinimizeBtn = $("#sidebarMinimizeBtn");
     const libraryPanel = $(".library-panel");
     const mainContainer = $(".main");
@@ -6355,7 +6662,22 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentBreakpointMode = "";
 
     if (sidebarMinimizeBtn && libraryPanel) {
+        let iconHideTimer;
+        sidebarMinimizeBtn.addEventListener("mouseenter", () => {
+            clearTimeout(iconHideTimer);
+            sidebarMinimizeBtn.classList.remove("hover-linger");
+        });
+        sidebarMinimizeBtn.addEventListener("mouseleave", () => {
+            if (libraryPanel.classList.contains("collapsed")) return;
+            sidebarMinimizeBtn.classList.add("hover-linger");
+            clearTimeout(iconHideTimer);
+            iconHideTimer = setTimeout(() => {
+                sidebarMinimizeBtn.classList.remove("hover-linger");
+            }, 3000);
+        });
         sidebarMinimizeBtn.addEventListener("click", () => {
+            clearTimeout(iconHideTimer);
+            sidebarMinimizeBtn.classList.remove("hover-linger");
             const isCollapsed = libraryPanel.classList.toggle("collapsed");
             if (mainContainer) mainContainer.classList.toggle("sidebar-collapsed", isCollapsed);
             if (window.innerWidth >= 1024) {
@@ -6417,16 +6739,86 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Recents / Alphabetical Sort Button
-    if (libSortBtn) {
-        libSortBtn.addEventListener("click", () => {
-            sidebarSortOrder = sidebarSortOrder === "recents" ? "az" : "recents";
-            libSortBtn.innerHTML = sidebarSortOrder === "az"
-                ? '<span>A-Z</span> <i class="fa-solid fa-arrow-down-a-z"></i>'
-                : '<span>Recents</span> <i class="fa-solid fa-list-ul"></i>';
-            setupSidebarSongs();
+    sidebarLibrarySearch?.addEventListener("input", () => {
+        sidebarLibrarySearch.closest(".lib-search-wrap")?.classList.toggle("expanded", Boolean(sidebarLibrarySearch.value.trim()));
+        setupSidebarSongs();
+    });
+
+    const sortLabels = {
+        recents: "Recents",
+        "recently-added": "Recently Added",
+        az: "Alphabetical",
+        creator: "Creator"
+    };
+    const viewIcons = {
+        compact: "fa-bars",
+        list: "fa-list-ul",
+        "compact-grid": "fa-grip",
+        grid: "fa-table-cells-large"
+    };
+    const syncLibrarySortControls = () => {
+        ["#libSortLabel", "#homeLibSortLabel"].forEach(selector => {
+            const label = $(selector);
+            if (label) label.textContent = sortLabels[sidebarSortOrder];
         });
-    }
+        const sidebarIcon = $("#libSortViewIcon");
+        const expandedIcon = $("#homeLibSortViewIcon");
+        const expandedMode = $("#homeLibItemsContainer")?.dataset.view || sidebarViewMode;
+        if (sidebarIcon) sidebarIcon.className = `fa-solid ${viewIcons[sidebarViewMode]}`;
+        if (expandedIcon) expandedIcon.className = `fa-solid ${viewIcons[expandedMode]}`;
+        [[libSortMenu, sidebarViewMode], [homeLibSortMenu, expandedMode]].forEach(([menu, mode]) => {
+            menu?.querySelectorAll("[data-sidebar-sort]").forEach(button => {
+                const selected = button.dataset.sidebarSort === sidebarSortOrder;
+                button.classList.toggle("selected", selected);
+                button.setAttribute("aria-pressed", String(selected));
+            });
+            menu?.querySelectorAll("[data-sidebar-view]").forEach(button => {
+                const selected = button.dataset.sidebarView === mode;
+                button.classList.toggle("selected", selected);
+                button.setAttribute("aria-pressed", String(selected));
+            });
+        });
+    };
+    const closeLibrarySortMenu = (menu, trigger) => {
+        if (menu) menu.hidden = true;
+        trigger?.setAttribute("aria-expanded", "false");
+    };
+    [[libSortBtn, libSortMenu], [homeLibSortBtn, homeLibSortMenu]].forEach(([trigger, menu]) => {
+        trigger?.addEventListener("click", () => {
+            if (!menu) return;
+            menu.hidden = !menu.hidden;
+            trigger.setAttribute("aria-expanded", String(!menu.hidden));
+        });
+        menu?.addEventListener("click", event => {
+            const sortButton = event.target.closest("[data-sidebar-sort]");
+            const viewButton = event.target.closest("[data-sidebar-view]");
+            if (sortButton) sidebarSortOrder = sortButton.dataset.sidebarSort;
+            if (viewButton) {
+                if (menu === libSortMenu) sidebarViewMode = viewButton.dataset.sidebarView;
+                else setHomeLibLayout(viewButton.dataset.sidebarView);
+            }
+            if (sortButton || viewButton) {
+                setupSidebarSongs();
+                renderHomeLibrary();
+                syncLibrarySortControls();
+            }
+        });
+    });
+    document.addEventListener("click", event => {
+        if (!libSortMenu?.hidden && !event.target.closest(".lib-search-row")) closeLibrarySortMenu(libSortMenu, libSortBtn);
+        if (!homeLibSortMenu?.hidden && !event.target.closest(".lib-expanded-sort")) closeLibrarySortMenu(homeLibSortMenu, homeLibSortBtn);
+    });
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") {
+            [[libSortMenu, libSortBtn], [homeLibSortMenu, homeLibSortBtn]].forEach(([menu, trigger]) => {
+                if (menu && !menu.hidden) {
+                    closeLibrarySortMenu(menu, trigger);
+                    trigger?.focus();
+                }
+            });
+        }
+    });
+    syncLibrarySortControls();
 
     /* ==========================================================
        Add to Playlist Modal System
@@ -6515,4 +6907,177 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.appendChild(toast);
         setTimeout(() => { toast.style.opacity = "0"; setTimeout(() => toast.remove(), 300); }, 2500);
     }
+
+    // On phones, reuse the already loaded views so menu taps reveal a ready page.
+    function showMobileProfilePage(view, from) {
+        if (!window.matchMedia("(max-width: 767px)").matches) return;
+        if (view === "account") {
+            document.body.classList.add("mobile-account-page");
+            displayUserProfileInView();
+        } else if (view === "recents" || view === "settings") {
+            const modalId = view === "recents" ? "modalRecents" : "modalSettings";
+            const page = document.getElementById(modalId);
+            if (page) {
+                page.classList.add("mobile-subpage");
+                page.removeAttribute("role");
+                page.removeAttribute("aria-modal");
+                page.querySelector(".cyber-modal-header h3").textContent = view === "recents" ? "Recents" : "Settings";
+                page.querySelector(".modal-close")?.setAttribute("aria-label", "Back");
+                const returnPage = ["home.html", "library.html", "playlist.html"].includes(from) ? from : "home.html";
+                if (!page.dataset.mobileBackReady) {
+                    page.dataset.mobileBackReady = "true";
+                    page.querySelectorAll("[data-close]").forEach(button => {
+                        button.addEventListener("click", event => {
+                            event.preventDefault();
+                            event.stopImmediatePropagation();
+                            location.href = returnPage;
+                        }, true);
+                    });
+                }
+                openModal(modalId);
+            }
+        }
+    }
+
+    window.openMobileProfilePage = view => {
+        if (!["account", "recents", "settings"].includes(view) ||
+            !window.matchMedia("(max-width: 767px)").matches) return false;
+        history.pushState(null, "", `home.html?view=${view}&from=home.html`);
+        showMobileProfilePage(view, "home.html");
+        return true;
+    };
+
+    window.addEventListener("popstate", () => {
+        if (!window.matchMedia("(max-width: 767px)").matches) return;
+        const params = new URLSearchParams(location.search);
+        const view = params.get("view");
+        if (["account", "recents", "settings"].includes(view)) {
+            showMobileProfilePage(view, params.get("from"));
+        } else {
+            document.body.classList.remove("mobile-account-page");
+            closeModal("modalRecents");
+            closeModal("modalSettings");
+            showHomeDashboardView();
+        }
+    });
+
+    const mobilePageParams = new URLSearchParams(location.search);
+    showMobileProfilePage(mobilePageParams.get("view"), mobilePageParams.get("from"));
+    window.dispatchEvent(new Event("spotifake:mobile-page-ready"));
+
+    const nowPlayingHeader = document.querySelector(".sp-npv-header");
+    if (nowPlayingHeader) {
+        let hideHeaderControlsTimer;
+        nowPlayingHeader.addEventListener("mouseenter", () => {
+            clearTimeout(hideHeaderControlsTimer);
+            nowPlayingHeader.classList.add("is-revealed");
+        });
+        nowPlayingHeader.addEventListener("mouseleave", () => {
+            clearTimeout(hideHeaderControlsTimer);
+            hideHeaderControlsTimer = setTimeout(() => {
+                nowPlayingHeader.classList.remove("is-revealed");
+            }, 2000);
+        });
+    }
+
+    // Float the desktop scrollbar thumbs over each pane, without a visible track.
+    [
+        [".sidebar-song-list", ".library-panel"],
+        [".main-right-part", ".main"],
+        [".sp-npv-scroll", ".artist-detail-panel"]
+    ].forEach(([scrollerSelector, hostSelector]) => {
+        const scroller = document.querySelector(scrollerSelector);
+        const host = document.querySelector(hostSelector);
+        if (!scroller || !host) return;
+        const hoverTarget = scrollerSelector === ".main-right-part" ? scroller : host;
+
+        const rail = document.createElement("div");
+        const thumb = document.createElement("div");
+        rail.className = "sp-overlay-scrollbar";
+        thumb.className = "sp-overlay-scrollbar-thumb";
+        rail.setAttribute("aria-hidden", "true");
+        rail.appendChild(thumb);
+        host.appendChild(rail);
+        scroller.classList.add("sp-overlay-scroll");
+
+        let frame = 0;
+        let thumbHeight = 0;
+        let trackHeight = 0;
+        let hideTimer;
+        let isDragging = false;
+        const update = () => {
+            frame = 0;
+            const scrollerRect = scroller.getBoundingClientRect();
+            const hostRect = host.getBoundingClientRect();
+            const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+            const desktop = window.innerWidth >= 1024;
+            if (!desktop || maxScroll <= 1 || scrollerRect.height <= 0) {
+                rail.style.display = "none";
+                rail.classList.remove("is-visible");
+                return;
+            }
+
+            rail.style.display = "block";
+            if (hoverTarget.matches(":hover") || isDragging) rail.classList.add("is-visible");
+            trackHeight = scrollerRect.height;
+            thumbHeight = Math.max(32, trackHeight * scroller.clientHeight / scroller.scrollHeight);
+            if (hostSelector === ".artist-detail-panel") {
+                rail.style.left = "";
+                rail.style.right = "2px";
+            } else {
+                rail.style.right = "";
+                rail.style.left = `${scrollerRect.right - hostRect.left - 10}px`;
+            }
+            rail.style.top = `${scrollerRect.top - hostRect.top}px`;
+            rail.style.height = `${trackHeight}px`;
+            thumb.style.height = `${thumbHeight}px`;
+            thumb.style.transform = `translateY(${scroller.scrollTop / maxScroll * (trackHeight - thumbHeight)}px)`;
+        };
+        const scheduleUpdate = () => {
+            if (!frame) frame = requestAnimationFrame(update);
+        };
+
+        thumb.addEventListener("pointerdown", event => {
+            if (event.button !== 0) return;
+            event.preventDefault();
+            isDragging = true;
+            clearTimeout(hideTimer);
+            thumb.setPointerCapture(event.pointerId);
+            const startY = event.clientY;
+            const startScroll = scroller.scrollTop;
+            const move = moveEvent => {
+                const maxScroll = scroller.scrollHeight - scroller.clientHeight;
+                const travel = trackHeight - thumbHeight;
+                if (travel > 0) scroller.scrollTop = startScroll +
+                    (moveEvent.clientY - startY) * maxScroll / travel;
+            };
+            const stop = () => {
+                isDragging = false;
+                thumb.removeEventListener("pointermove", move);
+                thumb.removeEventListener("pointerup", stop);
+                thumb.removeEventListener("pointercancel", stop);
+                if (!hoverTarget.matches(":hover")) rail.classList.remove("is-visible");
+            };
+            thumb.addEventListener("pointermove", move);
+            thumb.addEventListener("pointerup", stop);
+            thumb.addEventListener("pointercancel", stop);
+        });
+
+        hoverTarget.addEventListener("mouseenter", () => {
+            clearTimeout(hideTimer);
+            scheduleUpdate();
+        });
+        hoverTarget.addEventListener("mouseleave", () => {
+            clearTimeout(hideTimer);
+            hideTimer = setTimeout(() => {
+                if (!isDragging) rail.classList.remove("is-visible");
+            }, 1000);
+        });
+        scroller.addEventListener("scroll", scheduleUpdate, { passive: true });
+        window.addEventListener("resize", scheduleUpdate);
+        new ResizeObserver(scheduleUpdate).observe(scroller);
+        new MutationObserver(scheduleUpdate).observe(scroller, { childList: true, subtree: true });
+        scheduleUpdate();
+    });
+
 });

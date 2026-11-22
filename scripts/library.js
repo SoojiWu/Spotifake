@@ -1143,6 +1143,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         const canCrossfade =
+            meta.autoTransition === true &&
             autoplay &&
             crossfadeSeconds > 0 &&
             !audio.paused &&
@@ -1238,9 +1239,9 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
         if (currentIndex < songs.length - 1) {
-            loadTrack(currentIndex + 1, true);
+            loadTrack(currentIndex + 1, true, { autoTransition: isAutoEnded });
         } else if (repeatMode === "all" || !isAutoEnded) {
-            loadTrack(0, true);
+            loadTrack(0, true, { autoTransition: isAutoEnded });
         } else {
             audio.pause();
             audio.currentTime = 0;

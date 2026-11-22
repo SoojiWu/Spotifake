@@ -143,8 +143,8 @@ html[data-appearance="pure-black"] .player-bar {
 }
 
 html[data-appearance="pure-black"] .mobile-bottom-nav {
-    background: rgba(0, 0, 0, 0.98);
-    border-top-color: rgba(255, 255, 255, 0.12);
+    background: transparent;
+    border-top: 0;
 }
 
 html[data-appearance="pure-black"] .right-artist-panel,
@@ -260,6 +260,18 @@ html[data-appearance="light"] .search-bar {
     border-color: rgba(15, 23, 42, 0.14);
 }
 
+html[data-appearance="light"] .home-icon {
+    color: #11131D;
+}
+
+html[data-appearance="light"] .search-bar:focus-within {
+    border-color: #11131D;
+}
+
+html[data-appearance="light"] .search-icon {
+    color: #5F667E;
+}
+
 html[data-appearance="light"] .input-box,
 html[data-appearance="light"] .profile-name,
 html[data-appearance="light"] .taskbar-name,
@@ -347,10 +359,62 @@ html[data-appearance="light"] .player-bar {
     box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.06);
 }
 
+@media (min-width: 1024px) {
+    html[data-appearance="pure-black"] .home-page .player-bar,
+    html[data-appearance="light"] .home-page .player-bar {
+        border-top: 0;
+        box-shadow: none;
+    }
+}
+
 html[data-appearance="light"] .mobile-bottom-nav {
-    background: rgba(255, 255, 255, 0.96);
-    border-top: 1px solid var(--border-subtle);
-    box-shadow: 0 -4px 16px rgba(15, 23, 42, 0.06);
+    background: transparent;
+    border-top: 0;
+    box-shadow: none;
+}
+
+@media (min-width: 1024px) {
+    html[data-appearance="light"] .home-page .library-panel:not(.collapsed) {
+        background: var(--canvas-card);
+        border: 0;
+    }
+
+    html[data-appearance="light"] .home-page .library-title,
+    html[data-appearance="light"] .home-page .sidebar-song-title {
+        color: var(--text-primary);
+    }
+
+    html[data-appearance="light"] .home-page .sidebar-song-item.pinned-item .sidebar-song-title,
+    html[data-appearance="light"] .home-page .sidebar-song-item.active .sidebar-song-title,
+    html[data-appearance="light"] .home-page .sidebar-pin-badge {
+        color: var(--loud-magenta-dim);
+    }
+
+    html[data-appearance="light"] .home-page #sidebarCreatePlaylistBtn,
+    html[data-appearance="light"] .home-page .lib-tab {
+        background: var(--canvas-surface);
+        color: var(--text-primary);
+    }
+
+    html[data-appearance="light"] .home-page .lib-tab:is(:hover, .active),
+    html[data-appearance="light"] .home-page .sidebar-song-item:is(:hover, .active) {
+        background: var(--canvas-surface-hover);
+    }
+
+    html[data-appearance="light"] .home-page .lib-tab.active {
+        background: var(--neon-yellow);
+        color: #09090E;
+    }
+
+    html[data-appearance="light"] .home-page .lib-search-wrap:is(:focus-within, .expanded) {
+        background: var(--canvas-surface);
+    }
+
+    html[data-appearance="light"] .home-page .sidebar-song-artist,
+    html[data-appearance="light"] .home-page .lib-sort-btn,
+    html[data-appearance="light"] .home-page .lib-expand-btn {
+        color: var(--text-secondary);
+    }
 }
 
 /* Pills, Chips, Buttons & Secondary Controls */

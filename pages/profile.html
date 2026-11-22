@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#0d0d14">
+    <title>Spotifake | Profile</title>
+    <link rel="icon" type="image/svg+xml" href="../photos/spotifyICON/spotifake-favicon.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="../styles/HomeDesign.css">
+    <link rel="stylesheet" href="../styles/appearance.css">
+    <link rel="stylesheet" href="../styles/profilePage.css">
+    <script src="../scripts/appearance.js"></script>
+    <script src="../scripts/profileNavigation.js"></script>
+    <script src="../scripts/profilePage.js" defer></script>
+</head>
+<body class="profile-page">
+    <div class="custom-cursor-dot" id="cursorDot" aria-hidden="true"></div>
+    <div class="custom-cursor-ring" id="cursorRing" aria-hidden="true"></div>
+    <header class="profile-page-header">
+        <a class="profile-page-back" id="profileBack" href="home.html" aria-label="Back">
+            <i class="fa-solid fa-arrow-left" aria-hidden="true"></i>
+        </a>
+        <h1>Profile</h1>
+        <span aria-hidden="true"></span>
+    </header>
+
+    <main class="profile-page-content">
+        <article class="sp-final-profile-card" aria-label="User profile">
+            <div class="sp-final-card-banner" id="profileBanner"></div>
+            <div class="sp-final-card-identity">
+                <div class="sp-final-avatar-wrap">
+                    <img id="profileAvatar" src="../photos/spotifyICON/lydbayot.jpg" alt="Profile avatar">
+                </div>
+            </div>
+            <div class="sp-final-card-body">
+                <div class="sp-final-name-row">
+                    <h2 class="sp-final-name" id="profileName">JSON.TTUM</h2>
+                    <span class="sp-final-vip-badge"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Cyber VIP</span>
+                </div>
+                <p class="sp-final-description" id="profileDescription"></p>
+
+                <div class="sp-final-meta-badges">
+                    <div class="sp-final-meta-pill">
+                        <i class="fa-solid fa-venus-mars" aria-hidden="true"></i>
+                        <div><span class="meta-label">Gender</span><span class="meta-val" id="profileGender"></span></div>
+                    </div>
+                    <div class="sp-final-meta-pill">
+                        <i class="fa-solid fa-cake-candles" aria-hidden="true"></i>
+                        <div><span class="meta-label">Age</span><span class="meta-val" id="profileAge"></span></div>
+                    </div>
+                </div>
+
+                <div class="sp-final-bio-box">
+                    <div class="sp-final-bio-label"><i class="fa-solid fa-address-card" aria-hidden="true"></i> Bio &amp; About Me</div>
+                    <p class="sp-final-bio-text" id="profileBio"></p>
+                </div>
+
+                <div class="sp-final-stats-row">
+                    <div class="sp-final-stat-item"><strong id="profileLikes">0</strong><span>Liked Songs</span></div>
+                    <div class="sp-final-stat-item"><strong id="profilePlaylists">1</strong><span>Playlists</span></div>
+                    <div class="sp-final-stat-item"><strong id="profileRecents">0</strong><span>Recent Plays</span></div>
+                </div>
+
+                <div class="favorite-genres">
+                    <h3 class="profile-genres-title">Top Genres</h3>
+                    <div class="genre-tags">
+                        <span class="gtag">Contemporary R&amp;B</span>
+                        <span class="gtag">TrapSoul</span>
+                        <span class="gtag">Synth Funk</span>
+                        <span class="gtag">Classic 2000s R&amp;B</span>
+                    </div>
+                </div>
+            </div>
+        </article>
+    </main>
+</body>
+</html>

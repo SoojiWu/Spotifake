@@ -78,6 +78,8 @@
         const setShuffleEnabled = opts.setShuffleEnabled;
         const onStateChange = typeof opts.onStateChange === "function" ? opts.onStateChange : () => {};
         const notify = typeof opts.onToast === "function" ? opts.onToast : showFallbackToast;
+        const queueHost = opts.queueHost || null;
+        const onQueueOpen = typeof opts.onQueueOpen === "function" ? opts.onQueueOpen : () => {};
 
         let nextUid = 1;
         let userQueue = readStoredQueueIds().map(songId => ({ uid: nextUid++, songId }));
@@ -90,6 +92,7 @@
         let boundQueueBtnEl = null;
         let isPickerOpen = false;
         let pickerFilter = "";
+        let cleanupQueueSwipe = null;
 
         function getSongMap() {
             const list = getSongs() || [];
@@ -361,7 +364,7 @@
                 recordHistory();
                 userQueue.splice(nextEntry.rawIdx, 1);
                 persistQueue();
-                loadIndex(nextEntry.index, true, { fromUserQueue: true });
+                loadIndex(nextEntry.index, true, { fromUserQueue: true, autoTransition: isAutoEnded });
                 return { played: nextEntry.song, fromUserQueue: true };
             }
 
@@ -377,7 +380,7 @@
                 contextPointer++;
                 const target = map.get(contextOrder[contextPointer]);
                 if (target) {
-                    loadIndex(target.index, true, { fromContext: true });
+                    loadIndex(target.index, true, { fromContext: true, autoTransition: isAutoEnded });
                     return { played: target.song };
                 }
             }
@@ -402,7 +405,7 @@
                 }
                 const target = map.get(contextOrder[contextPointer]);
                 if (target) {
-                    loadIndex(target.index, true, { fromContext: true });
+                    loadIndex(target.index, true, { fromContext: true, autoTransition: isAutoEnded });
                     return { played: target.song };
                 }
             }
@@ -478,11 +481,74 @@
             updateQueueButtonBadge();
         }
 
+        function closeQueueModal() {
+            const overlay = document.getElementById("spQueueModalOverlay");
+            cleanupQueueSwipe?.();
+            cleanupQueueSwipe = null;
+            overlay?.querySelector(".sp-queue-modal")?.style.removeProperty("transform");
+            overlay?.querySelector(".sp-queue-modal")?.style.removeProperty("transition");
+            if (queueHost) {
+                queueHost.classList.remove("queue-view-open");
+                queueHost.setAttribute("aria-label", "Now Playing View");
+                queueHost.querySelectorAll(".sp-npv-header, .sp-npv-scroll").forEach(view => {
+                    view.inert = false;
+                });
+            } else if (overlay) {
+                overlay.style.display = "none";
+            }
+            if (boundQueueBtnEl) {
+                boundQueueBtnEl.setAttribute("aria-expanded", "false");
+                boundQueueBtnEl.classList.remove("active");
+            }
+        }
+
+        function bindQueueSwipe(overlay) {
+            cleanupQueueSwipe?.();
+            if (!queueHost) return;
+            const sheet = overlay.querySelector(".sp-queue-modal");
+            const header = overlay.querySelector(".sp-queue-modal-header");
+            if (!sheet || !header) return;
+            const listeners = new AbortController();
+            let startY = 0;
+            let startX = 0;
+            let activePointer = null;
+            let distance = 0;
+
+            header.addEventListener("pointerdown", (event) => {
+                if (window.innerWidth >= 768 || event.target.closest("button, input")) return;
+                activePointer = event.pointerId;
+                startX = event.clientX;
+                startY = event.clientY;
+                distance = 0;
+            }, { signal: listeners.signal });
+
+            window.addEventListener("pointermove", (event) => {
+                if (event.pointerId !== activePointer) return;
+                const dx = event.clientX - startX;
+                const dy = event.clientY - startY;
+                if (Math.abs(dx) > Math.abs(dy)) return;
+                distance = Math.max(0, dy);
+                sheet.style.transition = "none";
+                sheet.style.transform = `translateY(${distance}px)`;
+            }, { passive: true, signal: listeners.signal });
+
+            const endSwipe = (event) => {
+                if (event.pointerId !== activePointer) return;
+                activePointer = null;
+                sheet.style.removeProperty("transition");
+                sheet.style.removeProperty("transform");
+                if (event.type === "pointerup" && distance > 80) closeQueueModal();
+            };
+            window.addEventListener("pointerup", endSwipe, { passive: true, signal: listeners.signal });
+            window.addEventListener("pointercancel", endSwipe, { passive: true, signal: listeners.signal });
+            cleanupQueueSwipe = () => listeners.abort();
+        }
+
         function syncUI() {
             updateQueueButtonBadge();
             onStateChange();
             const overlay = document.getElementById("spQueueModalOverlay");
-            if (overlay && overlay.style.display === "flex") {
+            if (overlay && (queueHost ? queueHost.classList.contains("queue-view-open") : overlay.style.display === "flex")) {
                 renderQueueModalBody(overlay);
             }
         }
@@ -493,18 +559,6 @@
             const upcoming = getUpcomingContextEntries();
             const shuffled = isShuffleEnabled();
             const songsList = getSongs() || [];
-
-            const qShuffleBtn = overlay.querySelector("#spQueueModalShuffleBtn");
-            if (qShuffleBtn) {
-                qShuffleBtn.classList.toggle("is-active", shuffled);
-                qShuffleBtn.title = shuffled ? "Shuffle ON (click to reshuffle context)" : "Enable Shuffle";
-                qShuffleBtn.innerHTML = `<i class="fa-solid fa-shuffle"></i><span>${shuffled ? "Shuffle On" : "Shuffle Off"}</span>`;
-            }
-
-            const reshuffleBtn = overlay.querySelector("#spQueueReshuffleBtn");
-            if (reshuffleBtn) {
-                reshuffleBtn.style.display = contextSongIds.length > 1 ? "inline-flex" : "none";
-            }
 
             const nowBox = overlay.querySelector("#spQueueNowPlayingBox");
             if (nowBox && cur) {
@@ -538,7 +592,7 @@
                     emptyHint.className = "sp-queue-empty-box";
                     emptyHint.innerHTML = `
                         <i class="fa-solid fa-bars-staggered"></i>
-                        <span>No custom tracks queued yet. Use <strong>+ Add Songs</strong> below or the queue icon on any track to build your custom order.</span>
+                        <span>No custom tracks queued yet. Use the <strong>+</strong> button above or the queue icon on any track to build your custom order.</span>
                     `;
                     customListEl.appendChild(emptyHint);
                 } else {
@@ -562,13 +616,7 @@
                                 </div>
                             </div>
                             <div class="sp-queue-row-controls">
-                                <button type="button" class="sp-queue-ctrl-btn" data-act="up" title="Move up" ${qIdx === 0 ? "disabled" : ""}>
-                                    <i class="fa-solid fa-chevron-up"></i>
-                                </button>
-                                <button type="button" class="sp-queue-ctrl-btn" data-act="down" title="Move down" ${qIdx === validQ.length - 1 ? "disabled" : ""}>
-                                    <i class="fa-solid fa-chevron-down"></i>
-                                </button>
-                                <button type="button" class="sp-queue-ctrl-btn is-danger" data-act="remove" title="Remove from queue">
+                                <button type="button" class="sp-queue-ctrl-btn is-danger" data-act="remove" title="Remove from queue" aria-label="Remove ${escapeHtml(entry.song.title)} from queue">
                                     <i class="fa-solid fa-xmark"></i>
                                 </button>
                             </div>
@@ -613,14 +661,6 @@
                             });
                         });
 
-                        row.querySelector('[data-act="up"]')?.addEventListener("click", (e) => {
-                            e.stopPropagation();
-                            moveQueuedByUid(entry.uid, entry.rawIdx - 1);
-                        });
-                        row.querySelector('[data-act="down"]')?.addEventListener("click", (e) => {
-                            e.stopPropagation();
-                            moveQueuedByUid(entry.uid, entry.rawIdx + 1);
-                        });
                         row.querySelector('[data-act="remove"]')?.addEventListener("click", (e) => {
                             e.stopPropagation();
                             removeQueuedByUid(entry.uid);
@@ -636,9 +676,8 @@
             const pickerWrap = overlay.querySelector("#spQueuePickerWrap");
             const pickerToggleBtn = overlay.querySelector("#spQueuePickerToggleBtn");
             if (pickerToggleBtn) {
-                pickerToggleBtn.innerHTML = isPickerOpen
-                    ? `<i class="fa-solid fa-chevron-up"></i> Hide songs`
-                    : `<i class="fa-solid fa-plus"></i> Add songs`;
+                pickerToggleBtn.setAttribute("aria-expanded", String(isPickerOpen));
+                pickerToggleBtn.title = isPickerOpen ? "Hide add songs" : "Add songs";
             }
             if (pickerWrap) {
                 pickerWrap.style.display = isPickerOpen ? "flex" : "none";
@@ -683,6 +722,10 @@
             // Section 3: Next from <Context>
             const contextHeading = overlay.querySelector("#spQueueContextLabel");
             const upcomingListEl = overlay.querySelector("#spQueueUpcomingList");
+            const contextSection = overlay.querySelector("#spQueueContextSection");
+            if (contextSection) {
+                contextSection.hidden = Boolean(queueHost && window.innerWidth < 768 && upcoming.length === 0);
+            }
             if (contextHeading) {
                 contextHeading.textContent = `Next from: ${contextLabel}${shuffled ? " • Shuffled" : ""}`;
             }
@@ -736,30 +779,33 @@
         }
 
         function openQueueModal() {
+            if (queueHost && queueHost.classList.contains("queue-view-open")) {
+                closeQueueModal();
+                return;
+            }
             // Pull freshest stored custom queue in case another tab/page edited it
             userQueue = readStoredQueueIds().map(songId => ({ uid: nextUid++, songId }));
+            if (queueHost && window.innerWidth < 768) {
+                isPickerOpen = true;
+                pickerFilter = "";
+            }
 
             let overlay = document.getElementById("spQueueModalOverlay");
             if (!overlay) {
                 overlay = document.createElement("div");
                 overlay.id = "spQueueModalOverlay";
-                overlay.className = "sp-profile-details-backdrop";
-                document.body.appendChild(overlay);
+                overlay.className = queueHost ? "sp-queue-side-view" : "sp-profile-details-backdrop";
+                (queueHost || document.body).appendChild(overlay);
             }
 
             overlay.innerHTML = `
-                <div class="sp-profile-details-modal sp-queue-modal" role="dialog" aria-modal="true" aria-label="Play Queue">
+                <div class="sp-profile-details-modal sp-queue-modal" role="${queueHost ? "region" : "dialog"}" ${queueHost ? "" : 'aria-modal="true"'} aria-label="Play Queue">
                     <div class="sp-profile-details-header sp-queue-modal-header">
+                        <span class="sp-queue-sheet-handle" aria-hidden="true"></span>
                         <div class="sp-queue-title-row">
                             <h2><i class="fa-solid fa-bars-staggered" style="color:var(--neon-yellow);margin-right:8px;"></i>Queue</h2>
                             <button type="button" class="sp-profile-details-close sp-queue-close-mobile" id="spQueueCloseBtn" aria-label="Close">
                                 <i class="fa-solid fa-xmark"></i>
-                            </button>
-                        </div>
-                        <div class="sp-queue-header-tools">
-                            <button type="button" class="sp-queue-mini-btn" id="spQueueModalShuffleBtn"></button>
-                            <button type="button" class="sp-queue-mini-btn" id="spQueueReshuffleBtn" title="Shuffle a fresh order">
-                                <i class="fa-solid fa-arrows-rotate"></i> Reshuffle
                             </button>
                         </div>
                     </div>
@@ -772,19 +818,20 @@
                             <div class="sp-queue-section-bar">
                                 <span class="sp-queue-section-label" id="spQueueCustomCount">Next in queue (0)</span>
                                 <div class="sp-queue-section-actions">
-                                    <button type="button" class="sp-queue-mini-btn is-primary" id="spQueuePickerToggleBtn">
-                                        <i class="fa-solid fa-plus"></i> Add songs
+                                    <button type="button" class="sp-queue-mini-btn is-primary" id="spQueuePickerToggleBtn" aria-label="Add songs to queue" aria-expanded="false" title="Add songs">
+                                        <i class="fa-solid fa-plus" aria-hidden="true"></i>
                                     </button>
                                     <button type="button" class="sp-queue-mini-btn is-danger" id="spQueueClearBtn">Clear</button>
                                 </div>
                             </div>
+                            <div class="sp-queue-list" id="spQueueCustomList"></div>
                             <div class="sp-queue-picker-wrap" id="spQueuePickerWrap" style="display:none;">
+                                <div class="sp-queue-section-label">Add songs</div>
                                 <input type="search" id="spQueuePickerSearch" class="sp-queue-picker-search" placeholder="Search song or artist to add to queue..." value="${escapeHtml(pickerFilter)}">
                                 <div class="sp-queue-picker-list" id="spQueuePickerList"></div>
                             </div>
-                            <div class="sp-queue-list" id="spQueueCustomList"></div>
                         </div>
-                        <div>
+                        <div id="spQueueContextSection">
                             <div class="sp-queue-section-label" id="spQueueContextLabel">Next from: All Songs</div>
                             <div class="sp-queue-list" id="spQueueUpcomingList"></div>
                         </div>
@@ -793,17 +840,12 @@
             `;
 
             overlay.querySelector("#spQueueCloseBtn")?.addEventListener("click", () => {
-                overlay.style.display = "none";
+                closeQueueModal();
             });
             overlay.onclick = (e) => {
-                if (e.target === overlay) overlay.style.display = "none";
+                if (e.target === overlay && (!queueHost || window.innerWidth < 768)) closeQueueModal();
             };
-            overlay.querySelector("#spQueueModalShuffleBtn")?.addEventListener("click", () => {
-                if (typeof setShuffleEnabled === "function") {
-                    setShuffleEnabled(!isShuffleEnabled());
-                }
-            });
-            overlay.querySelector("#spQueueReshuffleBtn")?.addEventListener("click", reshuffleUpcoming);
+            bindQueueSwipe(overlay);
             overlay.querySelector("#spQueueClearBtn")?.addEventListener("click", clearQueue);
             overlay.querySelector("#spQueuePickerToggleBtn")?.addEventListener("click", () => {
                 isPickerOpen = !isPickerOpen;
@@ -818,7 +860,22 @@
             });
 
             renderQueueModalBody(overlay);
-            overlay.style.display = "flex";
+            if (queueHost) {
+                onQueueOpen();
+                // Establish the hidden starting position before the panel transitions in.
+                overlay.getBoundingClientRect();
+                queueHost.classList.add("queue-view-open");
+                queueHost.setAttribute("aria-label", "Play Queue");
+                queueHost.querySelectorAll(".sp-npv-header, .sp-npv-scroll").forEach(view => {
+                    view.inert = true;
+                });
+            } else {
+                overlay.style.display = "flex";
+            }
+            if (boundQueueBtnEl) {
+                boundQueueBtnEl.setAttribute("aria-expanded", "true");
+                boundQueueBtnEl.classList.add("active");
+            }
         }
 
         // Cross-tab custom queue sync
@@ -853,6 +910,7 @@
             stepPrevious,
             bindQueueButton,
             openQueueModal,
+            closeQueueModal,
             syncUI
         };
     }
