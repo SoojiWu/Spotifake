@@ -4532,9 +4532,30 @@ input:checked+.slider:before {
     }
 
     #homeLibraryView .lib-create-album-btn:not([hidden]) {
-        padding: 7px 13px;
-        font-size: 11.5px;
-        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex: 0 0 40px;
+        width: 40px;
+        height: 40px;
+        padding: 0;
+        border: 0;
+        border-radius: 50%;
+        background: transparent;
+        color: var(--neon-yellow);
+        box-shadow: none;
+        font-size: 20px;
+    }
+
+    #homeLibraryView .lib-create-album-btn .lib-create-label {
+        display: none;
+    }
+
+    #homeLibraryView .lib-create-album-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: var(--neon-yellow);
+        box-shadow: none;
+        transform: none;
     }
 
     #homeLibraryView .lib-main-heading h1 {
@@ -4545,7 +4566,12 @@ input:checked+.slider:before {
     }
 
     #homeLibraryView .lib-actions-row {
-        gap: 6px;
+        gap: 2px;
+    }
+
+    #homeLibraryView #mobileLibSearchToggleBtn {
+        width: 40px;
+        height: 40px;
     }
 
     .sp-mob-lib-icon-btn {
@@ -6427,6 +6453,10 @@ body.cursor-disabled .custom-cursor-ring {
     border: 1px solid rgba(29, 185, 84, 0.42);
     white-space: nowrap;
     flex-shrink: 0;
+}
+
+.sp-spotify-only-badge .sp-badge-label-short {
+    display: none;
 }
 
 .sp-spotify-row-link {
@@ -12219,6 +12249,223 @@ html.profile-transition-preparing body {
     .home-page .sidebar-song-list[data-view="grid"] .sidebar-song-info {
         width: 100%;
         flex: none;
+    }
+}
+/* Album pages: keep controls and track details readable on narrow phones. */
+@media (max-width: 600px) {
+    .sp-album-hero {
+        gap: 12px;
+        padding: 18px 14px;
+        margin-bottom: 14px;
+    }
+
+    .sp-album-hero .sp-hero-cover {
+        width: min(128px, 42vw);
+        height: auto;
+        aspect-ratio: 1;
+    }
+
+    .sp-album-hero .sp-hero-info {
+        width: 100%;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .sp-album-hero .sp-hero-title {
+        font-size: clamp(24px, 8vw, 34px);
+    }
+
+    .sp-album-hero .sp-hero-meta {
+        justify-content: center;
+        gap: 6px;
+        margin-top: 2px;
+    }
+
+    .sp-album-action-bar {
+        display: flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 6px;
+        margin: 14px 0 18px;
+    }
+
+    .sp-album-action-bar .sp-big-play-btn {
+        width: 52px;
+        height: 52px;
+        flex: 0 0 52px;
+        margin-left: 10px;
+        margin-right: auto;
+    }
+
+    .sp-album-action-bar .sp-secondary-btn {
+        width: 40px;
+        height: 40px;
+        min-height: 40px;
+        flex: 0 0 40px;
+        justify-content: center;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: #b9b9c6;
+        font-size: 18px;
+    }
+
+    .sp-album-action-bar .sp-secondary-btn span {
+        display: none;
+    }
+
+    .sp-album-action-bar .sp-secondary-btn:is(:hover, :focus-visible) {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+    }
+
+    .sp-album-action-bar .sp-secondary-btn.is-active {
+        border: 0;
+        background: transparent;
+        color: var(--neon-yellow);
+    }
+
+    .sp-album-action-bar .sp-secondary-btn.is-active:is(:hover, :focus-visible) {
+        background: rgba(255, 255, 255, 0.08);
+    }
+
+    .sp-album-action-bar :is(#spAlbumOpenArtistBtn, #spAlbumDeleteBtn) {
+        width: 40px;
+        padding: 0;
+    }
+
+    .sp-album-spotify-box {
+        padding: 12px 14px;
+        gap: 8px;
+        background: #101318;
+        border-color: rgba(29, 185, 84, 0.25);
+        box-shadow: none;
+    }
+
+    .sp-spotify-box-head {
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .sp-album-spotify-box .sp-spotify-box-icon {
+        width: 24px;
+        height: 28px;
+        border-radius: 0;
+        background: none;
+        color: #1DB954;
+        font-size: 24px;
+        box-shadow: none;
+    }
+
+    .sp-album-spotify-box .sp-spotify-url-box {
+        padding: 0 0 0 34px;
+        gap: 0;
+        border: 0;
+        background: none;
+    }
+
+    .sp-album-spotify-box .sp-spotify-url-label,
+    .sp-album-spotify-box .sp-spotify-url-text {
+        display: none;
+    }
+
+    .sp-album-spotify-box .sp-spotify-open-cta {
+        margin: 0;
+        padding: 0;
+        background: none;
+        color: #3fc874;
+        font-size: 12px;
+    }
+
+    .sp-album-tracklist .sp-tracklist-header {
+        display: none;
+    }
+
+    .sp-album-tracklist .sp-track-row {
+        grid-template-columns: 20px minmax(0, 1fr) auto;
+        grid-template-areas: "num main actions" "num main duration";
+        column-gap: 8px;
+        row-gap: 0;
+        padding: 10px 12px;
+        min-width: 0;
+    }
+
+    .sp-album-tracklist .sp-track-num {
+        grid-area: num;
+        width: 20px;
+        align-self: center;
+        padding: 0;
+    }
+
+    .sp-album-tracklist .sp-track-main {
+        grid-area: main;
+        min-width: 0;
+    }
+
+    .sp-album-tracklist .sp-track-titles,
+    .sp-album-tracklist .sp-track-title-line {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .sp-album-tracklist .sp-track-title-line {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+    }
+
+    .sp-album-tracklist .sp-track-title {
+        display: block;
+        width: 100%;
+    }
+
+    .sp-album-tracklist .sp-spotify-only-badge {
+        max-width: 100%;
+        box-sizing: border-box;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .sp-album-tracklist .sp-track-actions {
+        grid-area: actions;
+        justify-self: end;
+        justify-content: flex-end;
+        align-self: end;
+        gap: 4px;
+        padding-left: 4px;
+    }
+
+    .sp-album-tracklist .sp-icon-btn {
+        width: 28px;
+        height: 28px;
+        border-color: transparent;
+        background: transparent;
+        font-size: 14px;
+    }
+
+    .sp-album-tracklist .sp-spotify-row-link {
+        padding: 5px 7px;
+        border-color: transparent;
+        background: transparent;
+        font-size: 11px;
+    }
+
+    .sp-album-tracklist .sp-track-duration {
+        grid-area: duration;
+        align-self: start;
+        padding-top: 0;
+        white-space: nowrap;
+        font-variant-numeric: tabular-nums;
+    }
+}
+
+@media (max-width: 380px) {
+    .sp-album-tracklist .sp-badge-label-full {
+        display: none;
+    }
+
+    .sp-album-tracklist .sp-badge-label-short {
+        display: inline;
     }
 }
 

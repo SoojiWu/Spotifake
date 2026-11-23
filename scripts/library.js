@@ -633,7 +633,7 @@ document.addEventListener("DOMContentLoaded", () => {
                     <i class="fa-solid fa-arrow-left"></i> Back to Library
                 </button>
             </div>
-            <section class="sp-hero">
+            <section class="sp-hero sp-album-hero">
                 <img src="${album.cover}" alt="${album.title}" class="sp-hero-cover">
                 <div class="sp-hero-info">
                     <span class="sp-verified-badge"><i class="fa-solid fa-compact-disc"></i> Album</span>
@@ -650,19 +650,19 @@ document.addEventListener("DOMContentLoaded", () => {
                     </div>
                 </div>
             </section>
-            <div class="sp-action-bar">
+            <div class="sp-action-bar sp-album-action-bar">
                 <button type="button" class="sp-big-play-btn" id="libAlbumPlayBtn" title="Play ${album.title}">
                     <i class="fa-solid fa-play"></i>
                 </button>
-                <button type="button" class="sp-secondary-btn" id="libAlbumShuffleBtn">
-                    <i class="fa-solid fa-shuffle"></i> Shuffle Album
+                <button type="button" class="sp-secondary-btn" id="libAlbumShuffleBtn" title="Shuffle album" aria-label="Shuffle album">
+                    <i class="fa-solid fa-shuffle" aria-hidden="true"></i><span>Shuffle Album</span>
                 </button>
-                <button type="button" class="sp-secondary-btn${isSaved ? " is-active" : ""}" id="libAlbumSaveBtn">
-                    <i class="${isSaved ? "fa-solid" : "fa-regular"} fa-heart"></i>
+                <button type="button" class="sp-secondary-btn${isSaved ? " is-active" : ""}" id="libAlbumSaveBtn" title="${isSaved ? "Remove album from library" : "Save album to library"}" aria-label="${isSaved ? "Remove album from library" : "Save album to library"}" aria-pressed="${isSaved}">
+                    <i class="${isSaved ? "fa-solid" : "fa-regular"} fa-heart" aria-hidden="true"></i>
                     <span>${isSaved ? "Saved in Library" : "Save Album"}</span>
                 </button>
             </div>
-            <div class="sp-tracklist" id="libAlbumTracklist">
+            <div class="sp-tracklist sp-album-tracklist" id="libAlbumTracklist">
                 <div class="sp-tracklist-header">
                     <span>#</span>
                     <span>Title</span>
@@ -710,7 +710,10 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("spotifake_saved_albums", JSON.stringify([...savedAlbumsLib]));
             const nowSaved = savedAlbumsLib.has(album.id);
             saveBtn.classList.toggle("is-active", nowSaved);
-            saveBtn.innerHTML = `<i class="${nowSaved ? "fa-solid" : "fa-regular"} fa-heart"></i><span>${nowSaved ? "Saved in Library" : "Save Album"}</span>`;
+            saveBtn.setAttribute("aria-pressed", String(nowSaved));
+            saveBtn.setAttribute("aria-label", nowSaved ? "Remove album from library" : "Save album to library");
+            saveBtn.title = nowSaved ? "Remove album from library" : "Save album to library";
+            saveBtn.innerHTML = `<i class="${nowSaved ? "fa-solid" : "fa-regular"} fa-heart" aria-hidden="true"></i><span>${nowSaved ? "Saved in Library" : "Save Album"}</span>`;
         });
 
         const tracklistEl = libEntityView.querySelector("#libAlbumTracklist");

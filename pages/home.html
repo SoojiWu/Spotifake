@@ -649,14 +649,14 @@
                     </div>
 
                     <div class="lib-actions-row">
+                        <button type="button" class="lib-create-album-btn" id="homeLibCreateAlbumBtn" title="Create album" aria-label="Create album" hidden>
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i><span class="lib-create-label">Create album</span>
+                        </button>
                         <button type="button" class="sp-mob-lib-icon-btn sp-mob-only-inline" id="mobileLibSearchToggleBtn" title="Search Your Library" aria-label="Search library">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
                         <button type="button" class="lib-create-playlist-btn" id="homeLibCreatePlaylistBtn">
                             <i class="fa-solid fa-plus"></i><span class="lib-create-label">Create playlist</span>
-                        </button>
-                        <button type="button" class="lib-create-album-btn" id="homeLibCreateAlbumBtn" hidden>
-                            <i class="fa-solid fa-plus"></i><span class="lib-create-label">Create album</span>
                         </button>
                         <button type="button" class="lib-collapse-btn" id="homeLibCollapseBtn" title="Collapse library" aria-label="Collapse library">
                             <i class="fa-solid fa-down-left-and-up-right-to-center" aria-hidden="true"></i>
@@ -896,11 +896,11 @@
     </div>
 
 
+    <!-- Keep audio mounted while mobile subpages hide the player controls. -->
+    <audio id="audioPlayer" preload="metadata"></audio>
+
     <!-- ================= PERSISTENT BOTTOM AUDIO PLAYER BAR ================= -->
     <footer class="player-bar" aria-label="Music player">
-
-        <!-- Local audio playback -->
-        <audio id="audioPlayer" preload="metadata"></audio>
 
         <!-- Currently Playing Song Info -->
         <div class="now-bar">

@@ -2636,7 +2636,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Album Hero Header
         const hero = document.createElement("section");
-        hero.className = "sp-hero";
+        hero.className = "sp-hero sp-album-hero";
         hero.innerHTML = `
             <img src="${album.cover}" alt="${album.title}" class="sp-hero-cover">
             <div class="sp-hero-info">
@@ -2662,24 +2662,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Album Action Bar (Play Album, Shuffle Album, Save Album to Library)
         const actionBar = document.createElement("div");
-        actionBar.className = "sp-action-bar";
+        actionBar.className = "sp-action-bar sp-album-action-bar";
         actionBar.innerHTML = `
             <button type="button" class="sp-big-play-btn" id="spAlbumPlayBtn" title="Play ${album.title}">
                 <i class="fa-solid fa-play"></i>
             </button>
-            <button type="button" class="sp-secondary-btn" id="spAlbumShuffleBtn">
-                <i class="fa-solid fa-shuffle"></i> Shuffle Album
+            <button type="button" class="sp-secondary-btn" id="spAlbumShuffleBtn" title="Shuffle album" aria-label="Shuffle album">
+                <i class="fa-solid fa-shuffle" aria-hidden="true"></i><span>Shuffle Album</span>
             </button>
-            <button type="button" class="sp-secondary-btn${isSaved ? " is-active" : ""}" id="spAlbumSaveBtn">
-                <i class="${isSaved ? "fa-solid" : "fa-regular"} fa-heart"></i>
+            <button type="button" class="sp-secondary-btn${isSaved ? " is-active" : ""}" id="spAlbumSaveBtn" title="${isSaved ? "Remove album from library" : "Save album to library"}" aria-label="${isSaved ? "Remove album from library" : "Save album to library"}" aria-pressed="${isSaved}">
+                <i class="${isSaved ? "fa-solid" : "fa-regular"} fa-heart" aria-hidden="true"></i>
                 <span>${isSaved ? "Saved in Library" : "Save Album"}</span>
             </button>
-            <button type="button" class="sp-secondary-btn" id="spAlbumOpenArtistBtn">
-                <i class="fa-solid fa-user"></i> View Artist Profile
+            <button type="button" class="sp-secondary-btn" id="spAlbumOpenArtistBtn" title="View artist profile" aria-label="View artist profile">
+                <i class="fa-solid fa-user" aria-hidden="true"></i><span>View Artist Profile</span>
             </button>
             ${album.isCustomAlbum ? `
-            <button type="button" class="sp-secondary-btn" id="spAlbumDeleteBtn" style="border-color:rgba(229,62,62,0.55);color:#f87171;">
-                <i class="fa-solid fa-trash-can"></i> Delete Album
+            <button type="button" class="sp-secondary-btn" id="spAlbumDeleteBtn" title="Delete album" aria-label="Delete album" style="border-color:rgba(229,62,62,0.55);color:#f87171;">
+                <i class="fa-solid fa-trash-can" aria-hidden="true"></i><span>Delete Album</span>
             </button>` : ""}
         `;
         homeAlbumArtistView.appendChild(actionBar);
@@ -2735,7 +2735,10 @@ document.addEventListener("DOMContentLoaded", () => {
             localStorage.setItem("spotifake_saved_albums", JSON.stringify([...savedAlbums]));
             const nowSaved = savedAlbums.has(album.id);
             saveBtn.classList.toggle("is-active", nowSaved);
-            saveBtn.innerHTML = `<i class="${nowSaved ? "fa-solid" : "fa-regular"} fa-heart"></i><span>${nowSaved ? "Saved in Library" : "Save Album"}</span>`;
+            saveBtn.setAttribute("aria-pressed", String(nowSaved));
+            saveBtn.setAttribute("aria-label", nowSaved ? "Remove album from library" : "Save album to library");
+            saveBtn.title = nowSaved ? "Remove album from library" : "Save album to library";
+            saveBtn.innerHTML = `<i class="${nowSaved ? "fa-solid" : "fa-regular"} fa-heart" aria-hidden="true"></i><span>${nowSaved ? "Saved in Library" : "Save Album"}</span>`;
         });
 
         actionBar.querySelector("#spAlbumOpenArtistBtn").addEventListener("click", () => {
@@ -2750,7 +2753,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Build Full Spotify-style Multi-Track Album Tracklist Table
         const albumTable = document.createElement("div");
-        albumTable.className = "sp-tracklist";
+        albumTable.className = "sp-tracklist sp-album-tracklist";
         albumTable.innerHTML = `
             <div class="sp-tracklist-header">
                 <span>#</span>
@@ -5475,7 +5478,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const params = new URLSearchParams(location.search);
             if (window.matchMedia("(max-width: 767px)").matches && params.get("view") === "account") {
                 const from = params.get("from");
-                location.href = ["home.html", "library.html", "playlist.html"].includes(from) ? from : "home.html";
+                returnFromMobileProfilePage(["home.html", "library.html", "playlist.html"].includes(from) ? from : "home.html");
             } else {
                 showHomeDashboardView();
             }
@@ -6908,6 +6911,27 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => { toast.style.opacity = "0"; setTimeout(() => toast.remove(), 300); }, 2500);
     }
 
+    // Return to Home without reloading the document that owns the playing audio.
+    let mobileProfileHistoryEntry = false;
+    function returnFromMobileProfilePage(returnPage) {
+        if (returnPage !== "home.html") {
+            location.href = returnPage;
+            return;
+        }
+        if (mobileProfileHistoryEntry) {
+            mobileProfileHistoryEntry = false;
+            history.back();
+            return;
+        }
+        if (new URLSearchParams(location.search).has("view")) {
+            history.replaceState(null, "", "home.html");
+        }
+        document.body.classList.remove("mobile-account-page");
+        ["modalRecents", "modalSettings"].forEach(id => document.getElementById(id)?.setAttribute("hidden", ""));
+        document.body.style.overflow = "";
+        showHomeDashboardView();
+    }
+
     // On phones, reuse the already loaded views so menu taps reveal a ready page.
     function showMobileProfilePage(view, from) {
         if (!window.matchMedia("(max-width: 767px)").matches) return;
@@ -6930,7 +6954,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         button.addEventListener("click", event => {
                             event.preventDefault();
                             event.stopImmediatePropagation();
-                            location.href = returnPage;
+                            returnFromMobileProfilePage(returnPage);
                         }, true);
                     });
                 }
@@ -6943,6 +6967,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!["account", "recents", "settings"].includes(view) ||
             !window.matchMedia("(max-width: 767px)").matches) return false;
         history.pushState(null, "", `home.html?view=${view}&from=home.html`);
+        mobileProfileHistoryEntry = true;
         showMobileProfilePage(view, "home.html");
         return true;
     };
@@ -6954,6 +6979,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (["account", "recents", "settings"].includes(view)) {
             showMobileProfilePage(view, params.get("from"));
         } else {
+            mobileProfileHistoryEntry = false;
             document.body.classList.remove("mobile-account-page");
             closeModal("modalRecents");
             closeModal("modalSettings");

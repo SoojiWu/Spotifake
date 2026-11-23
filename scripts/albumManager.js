@@ -264,7 +264,8 @@
         const badge = document.createElement("span");
         badge.className = "sp-spotify-only-badge";
         badge.title = "This song is available only on Spotify";
-        badge.innerHTML = `<i class="fa-brands fa-spotify"></i> Available only in Spotify`;
+        badge.setAttribute("aria-label", "Available only in Spotify");
+        badge.innerHTML = `<i class="fa-brands fa-spotify" aria-hidden="true"></i><span class="sp-badge-label-full" aria-hidden="true">Available only in Spotify</span><span class="sp-badge-label-short" aria-hidden="true">Spotify only</span>`;
         return badge;
     }
 
