@@ -25,12 +25,14 @@
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="../styles/HomeDesign.css">
-    <link rel="stylesheet" href="../styles/library.css">
+    <link rel="stylesheet" href="../styles/library.css?v=mobile-library-layout-2">
     <link rel="stylesheet" href="../styles/carousel.css">
     <link rel="stylesheet" href="../styles/modal.css">
     <link rel="stylesheet" href="../styles/appearance.css">
     <script src="../scripts/appearance.js"></script>
     <script src="../scripts/galleryPicker.js" defer></script>
+    <script src="../scripts/profileNavigation.js"></script>
+    <script src="../scripts/profileDrawer.js" defer></script>
 </head>
 
 <body class="home-page">
@@ -47,7 +49,9 @@
                     <i class="fa-brands fa-spotify" aria-hidden="true"></i>
                     <h1>SPOTIFAKE</h1>
                 </a>
+            </div>
 
+            <div class="header-center">
                 <!-- Home Button -->
                 <a class="home-icon active" href="home.html" id="navHomeBtn" aria-label="Home" title="Home">
                     <i class="fa-solid fa-house" aria-hidden="true"></i>
@@ -67,21 +71,8 @@
                 </form>
             </div>
 
-            <!-- College / Barangay Extension Project Branding -->
-            <div class="header-center">
-                <div class="project-badge" title="BSIT / IT Extension Project">
-                    <i class="fa-solid fa-graduation-cap"></i>
-                    <span>BSIT-1B</span>
-                </div>
-            </div>
-
             <!-- User Profile & Task Bar Trigger -->
             <div class="right-half">
-                <a href="../song_pages/index.html" class="song-hub-btn" title="Open Song Pages Directory">
-                    <i class="fa-solid fa-folder-open"></i>
-                    <span>Song Pages</span>
-                </a>
-
                 <div class="profile-menu-container">
                     <button type="button" class="profile-btn" id="profileBtn" aria-haspopup="true" aria-expanded="false"
                         title="Account Menu">
@@ -167,9 +158,10 @@
                     <button type="button" class="add-library" id="sidebarCreatePlaylistBtn"
                         title="Create a new playlist" aria-label="Create playlist">
                         <i class="fa-solid fa-plus" aria-hidden="true"></i>
+                        <span>Create</span>
                     </button>
-                    <a href="library.html" class="add-library lib-expand-btn" id="sidebarExpandBtn" title="Open Full Screen Library (Music Keeps Playing)"
-                        aria-label="Open full library">
+                    <a href="library.html" class="add-library lib-expand-btn" id="sidebarExpandBtn" title="Expand library"
+                        aria-label="Expand library" aria-controls="homeLibraryView" aria-expanded="false">
                         <i class="fa-solid fa-up-right-and-down-left-from-center" aria-hidden="true"></i>
                     </a>
                 </div>
@@ -185,11 +177,34 @@
                     aria-selected="false">Artists</button>
             </div>
 
-            <!-- Library Sort Row (Search button removed per request) -->
+            <!-- Library Search and Sort Row -->
             <div class="lib-search-row">
-                <button type="button" class="lib-sort-btn" id="libSortBtn" title="Sort by Recents or Alphabetical">
-                    <span>Recents</span> <i class="fa-solid fa-list-ul"></i>
+                <label class="lib-search-wrap" for="sidebarLibrarySearch">
+                    <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
+                    <input type="search" class="lib-search-input" id="sidebarLibrarySearch"
+                        placeholder="Search in Your Library" aria-label="Search library items">
+                </label>
+                <button type="button" class="lib-sort-btn" id="libSortBtn" title="Sort and change library view"
+                    aria-label="Sort and change library view" aria-haspopup="dialog" aria-controls="libSortMenu" aria-expanded="false">
+                    <span id="libSortLabel">Recents</span> <i id="libSortViewIcon" class="fa-solid fa-list-ul" aria-hidden="true"></i>
                 </button>
+                <div class="lib-sort-menu" id="libSortMenu" role="dialog" aria-label="Sort and view library" hidden>
+                    <p class="lib-sort-menu-heading">Sort by</p>
+                    <div class="lib-sort-choices" role="group" aria-label="Sort by">
+                        <button type="button" data-sidebar-sort="recents">Recents <i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                        <button type="button" data-sidebar-sort="recently-added">Recently Added <i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                        <button type="button" data-sidebar-sort="az">Alphabetical <i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                        <button type="button" data-sidebar-sort="creator">Creator <i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                    </div>
+                    <div class="lib-sort-menu-divider"></div>
+                    <p class="lib-sort-menu-heading">View as</p>
+                    <div class="lib-view-choices" role="group" aria-label="View as">
+                        <button type="button" data-sidebar-view="compact" aria-label="Compact list" title="Compact list"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+                        <button type="button" data-sidebar-view="list" aria-label="List with covers" title="List with covers"><i class="fa-solid fa-list-ul" aria-hidden="true"></i></button>
+                        <button type="button" data-sidebar-view="compact-grid" aria-label="Cover grid" title="Cover grid"><i class="fa-solid fa-grip" aria-hidden="true"></i></button>
+                        <button type="button" data-sidebar-view="grid" aria-label="Grid with details" title="Grid with details"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i></button>
+                    </div>
+                </div>
             </div>
 
             <!-- Library Items List (Spotify Style) -->
@@ -197,13 +212,6 @@
                 <!-- Populated dynamically via Home.js -->
             </ul>
 
-            <!-- Sidebar Project Footer Badge -->
-            <div class="sidebar-footer">
-                <div class="extension-pill">
-                    <i class="fa-solid fa-code"></i>
-                    <span>BSIT Extension Project</span>
-                </div>
-            </div>
         </aside>
 
 
@@ -340,10 +348,6 @@
                             <p class="img-description">Chris Brown ft. Bryson Tiller</p>
                         </div>
                         <div class="card-actions">
-                            <a href="../song_pages/song1_it_depends/it_depends.html" class="card-page-link"
-                                title="Open Dedicated Page">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
                         </div>
                     </article>
 
@@ -364,10 +368,6 @@
                             <p class="img-description">Chris Brown</p>
                         </div>
                         <div class="card-actions">
-                            <a href="../song_pages/song2_with_you/with_you.html" class="card-page-link"
-                                title="Open Dedicated Page">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
                         </div>
                     </article>
 
@@ -389,10 +389,6 @@
                             <p class="img-description">Kehlani ft. Usher</p>
                         </div>
                         <div class="card-actions">
-                            <a href="../song_pages/song3_shoulda_never/shoulda_never.html" class="card-page-link"
-                                title="Open Dedicated Page">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
                         </div>
                     </article>
 
@@ -414,10 +410,6 @@
                             <p class="img-description">Ne-Yo</p>
                         </div>
                         <div class="card-actions">
-                            <a href="../song_pages/song4_because_of_you/because_of_you.html" class="card-page-link"
-                                title="Open Dedicated Page">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
                         </div>
                     </article>
 
@@ -439,10 +431,6 @@
                             <p class="img-description">Ne-Yo</p>
                         </div>
                         <div class="card-actions">
-                            <a href="../song_pages/song5_miss_independent/miss_independent.html" class="card-page-link"
-                                title="Open Dedicated Page">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
                         </div>
                     </article>
 
@@ -463,10 +451,6 @@
                             <p class="img-description">Ne-Yo</p>
                         </div>
                         <div class="card-actions">
-                            <a href="../song_pages/song6_sexy_love/sexy_love.html" class="card-page-link"
-                                title="Open Dedicated Page">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
                         </div>
                     </article>
 
@@ -487,10 +471,6 @@
                             <p class="img-description">Ne-Yo</p>
                         </div>
                         <div class="card-actions">
-                            <a href="../song_pages/song7_so_sick/so_sick.html" class="card-page-link"
-                                title="Open Dedicated Page">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
                         </div>
                     </article>
 
@@ -511,10 +491,6 @@
                             <p class="img-description">Ravyn Lenae</p>
                         </div>
                         <div class="card-actions">
-                            <a href="../song_pages/song8_love_me_not/love_me_not.html" class="card-page-link"
-                                title="Open Dedicated Page">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
                         </div>
                     </article>
 
@@ -535,10 +511,6 @@
                             <p class="img-description">The Weeknd ft. Playboi Carti</p>
                         </div>
                         <div class="card-actions">
-                            <a href="../song_pages/song9_timeless/timeless.html" class="card-page-link"
-                                title="Open Dedicated Page">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
                         </div>
                     </article>
 
@@ -560,10 +532,6 @@
                             <p class="img-description">Tommy Richman</p>
                         </div>
                         <div class="card-actions">
-                            <a href="../song_pages/song10_million_dollar_baby/million_dollar_baby.html"
-                                class="card-page-link" title="Open Dedicated Page">
-                                <i class="fa-solid fa-arrow-up-right-from-square"></i>
-                            </a>
                         </div>
                     </article>
 
@@ -606,9 +574,6 @@
                     </button>
                     <h1>Search</h1>
                 </div>
-                <a href="../song_pages/index.html" class="sp-mob-header-icon" title="Song Pages Hub" aria-label="Song Pages Hub">
-                    <i class="fa-solid fa-folder-open"></i>
-                </a>
             </header>
 
             <div class="sp-mob-search-box-wrap">
@@ -684,17 +649,17 @@
                     </div>
 
                     <div class="lib-actions-row">
-                        <a href="../song_pages/index.html" class="sp-mob-lib-icon-btn sp-mob-only-inline" id="mobileLibSongPagesBtn" title="Song Pages Directory" aria-label="Song Pages">
-                            <i class="fa-solid fa-folder-open"></i>
-                        </a>
+                        <button type="button" class="lib-create-album-btn" id="homeLibCreateAlbumBtn" title="Create album" aria-label="Create album" hidden>
+                            <i class="fa-solid fa-plus" aria-hidden="true"></i><span class="lib-create-label">Create album</span>
+                        </button>
                         <button type="button" class="sp-mob-lib-icon-btn sp-mob-only-inline" id="mobileLibSearchToggleBtn" title="Search Your Library" aria-label="Search library">
                             <i class="fa-solid fa-magnifying-glass"></i>
                         </button>
                         <button type="button" class="lib-create-playlist-btn" id="homeLibCreatePlaylistBtn">
-                            <i class="fa-solid fa-plus"></i> Create playlist
+                            <i class="fa-solid fa-plus"></i><span class="lib-create-label">Create playlist</span>
                         </button>
-                        <button type="button" class="lib-create-album-btn" id="homeLibCreateAlbumBtn" hidden>
-                            <i class="fa-solid fa-plus"></i> Create album
+                        <button type="button" class="lib-collapse-btn" id="homeLibCollapseBtn" title="Collapse library" aria-label="Collapse library">
+                            <i class="fa-solid fa-down-left-and-up-right-to-center" aria-hidden="true"></i>
                         </button>
                     </div>
                 </div>
@@ -715,22 +680,30 @@
                     </div>
 
                     <div class="lib-toolbar-right">
-                        <div class="lib-sort-dropdown">
-                            <label for="homeLibSortSelect"><i class="fa-solid fa-arrow-down-short-wide"></i> Sort by:</label>
-                            <select id="homeLibSortSelect" class="lib-select">
-                                <option value="recents" selected>Recents</option>
-                                <option value="az">Title (A-Z)</option>
-                                <option value="creator">Creator</option>
-                            </select>
-                        </div>
-
-                        <div class="lib-view-toggles" role="group" aria-label="View layout">
-                            <button type="button" class="view-btn active" id="homeLibViewGridBtn" title="Grid View" aria-pressed="true">
-                                <i class="fa-solid fa-grip"></i>
+                        <div class="lib-expanded-sort">
+                            <button type="button" class="lib-expanded-sort-btn" id="homeLibSortBtn"
+                                aria-label="Sort and change library view" aria-haspopup="dialog"
+                                aria-controls="homeLibSortMenu" aria-expanded="false">
+                                <span id="homeLibSortLabel">Recents</span>
+                                <i id="homeLibSortViewIcon" class="fa-solid fa-list-ul" aria-hidden="true"></i>
                             </button>
-                            <button type="button" class="view-btn" id="homeLibViewListBtn" title="List View" aria-pressed="false">
-                                <i class="fa-solid fa-list"></i>
-                            </button>
+                            <div class="lib-sort-menu" id="homeLibSortMenu" role="dialog" aria-label="Sort and view library" hidden>
+                                <p class="lib-sort-menu-heading">Sort by</p>
+                                <div class="lib-sort-choices" role="group" aria-label="Sort by">
+                                    <button type="button" data-sidebar-sort="recents">Recents <i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                                    <button type="button" data-sidebar-sort="recently-added">Recently Added <i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                                    <button type="button" data-sidebar-sort="az">Alphabetical <i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                                    <button type="button" data-sidebar-sort="creator">Creator <i class="fa-solid fa-check" aria-hidden="true"></i></button>
+                                </div>
+                                <div class="lib-sort-menu-divider"></div>
+                                <p class="lib-sort-menu-heading">View as</p>
+                                <div class="lib-view-choices" role="group" aria-label="View as">
+                                    <button type="button" data-sidebar-view="compact" aria-label="Compact list" title="Compact list"><i class="fa-solid fa-bars" aria-hidden="true"></i></button>
+                                    <button type="button" data-sidebar-view="list" aria-label="List with covers" title="List with covers"><i class="fa-solid fa-list-ul" aria-hidden="true"></i></button>
+                                    <button type="button" data-sidebar-view="compact-grid" aria-label="Cover grid" title="Cover grid"><i class="fa-solid fa-grip" aria-hidden="true"></i></button>
+                                    <button type="button" data-sidebar-view="grid" aria-label="Grid with details" title="Grid with details"><i class="fa-solid fa-table-cells-large" aria-hidden="true"></i></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -744,6 +717,7 @@
         </div><!-- /#homeLibraryView -->
     </main>
 
+        <div class="library-expansion-layer" id="homeLibraryExpansionLayer" aria-hidden="true" hidden></div>
 
         <!-- ================= RIGHT COLUMN: SPOTIFY NOW PLAYING VIEW (3-COLUMN VIEW) ================= -->
         <aside class="artist-detail-panel sp-npv-panel" id="artistDetailPanel" aria-label="Now Playing View">
@@ -776,7 +750,7 @@
                             <button type="button" id="npvMenuShare"><i class="fa-solid fa-arrow-up-from-bracket"></i> Share track link</button>
                         </div>
                     </div>
-                    <button type="button" class="sp-npv-icon-btn" id="npvExpandBtn" title="Open dedicated full-screen song page" aria-label="Expand Now Playing view">
+                    <button type="button" class="sp-npv-icon-btn" id="npvExpandBtn" title="Show lyrics in the middle panel" aria-label="Show lyrics in the middle panel">
                         <i class="fa-solid fa-up-right-and-down-left-from-center"></i>
                     </button>
                 </div>
@@ -922,11 +896,11 @@
     </div>
 
 
+    <!-- Keep audio mounted while mobile subpages hide the player controls. -->
+    <audio id="audioPlayer" preload="metadata"></audio>
+
     <!-- ================= PERSISTENT BOTTOM AUDIO PLAYER BAR ================= -->
     <footer class="player-bar" aria-label="Music player">
-
-        <!-- Local audio playback -->
-        <audio id="audioPlayer" preload="metadata"></audio>
 
         <!-- Currently Playing Song Info -->
         <div class="now-bar">
@@ -1002,12 +976,14 @@
             <button type="button" id="queueButton" class="lyrics-toggle queue-toggle-btn" aria-label="Open Play Queue"
                 title="Queue">
                 <i class="fa-solid fa-bars-staggered" aria-hidden="true"></i>
+                <span class="player-extra-label">Queue</span>
             </button>
 
             <!-- Volume Control with Mute Toggle -->
             <div class="volume-container">
                 <button type="button" id="muteButton" aria-label="Mute volume" aria-pressed="false" title="Mute">
                     <i class="fa-solid fa-volume-high" aria-hidden="true"></i>
+                    <span class="player-extra-label">Volume</span>
                 </button>
                 <input type="range" id="volumeBar" min="0" max="1" value="0.75" step="0.01" aria-label="Volume">
             </div>
@@ -1016,6 +992,7 @@
             <button type="button" id="playerLyricsFullscreenBtn" class="lyrics-toggle fullscreen-lyrics-btn"
                 aria-label="Fullscreen lyrics" aria-pressed="false" title="Fullscreen lyrics">
                 <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                <span class="player-extra-label">Fullscreen</span>
             </button>
         </div>
 

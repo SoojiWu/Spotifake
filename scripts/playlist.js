@@ -589,6 +589,7 @@ document.addEventListener("DOMContentLoaded", () => {
     $$(".taskbar-item.logout").forEach(btn => {
         btn.addEventListener("click", () => {
             sessionStorage.removeItem("spotifake-user");
+            localStorage.removeItem("spotifake-user");
         });
     });
 

@@ -2,6 +2,10 @@
    Spotifake | Shared Theme & Appearance Sync for Song Pages
    ========================================================== */
 
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
 :root,
 [data-theme="cyber"] {
     --page-bg: #09090E;

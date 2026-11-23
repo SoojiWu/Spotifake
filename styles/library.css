@@ -407,6 +407,89 @@
     margin-left: auto;
 }
 
+/* The expanded library shares the sidebar's sort and four view modes. */
+#homeLibraryView .lib-expanded-sort {
+    position: relative;
+    z-index: 30;
+}
+
+#homeLibraryView .lib-expanded-sort-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    min-height: 32px;
+    padding: 0 2px 0 10px;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#homeLibraryView .lib-expanded-sort-btn:hover,
+#homeLibraryView .lib-expanded-sort-btn[aria-expanded="true"] {
+    color: var(--text-primary);
+}
+
+#homeLibraryView .lib-expanded-sort-btn i {
+    font-size: 15px;
+}
+
+#homeLibraryView .lib-sort-menu {
+    right: 0;
+    z-index: 31;
+}
+
+#homeLibItemsContainer[data-view="compact"] .lib-card-thumb-wrap,
+#homeLibItemsContainer[data-view="compact-grid"] .lib-card-info {
+    display: none;
+}
+
+#homeLibItemsContainer.list-view .lib-card {
+    padding: 8px 12px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+}
+
+#homeLibItemsContainer.list-view .lib-card:hover {
+    transform: none;
+    background: var(--canvas-surface-hover);
+}
+
+#homeLibItemsContainer[data-view="compact"] .lib-card {
+    min-height: 32px;
+    padding: 6px 12px;
+}
+
+#homeLibItemsContainer[data-view="compact"] .lib-card-meta {
+    display: none;
+}
+
+#homeLibItemsContainer[data-view="compact-grid"] .lib-card {
+    gap: 0;
+}
+
+@media (min-width: 1024px) {
+    .home-page .main.library-overlay-opening #homeLibItemsContainer .lib-card-liked-bg {
+        background: linear-gradient(135deg, var(--loud-magenta-dim), var(--loud-magenta));
+        font-size: 20px;
+    }
+
+    .home-page .main.library-overlay-opening #homeLibItemsContainer .lib-card-meta {
+        display: block;
+        color: #fff;
+        line-height: 1.25;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .home-page .main.library-overlay-opening #homeLibItemsContainer .lib-pin-tag {
+        color: var(--loud-magenta);
+    }
+}
+
 /* Responsive */
 @media (min-width: 768px) and (max-width: 1023px) {
     .library-page-main {
@@ -420,6 +503,66 @@
 }
 
 @media (max-width: 767px) {
+    #homeLibraryView .lib-hero-header {
+        position: relative;
+        gap: 8px;
+    }
+
+    #homeLibraryView .lib-title-row {
+        flex-wrap: nowrap;
+        padding-right: 90px;
+    }
+
+    #homeLibraryView .lib-category-tabs {
+        gap: 6px;
+    }
+
+    #homeLibraryView .lib-category-tabs .lib-cat-pill {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+
+    #homeLibraryView .lib-toolbar {
+        padding-top: 0;
+    }
+
+    #homeLibraryView .lib-toolbar-right {
+        position: absolute;
+        top: 4px;
+        right: 0;
+        width: auto;
+    }
+
+    #homeLibraryView .lib-expanded-sort-btn {
+        min-height: 34px;
+        padding: 0 2px;
+        gap: 7px;
+        white-space: nowrap;
+    }
+
+    #homeLibraryView .lib-items-grid.list-view .lib-card.is-liked .lib-card-thumb-wrap {
+        width: 48px;
+        height: 48px;
+    }
+
+    .lib-card.is-liked .lib-card-liked-bg {
+        background: linear-gradient(135deg, var(--loud-magenta-dim), var(--loud-magenta));
+        font-size: 20px;
+    }
+
+    #homeLibraryView .lib-items-grid.list-view .lib-card.is-liked .lib-card-title {
+        color: var(--neon-yellow);
+        font-weight: 800;
+    }
+
+    #homeLibraryView .lib-items-grid.list-view .lib-card.is-liked .lib-card-meta {
+        color: var(--text-secondary);
+    }
+
+    #homeLibraryView .lib-card.is-liked .lib-pin-tag {
+        color: var(--loud-magenta);
+    }
+
     .library-page-main {
         padding: 16px 12px 156px;
     }
