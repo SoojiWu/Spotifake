@@ -1,136 +1,473 @@
 /**
- * Spotifake | Login Controller with Unique Cyber Loading Screen Animation
+ * Spotifake | Welcome, Login & Create Account Controller
  * BSIT / IT Extension Project
  */
 
 "use strict";
 
 document.addEventListener("DOMContentLoaded", () => {
+    const authCard = document.getElementById("authCard");
+    const backToWelcomeBtn = document.getElementById("backToWelcomeBtn");
+    const welcomePanel = document.getElementById("welcome-panel");
+
+    const welcomeLoginBtn = document.getElementById("welcomeLoginBtn");
+    const welcomeSignupBtn = document.getElementById("welcomeSignupBtn");
+
     const loginForm = document.getElementById("login-form");
+    const signupForm = document.getElementById("signup-form");
     const loginMessage = document.getElementById("login-message");
+    const signupMessage = document.getElementById("signup-message");
     const loginButton = document.getElementById("enter");
+    const signupSubmitBtn = document.getElementById("signupSubmitBtn");
+
+    const goToSignupBtn = document.getElementById("goToSignupBtn");
+    const goToLoginBtn = document.getElementById("goToLoginBtn");
+
+    const savedAccountsStrip = document.getElementById("savedAccountsStrip");
+    const savedAccountsList = document.getElementById("savedAccountsList");
+
     const loginLoader = document.getElementById("loginLoader");
+    const loaderTitle = document.getElementById("loaderTitle");
     const loaderStatus = document.getElementById("loaderStatus");
     const loaderFill = document.getElementById("loaderFill");
     const loaderPct = document.getElementById("loaderPct");
-    const emailInput = document.getElementById("email");
-    const welcomeNameSpan = document.querySelector(".welcome-header h1 span");
-    const logoCircle = document.querySelector(".logo-circle");
-    const logoAvatarImg = document.querySelector(".logo-circle img");
 
-    const DEFAULT_USER_NAME = "JSON.TTUM";
-    const DEFAULT_AVATAR = "photos/spotifyICON/lydbayot.jpg";
+    const emailInput = document.getElementById("email");
+    const passwordInput = document.getElementById("password");
+    const rememberInput = document.getElementById("remember-me");
+
+    const signupNameInput = document.getElementById("signup-name");
+    const signupEmailInput = document.getElementById("signup-email");
+    const signupPasswordInput = document.getElementById("signup-password");
+    const signupConfirmInput = document.getElementById("signup-confirm");
+    const signupRememberInput = document.getElementById("signup-remember");
+
+    const welcomeKicker = document.getElementById("welcomeKicker");
+    const welcomeAccent = document.getElementById("welcomeAccent");
+    const welcomeSubtitle = document.getElementById("welcomeSubtitle");
+    const logoCircle = document.getElementById("logoCircle");
+    const logoAvatarImg = document.getElementById("logoAvatarImg");
+
+    const ACCOUNTS_KEY = "spotifake_accounts";
+    const AUTH_INITIALIZED_KEY = "spotifake_auth_initialized";
+    const REMEMBERED_EMAIL_KEY = "spotifake_remembered_email";
+    const USER_PROFILE_KEY = "spotifake_user_profile";
+    const BRAND_EMBLEM_AVATAR = "photos/spotifyICON/spotifake-favicon.svg";
+    const GMAIL_REGEX = /^[^\s@]+@gmail\.com$/i;
+
+    const DEMO_VIP_ACCOUNT = {
+        id: "vip_json_ttum",
+        name: "JSON.TTUM",
+        email: "json.ttum@gmail.com",
+        password: "cybervip2025",
+        avatar: "photos/spotifyICON/lydbayot.jpg",
+        banner: null,
+        gender: "Male",
+        age: "20",
+        description: "Cyber VIP Listener • R&B & Neo-Soul Enthusiast",
+        bio: "Music hits harder in Deep Cyber Black & Neon Yellow. Late-night TrapSoul, Synth Funk, and 2000s R&B collector.",
+        isDemo: true
+    };
+
+    let currentView = "welcome";
+    let isAuthenticating = false;
+
+    function normalizeEmail(value) {
+        return String(value || "").trim().toLowerCase();
+    }
+
+    function resolveAsset(path) {
+        return window.SpotifakePaths ? window.SpotifakePaths.asset(path) : path;
+    }
+
+    function toCanonicalAsset(path) {
+        return window.SpotifakePaths ? window.SpotifakePaths.toCanonical(path) : path;
+    }
 
     function loadSavedUserProfile() {
         try {
-            const raw = localStorage.getItem("spotifake_user_profile");
+            const raw = localStorage.getItem(USER_PROFILE_KEY);
             return raw ? JSON.parse(raw) : null;
         } catch (e) {
             return null;
         }
     }
 
-    function syncLoginProfileUI() {
-        const savedTheme = localStorage.getItem("spotifake_theme");
-        if (savedTheme) {
-            document.documentElement.setAttribute("data-theme", savedTheme);
+    function loadAccounts() {
+        try {
+            const raw = localStorage.getItem(ACCOUNTS_KEY);
+            const parsed = raw ? JSON.parse(raw) : [];
+            return Array.isArray(parsed) ? parsed.filter(a => a && a.email) : [];
+        } catch (e) {
+            return [];
         }
-
-        const profile = loadSavedUserProfile();
-        const displayName = (profile && profile.name && profile.name.trim()) || DEFAULT_USER_NAME;
-        const rawAvatar = (profile && profile.avatar) || DEFAULT_AVATAR;
-        const avatarSrc = window.SpotifakePaths ? window.SpotifakePaths.asset(rawAvatar) : rawAvatar;
-        const savedEmail = localStorage.getItem("spotifake-user") || (profile && profile.email);
-
-        if (welcomeNameSpan) welcomeNameSpan.textContent = displayName;
-        if (logoCircle) logoCircle.title = `${displayName} Spotifake Avatar`;
-        if (logoAvatarImg) {
-            logoAvatarImg.src = avatarSrc;
-            logoAvatarImg.alt = `${displayName} Spotifake VIP Avatar`;
-        }
-        if (emailInput && savedEmail) {
-            emailInput.value = savedEmail === "json.ttum@spotifake.io"
-                ? "json.ttum@gmail.com"
-                : savedEmail;
-        }
-
-        return { displayName, avatarSrc, profile };
     }
 
-    syncLoginProfileUI();
-    window.addEventListener("pageshow", syncLoginProfileUI);
-
-    if (!loginForm) return;
-
-    const GMAIL_REGEX = /^[^\s@]+@gmail\.com$/i;
-
-    function clearLoginValidationState() {
-        if (loginMessage) loginMessage.textContent = "";
-        emailInput?.closest(".input-shell")?.classList.remove("is-invalid");
-    }
-
-    loginForm.addEventListener("submit", (event) => {
-        event.preventDefault();
-
-        const email = emailInput?.value.trim();
-        const password = document.getElementById("password")?.value;
-        const remember = document.getElementById("remember-me")?.checked;
-
-        clearLoginValidationState();
-
-        if (!email || !password) {
-            if (loginMessage) loginMessage.textContent = "Please provide both email and password.";
-            return;
-        }
-
-        if (!GMAIL_REGEX.test(email)) {
-            if (loginMessage) loginMessage.textContent = "Please enter a valid @gmail.com email address.";
-            const emailShell = emailInput?.closest(".input-shell");
-            if (emailShell) {
-                emailShell.classList.remove("is-invalid");
-                void emailShell.offsetWidth;
-                emailShell.classList.add("is-invalid");
+    function saveAccounts(accounts) {
+        try {
+            localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
+            return true;
+        } catch (e) {
+            try {
+                const compact = accounts.map(acc => ({ ...acc, banner: null }));
+                localStorage.setItem(ACCOUNTS_KEY, JSON.stringify(compact));
+                return true;
+            } catch (e2) {
+                return false;
             }
-            emailInput?.focus();
+        }
+    }
+
+    function getDemoAccountWithEdits() {
+        const profile = loadSavedUserProfile();
+        if (profile && (normalizeEmail(profile.email) === DEMO_VIP_ACCOUNT.email || normalizeEmail(profile.email) === "json.ttum@spotifake.io")) {
+            return {
+                ...DEMO_VIP_ACCOUNT,
+                name: (profile.name && profile.name.trim()) || DEMO_VIP_ACCOUNT.name,
+                avatar: profile.avatar ? toCanonicalAsset(profile.avatar) : DEMO_VIP_ACCOUNT.avatar,
+                banner: profile.banner ?? DEMO_VIP_ACCOUNT.banner,
+                gender: profile.gender || DEMO_VIP_ACCOUNT.gender,
+                age: profile.age || DEMO_VIP_ACCOUNT.age,
+                description: profile.description || DEMO_VIP_ACCOUNT.description,
+                bio: profile.bio || DEMO_VIP_ACCOUNT.bio
+            };
+        }
+        return { ...DEMO_VIP_ACCOUNT };
+    }
+
+    function findAccountByEmail(email) {
+        const target = normalizeEmail(email);
+        if (!target) return null;
+
+        const accounts = loadAccounts();
+        const registered = accounts.find(acc => normalizeEmail(acc.email) === target);
+        if (registered) return registered;
+
+        if (target === DEMO_VIP_ACCOUNT.email || target === "json.ttum@spotifake.io") {
+            return getDemoAccountWithEdits();
+        }
+        return null;
+    }
+
+    /** Reconcile any profile edits made inside Home/Library back into the accounts registry. */
+    function syncProfileEditsBackToAccounts() {
+        const profile = loadSavedUserProfile();
+        if (!profile || !profile.email) return;
+
+        const targetEmail = normalizeEmail(profile.email);
+        const accounts = loadAccounts();
+        const idx = accounts.findIndex(acc => normalizeEmail(acc.email) === targetEmail);
+        if (idx === -1) return;
+
+        accounts[idx] = {
+            ...accounts[idx],
+            name: (profile.name && profile.name.trim()) || accounts[idx].name,
+            avatar: profile.avatar ? toCanonicalAsset(profile.avatar) : accounts[idx].avatar,
+            banner: profile.banner ?? accounts[idx].banner,
+            gender: profile.gender || accounts[idx].gender,
+            age: profile.age ?? accounts[idx].age,
+            description: profile.description || accounts[idx].description,
+            bio: profile.bio || accounts[idx].bio
+        };
+        saveAccounts(accounts);
+    }
+
+    /** Generate a cyber monogram SVG avatar so new users get a clean personalized icon by default. */
+    function createCyberMonogramAvatar(displayName) {
+        const cleaned = String(displayName || "").trim();
+        const parts = cleaned.split(/[\s._-]+/).filter(Boolean);
+        let initials = "SF";
+        if (parts.length >= 2) {
+            initials = (parts[0][0] + parts[1][0]).toUpperCase();
+        } else if (cleaned.length >= 2) {
+            initials = cleaned.slice(0, 2).toUpperCase();
+        } else if (cleaned.length === 1) {
+            initials = cleaned.toUpperCase();
+        }
+        const safeInitials = initials.replace(/[<>&"']/g, "");
+        const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">` +
+            `<defs>` +
+            `<linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">` +
+            `<stop offset="0%" stop-color="#221338"/>` +
+            `<stop offset="55%" stop-color="#141426"/>` +
+            `<stop offset="100%" stop-color="#2a0f24"/>` +
+            `</linearGradient>` +
+            `<linearGradient id="fg" x1="0" y1="0" x2="1" y2="1">` +
+            `<stop offset="0%" stop-color="#FFEA00"/>` +
+            `<stop offset="100%" stop-color="#FF007F"/>` +
+            `</linearGradient>` +
+            `</defs>` +
+            `<rect width="128" height="128" rx="64" fill="url(#bg)"/>` +
+            `<circle cx="64" cy="64" r="56" fill="none" stroke="url(#fg)" stroke-width="4" opacity="0.72"/>` +
+            `<text x="64" y="66" text-anchor="middle" dominant-baseline="central" ` +
+            `font-family="Montserrat, Segoe UI, sans-serif" font-size="44" font-weight="900" fill="url(#fg)">${safeInitials}</text>` +
+            `</svg>`;
+        return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+    }
+
+    function setAvatarVisual(src, altText, titleText, isBrandEmblem = false) {
+        if (logoCircle) {
+            logoCircle.classList.toggle("is-brand-emblem", isBrandEmblem);
+            logoCircle.title = titleText;
+        }
+        if (logoAvatarImg) {
+            logoAvatarImg.src = resolveAsset(src);
+            logoAvatarImg.alt = altText;
+        }
+    }
+
+    function setHeaderText(kicker, accent, subtitle) {
+        if (welcomeKicker) welcomeKicker.textContent = kicker;
+        if (welcomeAccent) welcomeAccent.textContent = accent;
+        if (welcomeSubtitle) welcomeSubtitle.textContent = subtitle;
+    }
+
+    function renderSavedAccountsStrip() {
+        if (!savedAccountsStrip || !savedAccountsList) return;
+        const customAccounts = loadAccounts();
+
+        if (customAccounts.length === 0) {
+            savedAccountsStrip.hidden = true;
+            savedAccountsList.replaceChildren();
             return;
         }
 
-        // Disable button during loading
-        if (loginButton) {
-            loginButton.disabled = true;
+        const currentEmail = normalizeEmail(emailInput?.value);
+        savedAccountsList.replaceChildren();
+        customAccounts.forEach((acc) => {
+            const chip = document.createElement("button");
+            chip.type = "button";
+            chip.className = "saved-account-chip";
+            if (normalizeEmail(acc.email) === currentEmail) {
+                chip.classList.add("is-selected");
+            }
+
+            const img = document.createElement("img");
+            img.src = resolveAsset(acc.avatar || BRAND_EMBLEM_AVATAR);
+            img.alt = `${acc.name} avatar`;
+
+            const nameSpan = document.createElement("span");
+            nameSpan.textContent = acc.name;
+
+            chip.append(img, nameSpan);
+            chip.addEventListener("click", () => {
+                if (emailInput) emailInput.value = acc.email;
+                if (passwordInput) {
+                    passwordInput.value = "";
+                    passwordInput.focus();
+                }
+                clearValidationStates();
+                syncLoginIdentityFromEmail();
+                renderSavedAccountsStrip();
+            });
+
+            savedAccountsList.appendChild(chip);
+        });
+
+        savedAccountsStrip.hidden = false;
+    }
+
+    function syncLoginIdentityFromEmail() {
+        if (currentView !== "login") return;
+        const matched = findAccountByEmail(emailInput?.value);
+
+        if (matched) {
+            setHeaderText(
+                "WELKAM BAK",
+                matched.name,
+                "Your cyber R&B and Neo-Soul sanctuary is ready."
+            );
+            setAvatarVisual(
+                matched.avatar || createCyberMonogramAvatar(matched.name),
+                `${matched.name} Spotifake Avatar`,
+                `${matched.name} Spotifake Avatar`,
+                false
+            );
+        } else {
+            setHeaderText(
+                "WELCOME",
+                "SPOTIFAKE",
+                "Sign in to your existing Spotifake account."
+            );
+            setAvatarVisual(
+                BRAND_EMBLEM_AVATAR,
+                "Spotifake Emblem",
+                "Welcome to Spotifake",
+                true
+            );
+        }
+    }
+
+    function clearValidationStates() {
+        if (loginMessage) {
+            loginMessage.textContent = "";
+            loginMessage.classList.remove("is-success");
+        }
+        if (signupMessage) {
+            signupMessage.textContent = "";
+            signupMessage.classList.remove("is-success");
+        }
+        document.querySelectorAll(".input-shell.is-invalid").forEach(shell => {
+            shell.classList.remove("is-invalid");
+        });
+        goToSignupBtn?.classList.remove("is-highlighted");
+        goToLoginBtn?.classList.remove("is-highlighted");
+    }
+
+    function flagInvalidInput(inputEl, messageEl, message) {
+        if (messageEl) {
+            messageEl.textContent = message;
+            messageEl.classList.remove("is-success");
+        }
+        const shell = inputEl?.closest(".input-shell");
+        if (shell) {
+            shell.classList.remove("is-invalid");
+            void shell.offsetWidth;
+            shell.classList.add("is-invalid");
+        }
+        inputEl?.focus();
+    }
+
+    function pulseSwitchLink(btn) {
+        if (!btn) return;
+        btn.classList.remove("is-highlighted");
+        void btn.offsetWidth;
+        btn.classList.add("is-highlighted");
+    }
+
+    function setAuthView(view, opts = {}) {
+        const nextView = ["welcome", "login", "signup"].includes(view) ? view : "welcome";
+        currentView = nextView;
+
+        if (authCard) authCard.setAttribute("data-auth-view", nextView);
+        if (welcomePanel) welcomePanel.hidden = nextView !== "welcome";
+        if (loginForm) loginForm.hidden = nextView !== "login";
+        if (signupForm) signupForm.hidden = nextView !== "signup";
+        if (backToWelcomeBtn) backToWelcomeBtn.hidden = nextView === "welcome";
+
+        clearValidationStates();
+
+        if (nextView === "welcome") {
+            setHeaderText(
+                "WELCOME",
+                "SPOTIFAKE",
+                "Your cyber R&B and Neo-Soul sanctuary awaits."
+            );
+            setAvatarVisual(
+                BRAND_EMBLEM_AVATAR,
+                "Spotifake Emblem",
+                "Welcome to Spotifake",
+                true
+            );
+            document.title = "Spotifake | Welcome";
+        } else if (nextView === "login") {
+            if (opts.prefillEmail && emailInput) {
+                emailInput.value = opts.prefillEmail;
+            }
+            renderSavedAccountsStrip();
+            syncLoginIdentityFromEmail();
+            document.title = "Spotifake | Cyber Login";
+            if (opts.focus) {
+                if (emailInput && !emailInput.value.trim()) {
+                    emailInput.focus();
+                } else {
+                    passwordInput?.focus();
+                }
+            }
+        } else if (nextView === "signup") {
+            if (opts.prefillEmail && signupEmailInput && !signupEmailInput.value.trim()) {
+                signupEmailInput.value = opts.prefillEmail;
+            }
+            setHeaderText(
+                "CREATE ACCOUNT",
+                "SPOTIFAKE",
+                "Register your cyber R&B and Neo-Soul profile."
+            );
+            setAvatarVisual(
+                BRAND_EMBLEM_AVATAR,
+                "Spotifake Emblem",
+                "Spotifake",
+                true
+            );
+            document.title = "Spotifake | Sign Up";
+            if (opts.focus) {
+                signupNameInput?.focus();
+            }
+        }
+    }
+
+    function launchAuthenticatedSession(account, options = {}) {
+        if (isAuthenticating) return;
+        isAuthenticating = true;
+
+        const {
+            remember = true,
+            mode = "login"
+        } = options;
+
+        const displayName = (account.name && account.name.trim()) || DEMO_VIP_ACCOUNT.name;
+        const normalizedEmail = normalizeEmail(account.email);
+        const canonicalAvatar = account.avatar ? toCanonicalAsset(account.avatar) : createCyberMonogramAvatar(displayName);
+
+        if (loginButton) loginButton.disabled = true;
+        if (signupSubmitBtn) signupSubmitBtn.disabled = true;
+
+        if (mode === "signup" && signupSubmitBtn) {
+            const label = signupSubmitBtn.querySelector("span");
+            if (label) label.textContent = "Creating Account…";
+        } else if (loginButton) {
             const label = loginButton.querySelector("span");
             if (label) label.textContent = "Authenticating…";
         }
 
-        // Save session & preserve user's saved profile/name
-        if (remember) {
-            localStorage.setItem("spotifake-user", email);
-        } else {
-            localStorage.removeItem("spotifake-user");
-            sessionStorage.setItem("spotifake-user", email);
-        }
-
-        const existingProfile = loadSavedUserProfile() || {};
-        const currentDisplayName = (existingProfile.name && existingProfile.name.trim()) || DEFAULT_USER_NAME;
         try {
-            localStorage.setItem("spotifake_user_profile", JSON.stringify({
-                ...existingProfile,
-                name: currentDisplayName,
-                email: email
-            }));
-        } catch (e) { /* Ignore quota errors on login sync */ }
+            localStorage.setItem(AUTH_INITIALIZED_KEY, "1");
+            if (remember) {
+                localStorage.setItem("spotifake-user", normalizedEmail);
+                localStorage.setItem(REMEMBERED_EMAIL_KEY, normalizedEmail);
+                sessionStorage.removeItem("spotifake-user");
+            } else {
+                localStorage.removeItem("spotifake-user");
+                localStorage.removeItem(REMEMBERED_EMAIL_KEY);
+                sessionStorage.setItem("spotifake-user", normalizedEmail);
+            }
 
-        // Trigger the Unique Cyber Loading Screen Animation
+            const profilePayload = {
+                name: displayName,
+                email: normalizedEmail,
+                avatar: canonicalAvatar,
+                banner: account.banner ?? null,
+                gender: account.gender || "Not specified",
+                age: account.age || "",
+                description: account.description || "Cyber VIP Listener • R&B & Neo-Soul Enthusiast",
+                bio: account.bio || "Music hits harder in Deep Cyber Black & Neon Yellow. Late-night TrapSoul, Synth Funk, and 2000s R&B collector."
+            };
+            localStorage.setItem(USER_PROFILE_KEY, JSON.stringify(profilePayload));
+        } catch (e) { /* Ignore storage quota errors */ }
+
         if (loginLoader) {
             document.body.classList.add("is-loading");
             loginLoader.removeAttribute("hidden");
 
-            const stages = [
-                { pct: 25, text: `Authenticating VIP session for ${currentDisplayName}...`, delay: 200 },
-                { pct: 55, text: "Connecting to Spotifake Cyber Audio Cloud...", delay: 650 },
-                { pct: 85, text: "Synchronizing 10 Lossless Tracks & Live Lyrics...", delay: 1100 },
-                { pct: 100, text: "Access Granted • Launching Spotifake...", delay: 1600 }
-            ];
+            if (loaderTitle) {
+                loaderTitle.textContent = mode === "signup"
+                    ? "CREATING SPOTIFAKE ACCOUNT"
+                    : "AUTHENTICATING VIP SESSION";
+            }
+
+            const stages = mode === "signup"
+                ? [
+                    { pct: 25, text: `Registering Spotifake profile for ${displayName}...`, delay: 180 },
+                    { pct: 55, text: "Setting up your Cyber Audio Cloud Sanctuary...", delay: 620 },
+                    { pct: 85, text: "Synchronizing 10 Lossless Tracks & Live Lyrics...", delay: 1080 },
+                    { pct: 100, text: `Welcome to Spotifake, ${displayName}! • Launching...`, delay: 1580 }
+                ]
+                : [
+                    { pct: 25, text: `Authenticating VIP session for ${displayName}...`, delay: 200 },
+                    { pct: 55, text: "Connecting to Spotifake Cyber Audio Cloud...", delay: 650 },
+                    { pct: 85, text: "Synchronizing 10 Lossless Tracks & Live Lyrics...", delay: 1100 },
+                    { pct: 100, text: "Access Granted • Launching Spotifake...", delay: 1600 }
+                ];
 
             stages.forEach(stage => {
                 setTimeout(() => {
@@ -140,37 +477,231 @@ document.addEventListener("DOMContentLoaded", () => {
                 }, stage.delay);
             });
 
-            // Redirect after loading completion
             setTimeout(() => {
                 window.location.href = "pages/home.html";
             }, 2100);
         } else {
             window.location.href = "pages/home.html";
         }
+    }
+
+    function syncInitialAuthState() {
+        const savedTheme = localStorage.getItem("spotifake_theme");
+        if (savedTheme) {
+            document.documentElement.setAttribute("data-theme", savedTheme);
+        }
+
+        isAuthenticating = false;
+        document.body.classList.remove("is-loading");
+        if (loginLoader) loginLoader.setAttribute("hidden", "");
+        if (loginButton) {
+            loginButton.disabled = false;
+            const label = loginButton.querySelector("span");
+            if (label) label.textContent = "Log in to Spotifake";
+        }
+        if (signupSubmitBtn) {
+            signupSubmitBtn.disabled = false;
+            const label = signupSubmitBtn.querySelector("span");
+            if (label) label.textContent = "Create Account";
+        }
+
+        syncProfileEditsBackToAccounts();
+
+        const hasInitialized = localStorage.getItem(AUTH_INITIALIZED_KEY) === "1";
+        const rememberedEmail = localStorage.getItem(REMEMBERED_EMAIL_KEY);
+        const rememberedAccount = hasInitialized && rememberedEmail
+            ? findAccountByEmail(rememberedEmail)
+            : null;
+
+        // First-time users ALWAYS land on WELCOME SPOTIFAKE.
+        if (rememberedAccount) {
+            if (emailInput) emailInput.value = rememberedAccount.email;
+            if (passwordInput) passwordInput.value = "";
+            if (rememberInput) rememberInput.checked = true;
+            setAuthView("login");
+        } else {
+            if (emailInput) emailInput.value = "";
+            if (passwordInput) passwordInput.value = "";
+            setAuthView("welcome");
+        }
+    }
+
+    syncInitialAuthState();
+    window.addEventListener("pageshow", (event) => {
+        if (event.persisted) {
+            syncInitialAuthState();
+        }
     });
 
-    // Password visibility toggle
-    const passwordInput = document.getElementById("password");
-    const togglePasswordBtn = document.getElementById("togglePasswordBtn");
-    if (passwordInput && togglePasswordBtn) {
-        togglePasswordBtn.addEventListener("click", () => {
-            const reveal = passwordInput.type === "password";
-            passwordInput.type = reveal ? "text" : "password";
-            togglePasswordBtn.setAttribute("aria-pressed", String(reveal));
-            togglePasswordBtn.setAttribute("aria-label", reveal ? "Hide password" : "Show password");
-            togglePasswordBtn.title = reveal ? "Hide password" : "Show password";
-            const icon = togglePasswordBtn.querySelector("i");
+    /* ================= VIEW NAVIGATION ================= */
+    welcomeLoginBtn?.addEventListener("click", () => setAuthView("login", { focus: true }));
+    welcomeSignupBtn?.addEventListener("click", () => setAuthView("signup", { focus: true }));
+    backToWelcomeBtn?.addEventListener("click", () => setAuthView("welcome"));
+
+    goToSignupBtn?.addEventListener("click", () => {
+        const typedEmail = emailInput?.value.trim() || "";
+        setAuthView("signup", {
+            focus: true,
+            prefillEmail: GMAIL_REGEX.test(typedEmail) ? typedEmail : ""
+        });
+    });
+
+    goToLoginBtn?.addEventListener("click", () => {
+        const typedEmail = signupEmailInput?.value.trim() || "";
+        setAuthView("login", {
+            focus: true,
+            prefillEmail: GMAIL_REGEX.test(typedEmail) ? typedEmail : ""
+        });
+    });
+
+    /* ================= LOGIN FORM SUBMISSION ================= */
+    loginForm?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        clearValidationStates();
+
+        const email = emailInput?.value.trim() || "";
+        const password = passwordInput?.value || "";
+        const remember = Boolean(rememberInput?.checked);
+
+        if (!email) {
+            flagInvalidInput(emailInput, loginMessage, "Please enter your @gmail.com email address.");
+            return;
+        }
+
+        if (!GMAIL_REGEX.test(email)) {
+            flagInvalidInput(emailInput, loginMessage, "Please enter a valid @gmail.com email address.");
+            return;
+        }
+
+        if (!password) {
+            flagInvalidInput(passwordInput, loginMessage, "Please enter your password.");
+            return;
+        }
+
+        const matchedAccount = findAccountByEmail(email);
+        if (!matchedAccount) {
+            flagInvalidInput(
+                emailInput,
+                loginMessage,
+                "No account found for that email. Sign up below to create one!"
+            );
+            pulseSwitchLink(goToSignupBtn);
+            return;
+        }
+
+        if (matchedAccount.password !== password) {
+            flagInvalidInput(
+                passwordInput,
+                loginMessage,
+                "Incorrect password. Please try again."
+            );
+            return;
+        }
+
+        launchAuthenticatedSession(matchedAccount, { remember, mode: "login" });
+    });
+
+    /* ================= CREATE ACCOUNT FORM SUBMISSION ================= */
+    signupForm?.addEventListener("submit", (event) => {
+        event.preventDefault();
+        clearValidationStates();
+
+        const displayName = (signupNameInput?.value || "").trim();
+        const email = (signupEmailInput?.value || "").trim();
+        const password = signupPasswordInput?.value || "";
+        const confirm = signupConfirmInput?.value || "";
+        const remember = Boolean(signupRememberInput?.checked);
+
+        if (displayName.length < 2) {
+            flagInvalidInput(signupNameInput, signupMessage, "Display name must be at least 2 characters.");
+            return;
+        }
+
+        if (!email || !GMAIL_REGEX.test(email)) {
+            flagInvalidInput(signupEmailInput, signupMessage, "Please enter a valid @gmail.com email address.");
+            return;
+        }
+
+        if (findAccountByEmail(email)) {
+            flagInvalidInput(
+                signupEmailInput,
+                signupMessage,
+                "That email is already registered. Log in below!"
+            );
+            pulseSwitchLink(goToLoginBtn);
+            return;
+        }
+
+        if (password.length < 6) {
+            flagInvalidInput(signupPasswordInput, signupMessage, "Password must be at least 6 characters.");
+            return;
+        }
+
+        if (password !== confirm) {
+            flagInvalidInput(signupConfirmInput, signupMessage, "Passwords do not match.");
+            return;
+        }
+
+        const newAccount = {
+            id: `acc_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+            name: displayName,
+            email: normalizeEmail(email),
+            password,
+            avatar: createCyberMonogramAvatar(displayName),
+            banner: null,
+            gender: "Not specified",
+            age: "",
+            description: "Cyber VIP Listener • R&B & Neo-Soul Enthusiast",
+            bio: "Music hits harder in Deep Cyber Black & Neon Yellow. Late-night TrapSoul, Synth Funk, and 2000s R&B collector.",
+            createdAt: Date.now()
+        };
+
+        const accounts = loadAccounts();
+        accounts.push(newAccount);
+        saveAccounts(accounts);
+
+        if (signupMessage) {
+            signupMessage.textContent = `Account created! Welcome, ${displayName}.`;
+            signupMessage.classList.add("is-success");
+        }
+
+        launchAuthenticatedSession(newAccount, { remember, mode: "signup" });
+    });
+
+    /* ================= PASSWORD VISIBILITY TOGGLES ================= */
+    function bindPasswordToggle(inputEl, buttonEl) {
+        if (!inputEl || !buttonEl) return;
+        buttonEl.addEventListener("click", () => {
+            const reveal = inputEl.type === "password";
+            inputEl.type = reveal ? "text" : "password";
+            buttonEl.setAttribute("aria-pressed", String(reveal));
+            buttonEl.setAttribute("aria-label", reveal ? "Hide password" : "Show password");
+            buttonEl.title = reveal ? "Hide password" : "Show password";
+            const icon = buttonEl.querySelector("i");
             if (icon) {
                 icon.className = `fa-regular ${reveal ? "fa-eye-slash" : "fa-eye"}`;
             }
         });
     }
 
-    // Typing reactivity on header waveform & equalizer
+    bindPasswordToggle(passwordInput, document.getElementById("togglePasswordBtn"));
+    bindPasswordToggle(signupPasswordInput, document.getElementById("toggleSignupPasswordBtn"));
+    bindPasswordToggle(signupConfirmInput, document.getElementById("toggleSignupConfirmBtn"));
+
+    /* ================= INPUT REACTIVITY & LIVE IDENTITY PREVIEW ================= */
+    const allAuthInputs = [
+        emailInput,
+        passwordInput,
+        signupNameInput,
+        signupEmailInput,
+        signupPasswordInput,
+        signupConfirmInput
+    ].filter(Boolean);
+
     let typingPulseTimer = null;
-    [emailInput, passwordInput].forEach(inp => {
-        inp?.addEventListener("input", () => {
-            clearLoginValidationState();
+    allAuthInputs.forEach(inp => {
+        inp.addEventListener("input", () => {
+            clearValidationStates();
             document.body.classList.add("is-typing");
             clearTimeout(typingPulseTimer);
             typingPulseTimer = setTimeout(() => {
@@ -179,7 +710,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Subtle interactive spotlight, 3D card tilt, parallax badges, and reactive EQ
+    emailInput?.addEventListener("input", () => {
+        syncLoginIdentityFromEmail();
+        renderSavedAccountsStrip();
+    });
+
+    /* ================= INTERACTIVE SPOTLIGHT, 3D CARD TILT & EQ ================= */
     const bgStage = document.querySelector(".cyber-bg-stage");
     const loginCard = document.querySelector(".login-container");
     const eqBars = [...document.querySelectorAll(".bg-full-eq .eq-b")];
@@ -241,7 +777,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Interactive harmonic strings, string-art ribbons & ambient dust canvas
+    /* ================= INTERACTIVE HARMONIC STRINGS & DUST CANVAS ================= */
     const fxCanvas = document.getElementById("loginFxCanvas");
     if (fxCanvas && !reducedMotion) {
         const ctx = fxCanvas.getContext("2d");
@@ -308,9 +844,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 }, { passive: true });
             }
 
-            // Typing triggers subtle harmonic micro-plucks
-            [emailInput, passwordInput].forEach((inp) => {
-                inp?.addEventListener("input", () => {
+            allAuthInputs.forEach((inp) => {
+                inp.addEventListener("input", () => {
                     const s = strings[Math.floor(Math.random() * strings.length)];
                     if (s) {
                         s.vel += (Math.random() > 0.5 ? 1 : -1) * 5.5;
@@ -367,7 +902,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     const s = strings[i];
                     s.phase += s.driftSpeed;
 
-                    // Spring-damper wave physics
                     const springForce = -0.14 * s.amp;
                     s.vel = (s.vel + springForce) * 0.92;
                     s.amp += s.vel;

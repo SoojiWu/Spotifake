@@ -703,19 +703,35 @@ html[data-appearance="light"] .sp-shared-toast {
     color: var(--text-primary);
 }
 
-/* Preserve rich stage readability on Light Mode Spotify Lyrics View */
+/* Preserve rich cyber stage readability on Light & Pure Black Modes */
 html[data-appearance="light"] .sp-lyrics-stage {
-    background: linear-gradient(150deg, #5c0c3f 0%, #37092a 55%, #1d0c24 100%);
-    border-color: rgba(219, 39, 119, 0.45);
+    background:
+        radial-gradient(circle at 50% 18%, rgba(255, 0, 127, 0.16) 0%, transparent 56%),
+        linear-gradient(165deg, #1b152b 0%, #141122 55%, #0d0b17 100%);
+    border-color: rgba(219, 39, 119, 0.36);
 }
 
-html[data-appearance="light"] .sp-lyrics-stage-track h2,
+html[data-appearance="light"] .sp-lyrics-stage-track h2 {
+    color: #FFFFFF;
+}
+
 html[data-appearance="light"] .sp-lyrics-stage .sp-stage-lyric-line {
-    color: rgba(255, 255, 255, 0.72);
+    color: rgba(255, 255, 255, 0.44);
+}
+
+html[data-appearance="light"] .sp-lyrics-stage .sp-stage-lyric-line.is-past {
+    color: rgba(255, 255, 255, 0.24);
 }
 
 html[data-appearance="light"] .sp-lyrics-stage .sp-stage-lyric-line.is-active {
-    color: #FFEE00;
+    color: #FFEA00;
+}
+
+html[data-appearance="pure-black"] .sp-lyrics-stage {
+    background:
+        radial-gradient(circle at 50% 18%, rgba(255, 0, 127, 0.1) 0%, transparent 54%),
+        #000000;
+    border-color: rgba(255, 255, 255, 0.12);
 }
 
 /* Light Mode Custom Animated Dropdown */

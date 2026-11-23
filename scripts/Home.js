@@ -1233,15 +1233,41 @@ document.addEventListener("DOMContentLoaded", () => {
         scheduleLyricsFsIdle();
     }
 
+    function getNativeFullscreenElement() {
+        return document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement || null;
+    }
+
+    function requestNativeFullscreen(el) {
+        const target = el || document.documentElement;
+        const reqFn = target.requestFullscreen || target.webkitRequestFullscreen || target.msRequestFullscreen;
+        if (typeof reqFn === "function") {
+            try {
+                const promise = reqFn.call(target);
+                if (promise && typeof promise.catch === "function") promise.catch(() => {});
+            } catch (err) { /* Graceful fallback to full-viewport mode (e.g. iOS Safari) */ }
+        }
+    }
+
+    function exitNativeFullscreen() {
+        const exitFn = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+        if (getNativeFullscreenElement() && typeof exitFn === "function") {
+            try {
+                const promise = exitFn.call(document);
+                if (promise && typeof promise.catch === "function") promise.catch(() => {});
+            } catch (err) { /* Ignore */ }
+        }
+    }
+
     function syncFullscreenLyricsButtons() {
         const stageBtn = $("#spLyricsFullscreenBtn");
         if (stageBtn) {
             stageBtn.classList.toggle("is-active", isLyricsFullscreen);
             stageBtn.setAttribute("aria-pressed", String(isLyricsFullscreen));
             stageBtn.title = isLyricsFullscreen ? "Exit fullscreen lyrics" : "Fullscreen lyrics";
+            stageBtn.setAttribute("aria-label", isLyricsFullscreen ? "Exit fullscreen lyrics" : "Fullscreen lyrics");
             stageBtn.innerHTML = isLyricsFullscreen
-                ? `<i class="fa-solid fa-compress"></i> Exit fullscreen`
-                : `<i class="fa-solid fa-expand"></i> Fullscreen`;
+                ? `<i class="fa-solid fa-compress" aria-hidden="true"></i><span class="sp-fs-btn-label">Exit</span>`
+                : `<i class="fa-solid fa-expand" aria-hidden="true"></i><span class="sp-fs-btn-label">Fullscreen</span>`;
         }
 
         const playerBtn = $("#playerLyricsFullscreenBtn");
@@ -1263,19 +1289,22 @@ document.addEventListener("DOMContentLoaded", () => {
             displayLyricsPreviewView(getCurrentSong()?.id);
         }
         isLyricsFullscreen = true;
+        document.documentElement.classList.add("sp-lyrics-fullscreen");
         document.body.classList.add("sp-lyrics-fullscreen");
         document.body.classList.remove("sp-lyrics-fs-idle", "sp-lyrics-fs-scroll-peek");
         syncFullscreenLyricsButtons();
         scheduleLyricsFsIdle();
 
-        if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(() => {});
+        if (!getNativeFullscreenElement()) {
+            requestNativeFullscreen(document.documentElement);
         }
 
-        requestAnimationFrame(() => {
-            syncCenterLyricsView(audio.currentTime || 0, true);
+        const recenter = () => {
+            syncCenterLyricsView(audio.currentTime || 0, true, true);
             updateLyricsFsScrollbarThumb();
-        });
+        };
+        requestAnimationFrame(recenter);
+        setTimeout(recenter, 140);
     }
 
     function exitLyricsFullscreen(skipNativeExit = false) {
@@ -1290,16 +1319,19 @@ document.addEventListener("DOMContentLoaded", () => {
         // Keep the player visible when the fullscreen-only animation rule is removed.
         const playerBar = $(".player-bar");
         if (playerBar) playerBar.style.animation = "none";
+        document.documentElement.classList.remove("sp-lyrics-fullscreen");
         document.body.classList.remove("sp-lyrics-fullscreen", "sp-lyrics-fs-idle", "sp-lyrics-fs-scroll-peek");
         syncFullscreenLyricsButtons();
 
-        if (!skipNativeExit && document.fullscreenElement && document.exitFullscreen) {
-            document.exitFullscreen().catch(() => {});
+        if (!skipNativeExit) {
+            exitNativeFullscreen();
         }
 
-        requestAnimationFrame(() => {
-            syncCenterLyricsView(audio.currentTime || 0, true);
-        });
+        const recenter = () => {
+            syncCenterLyricsView(audio.currentTime || 0, true, true);
+        };
+        requestAnimationFrame(recenter);
+        setTimeout(recenter, 120);
     }
 
     function toggleLyricsFullscreen() {
@@ -1369,12 +1401,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.addEventListener("resize", () => {
         if (isLyricsFullscreen) updateLyricsFsScrollbarThumb();
+        if (isCenterLyricsViewOpen()) {
+            syncCenterLyricsView(audio.currentTime || 0, true, true);
+        }
     }, { passive: true });
 
-    document.addEventListener("fullscreenchange", () => {
-        if (!document.fullscreenElement && isLyricsFullscreen) {
-            exitLyricsFullscreen(true);
-        }
+    ["fullscreenchange", "webkitfullscreenchange", "msfullscreenchange"].forEach(evt => {
+        document.addEventListener(evt, () => {
+            if (!getNativeFullscreenElement() && isLyricsFullscreen) {
+                exitLyricsFullscreen(true);
+            } else if (isLyricsFullscreen) {
+                requestAnimationFrame(() => syncCenterLyricsView(audio.currentTime || 0, true, true));
+            }
+        });
     });
 
     function isCenterLyricsViewOpen() {
@@ -1424,7 +1463,19 @@ document.addEventListener("DOMContentLoaded", () => {
         `).join("");
     }
 
-    function syncCenterLyricsView(time = audio.currentTime || 0, forceScroll = false) {
+    function centerLyricLineInStage(scrollBox, lineBtn, instant = false) {
+        if (!scrollBox || !lineBtn || scrollBox.clientHeight <= 0) return;
+        const boxRect = scrollBox.getBoundingClientRect();
+        const btnRect = lineBtn.getBoundingClientRect();
+        const lineCenterInBox = (btnRect.top - boxRect.top) + (btnRect.height / 2);
+        const targetTop = scrollBox.scrollTop + lineCenterInBox - (scrollBox.clientHeight / 2);
+        scrollBox.scrollTo({
+            top: Math.max(0, targetTop),
+            behavior: instant ? "auto" : "smooth"
+        });
+    }
+
+    function syncCenterLyricsView(time = audio.currentTime || 0, forceScroll = false, instant = false) {
         if (!isCenterLyricsViewOpen()) return;
         const song = getCurrentSong();
         if (!song || Number(homeAlbumArtistView.dataset.lyricsSongId) !== Number(song.id)) return;
@@ -1441,19 +1492,22 @@ document.addEventListener("DOMContentLoaded", () => {
             if (time >= sec) activeIdx = i;
             else break;
         }
+        if (activeIdx === -1) activeIdx = 0;
 
         if (activeIdx === activeCenterLyricIndex && !forceScroll) return;
         activeCenterLyricIndex = activeIdx;
 
+        let activeBtn = null;
         lineBtns.forEach((btn, idx) => {
-            btn.classList.toggle("is-active", idx === activeIdx);
-            btn.classList.toggle("is-past", activeIdx !== -1 && idx < activeIdx);
-            if (idx === activeIdx && scrollBox) {
-                const lineTopInScrollBox = scrollBox.scrollTop + btn.getBoundingClientRect().top - scrollBox.getBoundingClientRect().top;
-                const targetTop = lineTopInScrollBox - (scrollBox.clientHeight / 2) + (btn.clientHeight / 2);
-                scrollBox.scrollTo({ top: Math.max(0, targetTop), behavior: "smooth" });
-            }
+            const isActive = idx === activeIdx;
+            btn.classList.toggle("is-active", isActive);
+            btn.classList.toggle("is-past", idx < activeIdx);
+            if (isActive) activeBtn = btn;
         });
+
+        if (activeBtn && scrollBox) {
+            centerLyricLineInStage(scrollBox, activeBtn, instant);
+        }
     }
 
     function syncCenterLyricsPlayButton() {
@@ -1505,8 +1559,8 @@ document.addEventListener("DOMContentLoaded", () => {
                     <i class="fa-solid fa-arrow-left"></i> Back
                 </button>
             </div>
-            <section class="sp-lyrics-stage">
-                <div class="sp-lyrics-stage-header" style="--lyrics-cover: url('${song.cover}')">
+            <section class="sp-lyrics-stage" style="--lyrics-cover: url('${song.cover}')">
+                <div class="sp-lyrics-stage-header">
                     <div class="sp-lyrics-stage-track">
                         <img src="${song.cover}" alt="${song.title}">
                         <div class="sp-lyrics-stage-copy">
@@ -1518,14 +1572,18 @@ document.addEventListener("DOMContentLoaded", () => {
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="sp-lyrics-stage-actions">
-                    <button type="button" class="sp-lyrics-stage-play" id="spLyricsPlayBtn" aria-label="Play ${song.title}" title="Play or pause">
-                        <i class="fa-solid fa-play"></i>
-                    </button>
-                    <button type="button" class="sp-lyrics-stage-save" id="spLyricsSaveBtn" aria-label="Add to Liked Songs" aria-pressed="false" title="Add to Liked Songs">
-                        <i class="fa-solid fa-plus"></i>
-                    </button>
+                    <div class="sp-lyrics-stage-actions">
+                        <button type="button" class="sp-lyrics-stage-play" id="spLyricsPlayBtn" aria-label="Play ${song.title}" title="Play or pause">
+                            <i class="fa-solid fa-play"></i>
+                        </button>
+                        <button type="button" class="sp-lyrics-stage-save" id="spLyricsSaveBtn" aria-label="Add to Liked Songs" aria-pressed="false" title="Add to Liked Songs">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                        <button type="button" class="sp-lyrics-stage-fullscreen" id="spLyricsFullscreenBtn" aria-label="Fullscreen lyrics" aria-pressed="false" title="Fullscreen lyrics">
+                            <i class="fa-solid fa-expand" aria-hidden="true"></i>
+                            <span class="sp-fs-btn-label">Fullscreen</span>
+                        </button>
+                    </div>
                 </div>
                 <div class="sp-lyrics-stage-body">
                     <div class="sp-lyrics-stage-main">
@@ -1588,6 +1646,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         homeAlbumArtistView.querySelector("#spLyricsBackBtn")?.addEventListener("click", () => {
+            if (isLyricsFullscreen) exitLyricsFullscreen();
             if (previousCenterView === "library") showFullLibraryView();
             else showHomeDashboardView();
         });
@@ -1597,12 +1656,19 @@ document.addEventListener("DOMContentLoaded", () => {
             setupSidebarSongs();
             showToast(favorites.has(song.id) ? "Added to Liked Songs" : "Removed from Liked Songs");
         });
+        homeAlbumArtistView.querySelector("#spLyricsFullscreenBtn")?.addEventListener("click", (e) => {
+            e.stopPropagation();
+            toggleLyricsFullscreen();
+        });
         syncCenterLyricsPlayButton();
         syncCenterLyricsSaveButton();
         syncFullscreenLyricsButtons();
 
-        syncCenterLyricsView(audio.currentTime || 0, true);
-        requestAnimationFrame(updateLyricsFsScrollbarThumb);
+        syncCenterLyricsView(audio.currentTime || 0, true, true);
+        requestAnimationFrame(() => {
+            syncCenterLyricsView(audio.currentTime || 0, true, true);
+            updateLyricsFsScrollbarThumb();
+        });
     }
 
     artistDedicatedPageLink?.addEventListener("click", event => {
