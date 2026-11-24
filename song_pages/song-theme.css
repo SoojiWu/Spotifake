@@ -175,8 +175,25 @@ input[type="range"] {
     box-shadow: 0 0 12px var(--primary-soft);
 }
 
+.lyrics-scroll-box {
+    overflow-x: hidden;
+}
+
+.lyrics-line {
+    box-sizing: border-box;
+    max-width: 100%;
+    text-align: left;
+    overflow-wrap: break-word;
+    transform: none;
+}
+
 .lyrics-line:hover {
     color: var(--text-main);
+    transform: none;
+}
+
+.lyrics-line.past {
+    transform: none;
 }
 
 .lyrics-line.active,
@@ -184,6 +201,7 @@ input[type="range"] {
     color: var(--text-main);
     background: var(--accent-soft);
     text-shadow: 0 0 22px var(--accent-glow), 0 0 32px var(--loud-accent);
+    transform: none;
 }
 
 /* Light Mode Contrast & Polish */

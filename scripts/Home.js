@@ -1151,13 +1151,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let activeCenterLyricIndex = -1;
     let isLyricsFullscreen = false;
+    let lyricsFullscreenHistoryPushed = false;
+    let ignoreNextFsPopstate = false;
     let lyricsFsIdleTimer = null;
     let lyricsFsScrollHideTimer = null;
     let isLyricsFsPointerDown = false;
     let isDraggingFsScrollbar = false;
     let fsScrollDragStartY = 0;
     let fsScrollDragStartTop = 0;
-    const LYRICS_FS_IDLE_MS = 2500;
+    let lastFsPointerX = null;
+    let lastFsPointerY = null;
+    const LYRICS_FS_IDLE_MS = 2200;
     const LYRICS_FS_SCROLL_HIDE_MS = 900;
     const LYRICS_FS_EDGE_PX = 68;
 
@@ -1240,11 +1244,17 @@ document.addEventListener("DOMContentLoaded", () => {
     function requestNativeFullscreen(el) {
         const target = el || document.documentElement;
         const reqFn = target.requestFullscreen || target.webkitRequestFullscreen || target.msRequestFullscreen;
-        if (typeof reqFn === "function") {
+        if (typeof reqFn !== "function") return;
+        try {
+            const promise = target.requestFullscreen
+                ? target.requestFullscreen({ navigationUI: "hide" })
+                : reqFn.call(target);
+            if (promise && typeof promise.catch === "function") promise.catch(() => {});
+        } catch (err) {
             try {
-                const promise = reqFn.call(target);
-                if (promise && typeof promise.catch === "function") promise.catch(() => {});
-            } catch (err) { /* Graceful fallback to full-viewport mode (e.g. iOS Safari) */ }
+                const fallback = reqFn.call(target);
+                if (fallback && typeof fallback.catch === "function") fallback.catch(() => {});
+            } catch (fallbackErr) { /* Graceful fallback to full-viewport mode (e.g. iOS Safari) */ }
         }
     }
 
@@ -1285,15 +1295,28 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function enterLyricsFullscreen() {
+        if (window.innerWidth < 1024 && typeof closeArtistPanelDrawer === "function") {
+            closeArtistPanelDrawer();
+        }
         if (!isCenterLyricsViewOpen()) {
             displayLyricsPreviewView(getCurrentSong()?.id);
         }
         isLyricsFullscreen = true;
+        isLyricsFsPointerDown = false;
+        lastFsPointerX = null;
+        lastFsPointerY = null;
         document.documentElement.classList.add("sp-lyrics-fullscreen");
         document.body.classList.add("sp-lyrics-fullscreen");
         document.body.classList.remove("sp-lyrics-fs-idle", "sp-lyrics-fs-scroll-peek");
         syncFullscreenLyricsButtons();
         scheduleLyricsFsIdle();
+
+        if (!lyricsFullscreenHistoryPushed && window.history && typeof window.history.pushState === "function") {
+            try {
+                history.pushState({ spLyricsFs: true }, "", location.href);
+                lyricsFullscreenHistoryPushed = true;
+            } catch (err) { /* Ignore restricted history contexts */ }
+        }
 
         if (!getNativeFullscreenElement()) {
             requestNativeFullscreen(document.documentElement);
@@ -1305,9 +1328,10 @@ document.addEventListener("DOMContentLoaded", () => {
         };
         requestAnimationFrame(recenter);
         setTimeout(recenter, 140);
+        setTimeout(recenter, 340);
     }
 
-    function exitLyricsFullscreen(skipNativeExit = false) {
+    function exitLyricsFullscreen(skipNativeExit = false, fromPopState = false) {
         if (!isLyricsFullscreen && !document.body.classList.contains("sp-lyrics-fullscreen")) {
             return;
         }
@@ -1322,6 +1346,14 @@ document.addEventListener("DOMContentLoaded", () => {
         document.documentElement.classList.remove("sp-lyrics-fullscreen");
         document.body.classList.remove("sp-lyrics-fullscreen", "sp-lyrics-fs-idle", "sp-lyrics-fs-scroll-peek");
         syncFullscreenLyricsButtons();
+
+        if (lyricsFullscreenHistoryPushed) {
+            lyricsFullscreenHistoryPushed = false;
+            if (!fromPopState && history.state && history.state.spLyricsFs === true) {
+                ignoreNextFsPopstate = true;
+                history.back();
+            }
+        }
 
         if (!skipNativeExit) {
             exitNativeFullscreen();
@@ -1346,6 +1378,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const handleLyricsFsPointerMove = (e) => {
         if (!isLyricsFullscreen) return;
+        const hasCoords = typeof e.clientX === "number" && typeof e.clientY === "number";
+        if (hasCoords) {
+            if (lastFsPointerX !== null && lastFsPointerY !== null) {
+                const moved = Math.hypot(e.clientX - lastFsPointerX, e.clientY - lastFsPointerY);
+                if (moved < 2 && !isDraggingFsScrollbar) return;
+            }
+            lastFsPointerX = e.clientX;
+            lastFsPointerY = e.clientY;
+        }
         wakeLyricsFullscreenControls();
 
         if (isDraggingFsScrollbar) {
@@ -1359,33 +1400,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 scrollBox.scrollTop = fsScrollDragStartTop + (deltaY / usableTrack) * maxScroll;
             }
         }
-
-        const nearRightEdge = typeof e.clientX === "number" && e.clientX >= window.innerWidth - LYRICS_FS_EDGE_PX;
-        const onScrollbar = e.target?.closest?.("#spLyricsFsScrollbar");
-        if (nearRightEdge || onScrollbar || isDraggingFsScrollbar) {
-            showLyricsFsScrollbar();
-        } else {
-            scheduleLyricsFsScrollbarHide();
-        }
     };
 
     window.addEventListener("pointermove", handleLyricsFsPointerMove, { passive: true });
     window.addEventListener("mousemove", handleLyricsFsPointerMove, { passive: true });
 
-    ["mousedown", "touchstart", "wheel"].forEach(evt => {
+    ["mousedown", "touchstart", "touchmove", "wheel"].forEach(evt => {
         window.addEventListener(evt, () => {
             if (isLyricsFullscreen) wakeLyricsFullscreenControls();
         }, { passive: true });
     });
 
-    window.addEventListener("pointerdown", () => {
+    window.addEventListener("pointerdown", (e) => {
         if (isLyricsFullscreen) {
             isLyricsFsPointerDown = true;
+            if (typeof e.clientX === "number" && typeof e.clientY === "number") {
+                lastFsPointerX = e.clientX;
+                lastFsPointerY = e.clientY;
+            }
             wakeLyricsFullscreenControls();
         }
     }, { passive: true });
 
-    ["pointerup", "pointercancel"].forEach(evt => {
+    ["pointerup", "pointercancel", "touchend", "touchcancel"].forEach(evt => {
         window.addEventListener(evt, () => {
             if (isLyricsFsPointerDown || isDraggingFsScrollbar) {
                 isLyricsFsPointerDown = false;
@@ -1395,8 +1432,16 @@ document.addEventListener("DOMContentLoaded", () => {
                     scheduleLyricsFsIdle();
                     scheduleLyricsFsScrollbarHide();
                 }
+            } else if (isLyricsFullscreen && (evt === "touchend" || evt === "touchcancel")) {
+                scheduleLyricsFsIdle();
             }
         }, { passive: true });
+    });
+
+    document.addEventListener("mouseleave", () => {
+        if (isLyricsFullscreen && !isLyricsFsPointerDown) {
+            scheduleLyricsFsIdle();
+        }
     });
 
     window.addEventListener("resize", () => {
@@ -1660,6 +1705,28 @@ document.addEventListener("DOMContentLoaded", () => {
             e.stopPropagation();
             toggleLyricsFullscreen();
         });
+
+        // Allow clean fullscreen exit via double-click / double-tap on empty stage area
+        const lyricsStageEl = homeAlbumArtistView.querySelector(".sp-lyrics-stage");
+        if (lyricsStageEl) {
+            let lastStageBgTap = 0;
+            lyricsStageEl.addEventListener("dblclick", (e) => {
+                if (!isLyricsFullscreen) return;
+                if (e.target.closest(".sp-stage-lyric-line, .sp-lyrics-stage-header")) return;
+                exitLyricsFullscreen();
+            });
+            lyricsStageEl.addEventListener("touchend", (e) => {
+                if (!isLyricsFullscreen) return;
+                if (e.target.closest(".sp-stage-lyric-line, .sp-lyrics-stage-header")) return;
+                const now = Date.now();
+                if (now - lastStageBgTap < 320) {
+                    lastStageBgTap = 0;
+                    exitLyricsFullscreen();
+                } else {
+                    lastStageBgTap = now;
+                }
+            }, { passive: true });
+        }
         syncCenterLyricsPlayButton();
         syncCenterLyricsSaveButton();
         syncFullscreenLyricsButtons();
@@ -7039,6 +7106,15 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     window.addEventListener("popstate", () => {
+        if (ignoreNextFsPopstate) {
+            ignoreNextFsPopstate = false;
+            return;
+        }
+        if (isLyricsFullscreen) {
+            lyricsFullscreenHistoryPushed = false;
+            exitLyricsFullscreen(false, true);
+            return;
+        }
         if (!window.matchMedia("(max-width: 767px)").matches) return;
         const params = new URLSearchParams(location.search);
         const view = params.get("view");
