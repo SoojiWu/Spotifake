@@ -12079,6 +12079,12 @@ html.profile-transition-preparing body {
         color: var(--neon-yellow);
     }
 
+    .home-page .main.library-overlay-opening #homeLibraryView .lib-category-tabs {
+        position: relative;
+        z-index: 2;
+        width: fit-content;
+    }
+
     .home-page .main.library-overlay-opening #homeLibraryView .lib-cat-pill {
         padding: 7px 13px;
         border: 0;
@@ -12087,9 +12093,16 @@ html.profile-transition-preparing body {
         font-size: 12px;
         font-weight: 600;
         box-shadow: none;
+        cursor: pointer;
     }
 
-    .home-page .main.library-overlay-opening #homeLibraryView .lib-cat-pill.active {
+    .home-page .main.library-overlay-opening #homeLibraryView .lib-cat-pill:hover {
+        background: var(--canvas-surface-hover);
+        color: var(--text-primary);
+    }
+
+    .home-page .main.library-overlay-opening #homeLibraryView .lib-cat-pill.active,
+    .home-page .main.library-overlay-opening #homeLibraryView .lib-cat-pill.active:hover {
         background: var(--neon-yellow);
         color: #09090E;
     }
@@ -12151,6 +12164,11 @@ html.profile-transition-preparing body {
     .home-page .main.library-overlay-opening #homeLibraryView .lib-toolbar {
         justify-content: flex-end;
         flex-wrap: nowrap;
+        pointer-events: none;
+    }
+
+    .home-page .main.library-overlay-opening #homeLibraryView .lib-toolbar > * {
+        pointer-events: auto;
     }
 
     .home-page .main.library-overlay-opening #homeLibItemsContainer:not(.list-view) {
