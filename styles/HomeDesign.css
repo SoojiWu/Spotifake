@@ -12687,3 +12687,324 @@ html.profile-transition-preparing body {
     }
 }
 
+/* ==========================================================
+   MOBILE / PHONE & TABLET / IPAD LAYOUT POLISH
+   Fixes:
+   1. Your Library sidebar Create button & filter tabs (Tablets)
+   2. Hero Featured Track carousel card clipping & sizing (Mobile & Tablets)
+   3. Center-stage Lyrics view viewport fit & spacing (Mobile & Tablets)
+   Desktop (>= 1024px) remains completely untouched.
+   ========================================================== */
+
+/* 1. Tablet / iPad (768px - 1023px): Your Library Header, Carousel & Lyrics Stage */
+@media (min-width: 768px) and (max-width: 1023px) {
+    /* Fix "+ Create" overflowing out of circular button in narrow 236px tablet sidebar */
+    .home-page .library {
+        gap: 6px;
+        padding: 0 2px;
+    }
+
+    .home-page .library-title {
+        min-width: 0;
+        padding: 4px 2px;
+    }
+
+    .home-page .library-title h2 {
+        font-size: 14.5px;
+    }
+
+    .home-page .library-header-actions {
+        flex-shrink: 0;
+        gap: 4px;
+    }
+
+    .home-page #sidebarCreatePlaylistBtn {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0;
+        flex-shrink: 0;
+    }
+
+    .home-page #sidebarCreatePlaylistBtn span {
+        display: none;
+    }
+
+    .home-page .lib-expand-btn {
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+    }
+
+    html[data-appearance="light"] .home-page #sidebarCreatePlaylistBtn {
+        background: var(--canvas-surface);
+        color: var(--text-primary);
+        border-color: var(--border-subtle);
+    }
+
+    /* Ensure Playlists / Albums / Artists tabs fit cleanly without clipping Artists */
+    .home-page .lib-tabs {
+        gap: 5px;
+        flex-wrap: nowrap;
+        width: 100%;
+    }
+
+    .home-page .lib-tab {
+        flex: 1 1 auto;
+        min-width: 0;
+        padding: 5px 8px;
+        font-size: 11px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .home-page .lib-search-wrap:is(:focus-within, .expanded) {
+        flex: 1 1 auto;
+        min-width: 0;
+        width: auto;
+    }
+
+    /* Fix Hero Featured Track Carousel: stop vertical text slicing & give proper proportions */
+    .spotlight-deck-wrap {
+        gap: 16px;
+        padding: 14px calc(50% - 155px) 16px;
+    }
+
+    .spotlight-deck-wrap .featured-spotlight {
+        flex: 0 0 310px;
+        height: 148px;
+        border-radius: 16px;
+    }
+
+    .spotlight-deck-wrap .spotlight-cover-fade {
+        width: 56%;
+        background-position: center 22%;
+    }
+
+    .spotlight-deck-wrap .spotlight-info {
+        width: 68%;
+        padding: 14px 16px 14px 10px;
+        justify-content: center;
+        gap: 3px;
+    }
+
+    .spotlight-deck-wrap .spotlight-badge {
+        font-size: 9.5px;
+        line-height: 1.25;
+        margin-bottom: 1px;
+        flex-shrink: 0;
+    }
+
+    .spotlight-deck-wrap .featured-spotlight h3 {
+        font-size: 17px;
+        line-height: 1.28;
+        margin: 0;
+        padding-bottom: 1px;
+        flex-shrink: 0;
+    }
+
+    .spotlight-deck-wrap .featured-spotlight p {
+        font-size: 11.5px;
+        line-height: 1.3;
+        margin: 0 0 8px 0;
+        padding-bottom: 1px;
+        flex-shrink: 0;
+    }
+
+    .spotlight-deck-wrap .spotlight-actions {
+        flex-shrink: 0;
+    }
+
+    .spotlight-deck-wrap .spotlight-play-btn {
+        padding: 7px 15px;
+        font-size: 11px;
+    }
+
+    /* Fix Lyrics Stage View: fill full tablet viewport cleanly down to bottom player bar */
+    body:not(.sp-lyrics-fullscreen) .main:has(#homeAlbumArtistView[data-active-view="lyrics"]) {
+        padding-bottom: calc(76px + 14px);
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] {
+        display: flex !important;
+        flex-direction: column;
+        height: calc(100dvh - var(--header-height) - 76px - 28px);
+        min-height: 440px;
+        box-sizing: border-box;
+        padding-bottom: 0;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] > .sp-back-bar {
+        flex: none;
+        margin-bottom: 10px;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage {
+        flex: 1;
+        min-height: 0;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage-header {
+        flex: none;
+        padding: 14px 18px;
+        gap: 12px;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage-body {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+        padding: 14px 20px 16px;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage-main {
+        flex: 1;
+        min-height: 0;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage-scroll {
+        flex: 1;
+        height: 0;
+        min-height: 0;
+        max-height: none;
+    }
+}
+
+/* 2. Mobile / Phone (< 768px): Hero Carousel & Full-Height Lyrics Stage */
+@media (max-width: 767px) {
+    /* Fix Hero Featured Track Carousel: stop text slicing & widen cramped mobile cards */
+    .spotlight-deck-wrap {
+        padding: 12px calc(50% - min(128px, 37vw)) 14px !important;
+        gap: 12px !important;
+    }
+
+    .spotlight-deck-wrap .featured-spotlight {
+        flex: 0 0 min(256px, 74vw);
+        height: 126px;
+        border-radius: 14px;
+    }
+
+    .spotlight-deck-wrap .spotlight-cover-fade {
+        width: 55%;
+        background-position: center 22%;
+    }
+
+    .spotlight-deck-wrap .spotlight-info {
+        width: 68%;
+        padding: 10px 12px 10px 8px;
+        justify-content: center;
+        gap: 2px;
+    }
+
+    .spotlight-deck-wrap .spotlight-badge {
+        font-size: 8.5px;
+        line-height: 1.25;
+        margin-bottom: 1px;
+        flex-shrink: 0;
+    }
+
+    .spotlight-deck-wrap .featured-spotlight h3 {
+        font-size: 15px;
+        line-height: 1.26;
+        margin: 0;
+        padding-bottom: 1px;
+        flex-shrink: 0;
+    }
+
+    .spotlight-deck-wrap .featured-spotlight p {
+        font-size: 10.5px;
+        line-height: 1.28;
+        margin: 0 0 7px 0;
+        padding-bottom: 1px;
+        flex-shrink: 0;
+    }
+
+    .spotlight-deck-wrap .spotlight-actions {
+        flex-shrink: 0;
+    }
+
+    .spotlight-deck-wrap .spotlight-play-btn {
+        padding: 6px 12px;
+        font-size: 10px;
+        gap: 5px;
+    }
+
+    /* Fix Lyrics Stage View: fill phone viewport cleanly above mini player + bottom nav */
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] {
+        display: flex !important;
+        flex-direction: column;
+        height: calc(100dvh - var(--header-height) - 146px);
+        min-height: 380px;
+        box-sizing: border-box;
+        padding-bottom: 0;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] > .sp-back-bar {
+        flex: none;
+        margin-bottom: 8px;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage {
+        flex: 1;
+        min-height: 0;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage-header {
+        flex: none;
+        padding: 11px 12px;
+        gap: 8px;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage-track > img {
+        width: 48px;
+        height: 48px;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage-actions {
+        gap: 7px;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage-fullscreen {
+        width: 34px;
+        height: 34px;
+        padding: 0;
+        border-radius: 50%;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage-body {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+        padding: 10px 12px 12px;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage-main {
+        flex: 1;
+        min-height: 0;
+    }
+
+    body:not(.sp-lyrics-fullscreen) #homeAlbumArtistView[data-active-view="lyrics"] .sp-lyrics-stage-scroll {
+        flex: 1;
+        height: 0;
+        min-height: 0;
+        max-height: none;
+    }
+}
+
+/* 3. Reduce dead top gap above opening lyrics on phones & portrait tablets/iPads */
+@media (max-width: 1023px), (hover: none) and (pointer: coarse) and (orientation: portrait) {
+    body:not(.sp-lyrics-fullscreen) .sp-lyrics-stage-scroll::before {
+        flex: 0 0 24%;
+        min-height: 64px;
+    }
+
+    body:not(.sp-lyrics-fullscreen) .sp-lyrics-stage-scroll::after {
+        flex: 0 0 38%;
+        min-height: 92px;
+    }
+}
+

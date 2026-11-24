@@ -688,6 +688,47 @@ document.addEventListener("DOMContentLoaded", () => {
     bindPasswordToggle(signupPasswordInput, document.getElementById("toggleSignupPasswordBtn"));
     bindPasswordToggle(signupConfirmInput, document.getElementById("toggleSignupConfirmBtn"));
 
+    /* ================= DEVICE PROFILE (MOBILE / SMALL TABLET / LOW-END) ================= */
+    const coarsePointer = window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+    const finePointer = window.matchMedia && window.matchMedia("(pointer: fine)").matches;
+    const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const netConn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+    const saveData = Boolean(netConn && netConn.saveData);
+    const slowNetwork = Boolean(netConn && (netConn.effectiveType === "slow-2g" || netConn.effectiveType === "2g"));
+    const deviceMem = Number(navigator.deviceMemory) || 0;
+    const cpuCores = Number(navigator.hardwareConcurrency) || 0;
+    let forcedUltraLite = false;
+
+    function computeBgProfile() {
+        const w = window.innerWidth || document.documentElement.clientWidth || 1024;
+        const h = window.innerHeight || document.documentElement.clientHeight || 768;
+        const shortSide = Math.min(w, h);
+        const isMobile = w <= 767;
+        const isSmallTablet = !isMobile && (w <= 1023 || (coarsePointer && w <= 1180 && shortSide <= 820));
+        const isLowEndHardware =
+            saveData ||
+            slowNetwork ||
+            (deviceMem > 0 && deviceMem <= 2) ||
+            (deviceMem > 0 && deviceMem <= 4 && cpuCores > 0 && cpuCores <= 4) ||
+            ((isMobile || isSmallTablet) && ((deviceMem > 0 && deviceMem <= 4) || (cpuCores > 0 && cpuCores <= 4)));
+        const isLiteBg = isMobile || isSmallTablet || isLowEndHardware;
+        const isUltraLiteBg =
+            forcedUltraLite ||
+            saveData ||
+            slowNetwork ||
+            (deviceMem > 0 && deviceMem <= 2) ||
+            ((isMobile || isSmallTablet) && ((deviceMem > 0 && deviceMem <= 3) || (cpuCores > 0 && cpuCores <= 4)));
+
+        return { w, h, isMobile, isSmallTablet, isLowEndHardware, isLiteBg, isUltraLiteBg };
+    }
+
+    let bgProfile = computeBgProfile();
+    function applyBgProfileClasses() {
+        document.documentElement.classList.toggle("login-bg-lite", bgProfile.isLiteBg);
+        document.documentElement.classList.toggle("login-bg-ultra-lite", bgProfile.isUltraLiteBg);
+    }
+    applyBgProfileClasses();
+
     /* ================= INPUT REACTIVITY & LIVE IDENTITY PREVIEW ================= */
     const allAuthInputs = [
         emailInput,
@@ -702,6 +743,7 @@ document.addEventListener("DOMContentLoaded", () => {
     allAuthInputs.forEach(inp => {
         inp.addEventListener("input", () => {
             clearValidationStates();
+            if (bgProfile.isLiteBg) return;
             document.body.classList.add("is-typing");
             clearTimeout(typingPulseTimer);
             typingPulseTimer = setTimeout(() => {
@@ -715,24 +757,27 @@ document.addEventListener("DOMContentLoaded", () => {
         renderSavedAccountsStrip();
     });
 
-    /* ================= INTERACTIVE SPOTLIGHT, 3D CARD TILT & EQ ================= */
+    /* ================= INTERACTIVE SPOTLIGHT, 3D CARD TILT & EQ (DESKTOP ONLY) ================= */
     const bgStage = document.querySelector(".cyber-bg-stage");
     const loginCard = document.querySelector(".login-container");
     const eqBars = [...document.querySelectorAll(".bg-full-eq .eq-b")];
-    const finePointer = window.matchMedia && window.matchMedia("(pointer: fine)").matches;
-    const reducedMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    if (bgStage && finePointer && !reducedMotion) {
+    if (!bgProfile.isLiteBg && bgStage && finePointer && !reducedMotion) {
         let rafPending = false;
         let pointerClientX = window.innerWidth / 2;
         let pointerClientY = window.innerHeight / 2;
 
         window.addEventListener("pointermove", (e) => {
+            if (bgProfile.isLiteBg) return;
             pointerClientX = e.clientX;
             pointerClientY = e.clientY;
             if (rafPending) return;
             rafPending = true;
             requestAnimationFrame(() => {
+                if (bgProfile.isLiteBg) {
+                    rafPending = false;
+                    return;
+                }
                 const vw = Math.max(window.innerWidth, 1);
                 const vh = Math.max(window.innerHeight, 1);
                 const normX = pointerClientX / vw;
@@ -789,8 +834,62 @@ document.addEventListener("DOMContentLoaded", () => {
             let prevMy = -9999;
             let cursorSpeed = 0;
             let time = 0;
+            let rafId = null;
+            let isInputFocusedOnMobile = false;
+            let isLightTheme = document.documentElement.getAttribute("data-appearance") === "light";
 
-            const stringCount = window.innerWidth < 640 ? 6 : 9;
+            // Cached resources for lite mode (zero per-frame gradient/string allocations)
+            let liteGoldGrad = null;
+            let liteMagentaGrad = null;
+            let liteRibbonLeftStyle = "";
+            let liteRibbonRightStyle = "";
+            let liteParticleGoldStyle = "";
+            let liteParticleMagentaStyle = "";
+            let liteSegments = bgProfile.isMobile ? 20 : 24;
+            let liteEdgeSoft = null;
+            let liteXTable = null;
+
+            function buildLiteLookupTables() {
+                liteSegments = bgProfile.isMobile ? 20 : 24;
+                liteEdgeSoft = new Float32Array(liteSegments + 1);
+                liteXTable = new Float32Array(liteSegments + 1);
+                for (let step = 0; step <= liteSegments; step++) {
+                    const nx = step / liteSegments;
+                    liteEdgeSoft[step] = 0.45 + 0.55 * Math.sin(nx * Math.PI);
+                    liteXTable[step] = nx * cw;
+                }
+            }
+
+            function rebuildLitePalette() {
+                if (cw <= 0) return;
+                const baseAlpha = isLightTheme ? 0.14 : 0.16;
+                const edgeAlpha = (baseAlpha * 0.35).toFixed(3);
+                const mainAlpha = baseAlpha.toFixed(3);
+                const midAlpha = (baseAlpha * 0.94).toFixed(3);
+
+                liteGoldGrad = ctx.createLinearGradient(0, 0, cw, 0);
+                liteGoldGrad.addColorStop(0, isLightTheme ? `rgba(180, 83, 9, ${edgeAlpha})` : `rgba(255, 234, 0, ${edgeAlpha})`);
+                liteGoldGrad.addColorStop(0.24, isLightTheme ? `rgba(180, 83, 9, ${mainAlpha})` : `rgba(255, 234, 0, ${mainAlpha})`);
+                liteGoldGrad.addColorStop(0.5, isLightTheme ? `rgba(190, 24, 93, ${midAlpha})` : `rgba(255, 130, 175, ${midAlpha})`);
+                liteGoldGrad.addColorStop(0.76, isLightTheme ? `rgba(180, 83, 9, ${mainAlpha})` : `rgba(255, 234, 0, ${mainAlpha})`);
+                liteGoldGrad.addColorStop(1, isLightTheme ? `rgba(180, 83, 9, ${edgeAlpha})` : `rgba(255, 234, 0, ${edgeAlpha})`);
+
+                liteMagentaGrad = ctx.createLinearGradient(0, 0, cw, 0);
+                liteMagentaGrad.addColorStop(0, isLightTheme ? `rgba(190, 24, 93, ${edgeAlpha})` : `rgba(255, 0, 127, ${edgeAlpha})`);
+                liteMagentaGrad.addColorStop(0.24, isLightTheme ? `rgba(190, 24, 93, ${mainAlpha})` : `rgba(255, 0, 127, ${mainAlpha})`);
+                liteMagentaGrad.addColorStop(0.5, isLightTheme ? `rgba(180, 83, 9, ${midAlpha})` : `rgba(255, 224, 102, ${midAlpha})`);
+                liteMagentaGrad.addColorStop(0.76, isLightTheme ? `rgba(190, 24, 93, ${mainAlpha})` : `rgba(255, 0, 127, ${mainAlpha})`);
+                liteMagentaGrad.addColorStop(1, isLightTheme ? `rgba(190, 24, 93, ${edgeAlpha})` : `rgba(255, 0, 127, ${edgeAlpha})`);
+
+                liteRibbonLeftStyle = isLightTheme ? "rgba(180, 83, 9, 0.11)" : "rgba(255, 234, 0, 0.1)";
+                liteRibbonRightStyle = isLightTheme ? "rgba(190, 24, 93, 0.11)" : "rgba(255, 0, 127, 0.1)";
+                liteParticleGoldStyle = isLightTheme ? "rgba(180, 83, 9, 0.34)" : "rgba(255, 234, 0, 0.36)";
+                liteParticleMagentaStyle = isLightTheme ? "rgba(190, 24, 93, 0.34)" : "rgba(255, 0, 127, 0.36)";
+            }
+
+            const stringCount = bgProfile.isLiteBg
+                ? (bgProfile.isMobile ? 4 : 5)
+                : (window.innerWidth < 640 ? 6 : 9);
             const strings = Array.from({ length: stringCount }, (_, i) => ({
                 ratioY: 0.14 + (i / Math.max(1, stringCount - 1)) * 0.62,
                 amp: 0,
@@ -804,19 +903,65 @@ document.addEventListener("DOMContentLoaded", () => {
                 glow: 0
             }));
 
-            const resizeCanvas = () => {
-                const dpr = Math.min(window.devicePixelRatio || 1, 2);
-                cw = window.innerWidth;
-                ch = window.innerHeight;
-                fxCanvas.width = Math.floor(cw * dpr);
-                fxCanvas.height = Math.floor(ch * dpr);
-                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-            };
-            resizeCanvas();
-            window.addEventListener("resize", resizeCanvas, { passive: true });
+            const resizeCanvas = (force = false) => {
+                const nextProfile = computeBgProfile();
+                const nextW = nextProfile.w;
+                const nextH = nextProfile.h;
 
-            if (finePointer) {
+                // Mobile virtual keyboard safeguard: skip canvas reallocation on vertical-only keyboard resize
+                if (!force && nextProfile.isLiteBg && isInputFocusedOnMobile && cw > 0 && Math.abs(nextW - cw) < 4) {
+                    return;
+                }
+
+                bgProfile = nextProfile;
+                applyBgProfileClasses();
+
+                const dpr = bgProfile.isLiteBg ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+                cw = nextW;
+                ch = nextH;
+                fxCanvas.width = Math.max(1, Math.floor(cw * dpr));
+                fxCanvas.height = Math.max(1, Math.floor(ch * dpr));
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+                if (bgProfile.isLiteBg) {
+                    buildLiteLookupTables();
+                    rebuildLitePalette();
+                }
+            };
+            resizeCanvas(true);
+
+            let resizeDebounceTimer = null;
+            window.addEventListener("resize", () => {
+                if (!bgProfile.isLiteBg) {
+                    resizeCanvas();
+                    return;
+                }
+                clearTimeout(resizeDebounceTimer);
+                resizeDebounceTimer = setTimeout(() => {
+                    resizeCanvas();
+                    if (bgProfile.isUltraLiteBg) {
+                        renderLiteFrame(0);
+                    } else {
+                        ensureRunning();
+                    }
+                }, 180);
+            }, { passive: true });
+
+            window.addEventListener("orientationchange", () => {
+                clearTimeout(resizeDebounceTimer);
+                resizeDebounceTimer = setTimeout(() => {
+                    resizeCanvas(true);
+                    if (bgProfile.isUltraLiteBg) {
+                        renderLiteFrame(0);
+                    } else {
+                        ensureRunning();
+                    }
+                }, 220);
+            }, { passive: true });
+
+            if (!bgProfile.isLiteBg && finePointer) {
                 window.addEventListener("pointermove", (e) => {
+                    if (bgProfile.isLiteBg) return;
                     const nextX = e.clientX;
                     const nextY = e.clientY;
                     cursorSpeed = Math.min(36, Math.hypot(nextX - mx, nextY - my));
@@ -844,18 +989,42 @@ document.addEventListener("DOMContentLoaded", () => {
                 }, { passive: true });
             }
 
+            if (!bgProfile.isLiteBg) {
+                allAuthInputs.forEach((inp) => {
+                    inp.addEventListener("input", () => {
+                        if (bgProfile.isLiteBg) return;
+                        const s = strings[Math.floor(Math.random() * strings.length)];
+                        if (s) {
+                            s.vel += (Math.random() > 0.5 ? 1 : -1) * 5.5;
+                            s.pluckX = 0.25 + Math.random() * 0.5;
+                            s.glow = Math.max(s.glow, 0.55);
+                        }
+                    });
+                });
+            }
+
+            // Pause canvas rAF on mobile while virtual keyboard is focused so typing stays 100% responsive
             allAuthInputs.forEach((inp) => {
-                inp.addEventListener("input", () => {
-                    const s = strings[Math.floor(Math.random() * strings.length)];
-                    if (s) {
-                        s.vel += (Math.random() > 0.5 ? 1 : -1) * 5.5;
-                        s.pluckX = 0.25 + Math.random() * 0.5;
-                        s.glow = Math.max(s.glow, 0.55);
+                inp.addEventListener("focus", () => {
+                    if (bgProfile.isMobile || bgProfile.isSmallTablet) {
+                        isInputFocusedOnMobile = true;
+                        if (bgProfile.isMobile && rafId !== null) {
+                            cancelAnimationFrame(rafId);
+                            rafId = null;
+                        }
+                    }
+                });
+                inp.addEventListener("blur", () => {
+                    isInputFocusedOnMobile = false;
+                    if (!bgProfile.isUltraLiteBg) {
+                        ensureRunning();
                     }
                 });
             });
 
-            const count = window.innerWidth < 640 ? 18 : 34;
+            const count = bgProfile.isLiteBg
+                ? (bgProfile.isMobile ? 10 : 16)
+                : (window.innerWidth < 640 ? 18 : 34);
             const particles = Array.from({ length: count }, (_, i) => ({
                 x: Math.random() * cw,
                 y: Math.random() * ch,
@@ -866,7 +1035,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 gold: i % 2 === 0
             }));
 
-            function drawStringArtRibbons(isLight) {
+            function drawStringArtRibbonsDesktop(isLight) {
                 const ribbonLines = window.innerWidth < 640 ? 6 : 11;
                 const swayX = mx > -9000 ? ((mx / Math.max(cw, 1)) - 0.5) * 28 : 0;
                 const swayY = my > -9000 ? ((my / Math.max(ch, 1)) - 0.5) * 22 : 0;
@@ -896,7 +1065,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            function drawHarmonicStrings(isLight) {
+            function drawHarmonicStringsDesktop(isLight) {
                 const segments = 64;
                 for (let i = 0; i < strings.length; i++) {
                     const s = strings[i];
@@ -957,15 +1126,175 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
 
-            function renderFx() {
-                if (document.body.classList.contains("is-loading")) return;
+            /* Optimized batched zero-allocation renderer for mobile, small tablets & low-end devices */
+            function renderLiteFrame(stepScale) {
+                if (cw <= 0 || ch <= 0) return;
+                if (!liteGoldGrad || !liteEdgeSoft) {
+                    buildLiteLookupTables();
+                    rebuildLitePalette();
+                }
+
+                time += 0.016 * stepScale;
+                ctx.clearRect(0, 0, cw, ch);
+
+                // 1. Batched string-art ribbons (2 stroke calls total instead of 12–22)
+                const ribbonLines = bgProfile.isMobile ? 4 : 6;
+                const invRibbons = 1 / Math.max(1, ribbonLines - 1);
+                ctx.lineWidth = 0.85;
+
+                for (let side = -1; side <= 1; side += 2) {
+                    const isLeft = side === -1;
+                    ctx.strokeStyle = isLeft ? liteRibbonLeftStyle : liteRibbonRightStyle;
+                    ctx.beginPath();
+                    for (let i = 0; i < ribbonLines; i++) {
+                        const t = i * invRibbons;
+                        const startX = isLeft ? -20 : cw + 20;
+                        const startY = ch * (0.08 + t * 0.72);
+                        const endX = isLeft ? cw * (0.12 + t * 0.28) : cw * (0.88 - t * 0.28);
+                        const endY = ch * (0.94 - t * 0.14);
+                        const ctrlX = (startX + endX) * 0.5 + side * (55 + Math.sin(time * 0.9 + i * 0.35) * 16);
+                        const ctrlY = ch * (0.28 + t * 0.25) + Math.cos(time * 0.75 + i * 0.4) * 12;
+                        ctx.moveTo(startX, startY);
+                        ctx.quadraticCurveTo(ctrlX, ctrlY, endX, endY);
+                    }
+                    ctx.stroke();
+                }
+
+                // 2. Cached-gradient harmonic strings (0 gradient allocations, precomputed edge & x tables)
+                ctx.lineWidth = 1.15;
+                const maxStrings = bgProfile.isMobile ? Math.min(4, strings.length) : Math.min(5, strings.length);
+                const segs = liteSegments;
+                const invSegs = 1 / segs;
+
+                for (let i = 0; i < maxStrings; i++) {
+                    const s = strings[i];
+                    s.phase += s.driftSpeed * stepScale;
+                    const baseY = s.ratioY * ch;
+                    const primaryFreq = Math.PI * 2 * s.cycles;
+                    const harmFreq = Math.PI * 2 * (s.cycles + 0.85);
+                    const harmAmp = s.driftAmp * 0.36;
+
+                    ctx.strokeStyle = s.isGold ? liteGoldGrad : liteMagentaGrad;
+                    ctx.beginPath();
+
+                    let prevX = 0;
+                    let prevY = baseY;
+                    for (let step = 0; step <= segs; step++) {
+                        const nx = step * invSegs;
+                        const x = liteXTable[step];
+                        const y = baseY + (
+                            Math.sin(nx * primaryFreq + s.phase) * s.driftAmp +
+                            Math.sin(nx * harmFreq - s.phase * 0.72) * harmAmp
+                        ) * liteEdgeSoft[step];
+
+                        if (step === 0) {
+                            ctx.moveTo(x, y);
+                        } else {
+                            ctx.quadraticCurveTo(prevX, prevY, (prevX + x) * 0.5, (prevY + y) * 0.5);
+                        }
+                        prevX = x;
+                        prevY = y;
+                    }
+                    ctx.lineTo(prevX, prevY);
+                    ctx.stroke();
+                }
+
+                // 3. Batched dust particles (2 fill calls total instead of 18–34)
+                const maxParticles = bgProfile.isMobile ? Math.min(10, particles.length) : Math.min(16, particles.length);
+                for (let i = 0; i < maxParticles; i++) {
+                    const p = particles[i];
+                    if (stepScale > 0) {
+                        p.phase += 0.015 * stepScale;
+                        p.x += (p.vx + Math.sin(p.phase) * 0.14) * stepScale;
+                        p.y += p.vy * stepScale;
+                        if (p.y < -12) {
+                            p.y = ch + 12;
+                            p.x = Math.random() * cw;
+                        }
+                        if (p.x < -12) p.x = cw + 12;
+                        else if (p.x > cw + 12) p.x = -12;
+                    }
+                }
+
+                ctx.fillStyle = liteParticleGoldStyle;
+                ctx.beginPath();
+                for (let i = 0; i < maxParticles; i += 2) {
+                    const p = particles[i];
+                    ctx.moveTo(p.x + p.r, p.y);
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                }
+                ctx.fill();
+
+                ctx.fillStyle = liteParticleMagentaStyle;
+                ctx.beginPath();
+                for (let i = 1; i < maxParticles; i += 2) {
+                    const p = particles[i];
+                    ctx.moveTo(p.x + p.r, p.y);
+                    ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+                }
+                ctx.fill();
+            }
+
+            let lastRafTs = 0;
+            let lastLiteDrawTs = 0;
+            const bootTs = performance.now();
+            let jankSamples = 0;
+            let jankDeltaSum = 0;
+
+            function renderFx(now) {
+                rafId = null;
+                if (document.hidden || document.body.classList.contains("is-loading")) return;
+
+                if (bgProfile.isLiteBg) {
+                    if (bgProfile.isUltraLiteBg) {
+                        renderLiteFrame(0);
+                        return;
+                    }
+                    if (bgProfile.isMobile && isInputFocusedOnMobile) {
+                        return;
+                    }
+
+                    // Automatic FPS watchdog (only on mobile/small-tablet/low-end):
+                    // if real compositor cadence lags below ~14 FPS after warmup, drop to crisp static ultra-lite
+                    if (lastRafTs > 0 && now - bootTs > 700) {
+                        const rafDelta = now - lastRafTs;
+                        if (rafDelta > 0 && rafDelta < 350) {
+                            jankDeltaSum += rafDelta;
+                            jankSamples++;
+                            if (jankSamples >= 18) {
+                                const avgRafMs = jankDeltaSum / jankSamples;
+                                if (avgRafMs > 68) {
+                                    forcedUltraLite = true;
+                                    bgProfile = computeBgProfile();
+                                    applyBgProfileClasses();
+                                    renderLiteFrame(0);
+                                    return;
+                                }
+                                jankSamples = 0;
+                                jankDeltaSum = 0;
+                            }
+                        }
+                    }
+                    lastRafTs = now;
+
+                    // Cap lite canvas to smooth delta-timed 30 FPS (prevents 90Hz/120Hz mobile GPU burn)
+                    if (lastLiteDrawTs === 0 || now - lastLiteDrawTs >= 32) {
+                        const dtMs = lastLiteDrawTs > 0 ? Math.min(64, now - lastLiteDrawTs) : 33.3;
+                        lastLiteDrawTs = now;
+                        renderLiteFrame(dtMs / 16.67);
+                    }
+
+                    rafId = requestAnimationFrame(renderFx);
+                    return;
+                }
+
+                // Original untouched Desktop rendering path
                 time += 0.016;
                 cursorSpeed *= 0.85;
                 ctx.clearRect(0, 0, cw, ch);
 
-                const isLight = document.documentElement.getAttribute("data-appearance") === "light";
-                drawStringArtRibbons(isLight);
-                drawHarmonicStrings(isLight);
+                drawStringArtRibbonsDesktop(isLightTheme);
+                drawHarmonicStringsDesktop(isLightTheme);
 
                 for (let i = 0; i < particles.length; i++) {
                     const p = particles[i];
@@ -990,16 +1319,65 @@ document.addEventListener("DOMContentLoaded", () => {
                     if (p.x > cw + 12) p.x = -12;
 
                     ctx.fillStyle = p.gold
-                        ? (isLight ? "rgba(180, 83, 9, 0.34)" : "rgba(255, 234, 0, 0.36)")
-                        : (isLight ? "rgba(190, 24, 93, 0.34)" : "rgba(255, 0, 127, 0.36)");
+                        ? (isLightTheme ? "rgba(180, 83, 9, 0.34)" : "rgba(255, 234, 0, 0.36)")
+                        : (isLightTheme ? "rgba(190, 24, 93, 0.34)" : "rgba(255, 0, 127, 0.36)");
                     ctx.beginPath();
                     ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
                     ctx.fill();
                 }
 
-                requestAnimationFrame(renderFx);
+                rafId = requestAnimationFrame(renderFx);
             }
-            requestAnimationFrame(renderFx);
+
+            function ensureRunning() {
+                if (document.hidden || document.body.classList.contains("is-loading")) return;
+                if (bgProfile.isLiteBg && bgProfile.isUltraLiteBg) {
+                    renderLiteFrame(0);
+                    return;
+                }
+                if (bgProfile.isMobile && isInputFocusedOnMobile) return;
+                if (rafId === null) {
+                    lastRafTs = 0;
+                    lastLiteDrawTs = 0;
+                    jankSamples = 0;
+                    jankDeltaSum = 0;
+                    rafId = requestAnimationFrame(renderFx);
+                }
+            }
+
+            // Keep cached theme flag synced without reading DOM every frame
+            const syncCanvasTheme = () => {
+                isLightTheme = document.documentElement.getAttribute("data-appearance") === "light";
+                if (bgProfile.isLiteBg) {
+                    rebuildLitePalette();
+                    if (bgProfile.isUltraLiteBg) {
+                        renderLiteFrame(0);
+                    }
+                }
+            };
+            window.addEventListener("spotifake:appearance-change", syncCanvasTheme);
+            window.addEventListener("pageshow", () => {
+                syncCanvasTheme();
+                ensureRunning();
+            });
+
+            // Pause background cleanly when tab is hidden
+            document.addEventListener("visibilitychange", () => {
+                if (document.hidden) {
+                    if (rafId !== null) {
+                        cancelAnimationFrame(rafId);
+                        rafId = null;
+                    }
+                    if (bgProfile.isLiteBg) {
+                        document.body.classList.add("bg-is-paused");
+                    }
+                } else {
+                    document.body.classList.remove("bg-is-paused");
+                    ensureRunning();
+                }
+            });
+
+            ensureRunning();
         }
     }
 });

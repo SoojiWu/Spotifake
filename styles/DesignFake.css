@@ -2559,3 +2559,686 @@ html[data-appearance="light"] .pw-peek-btn:hover {
         margin-top: 6px;
     }
 }
+
+/* ==========================================================
+   MOBILE, SMALL TABLET & LOW-END DEVICE BACKGROUND OPTIMIZER
+   Scoped strictly to mobile (<= 767px), small tablets (<= 1023px
+   or coarse-pointer landscape <= 1180x820), and JS-detected
+   low-end hardware (.login-bg-lite / .login-bg-ultra-lite).
+   Desktop (> 1023px with normal hardware) remains untouched.
+   ========================================================== */
+@keyframes fadedEqBounceLite {
+    0% {
+        transform: scaleY(0.16);
+    }
+
+    100% {
+        transform: scaleY(0.88);
+    }
+}
+
+@keyframes synthGridMoveLite {
+    0% {
+        transform: rotateX(68deg) translate3d(0, -48px, 0);
+    }
+
+    100% {
+        transform: rotateX(68deg) translate3d(0, 0, 0);
+    }
+}
+
+@keyframes miniWavePulseLite {
+    0% {
+        transform: scaleY(0.28);
+        opacity: 0.55;
+    }
+
+    100% {
+        transform: scaleY(1);
+        opacity: 0.95;
+    }
+}
+
+@keyframes eqBounceLite {
+    0% {
+        transform: scaleY(0.18);
+        opacity: 0.7;
+    }
+
+    100% {
+        transform: scaleY(1);
+        opacity: 1;
+    }
+}
+
+@media (max-width: 1023px), (hover: none) and (pointer: coarse) and (max-width: 1180px) and (max-height: 820px) {
+    /* 1. Replace heavy GPU blur(65px/75px) corner glows with soft multi-stop static gradients */
+    body::before {
+        filter: none;
+        animation: none;
+        opacity: 0.85;
+        background: radial-gradient(
+            circle,
+            rgba(255, 234, 0, 0.17) 0%,
+            rgba(255, 234, 0, 0.08) 28%,
+            rgba(255, 234, 0, 0.025) 54%,
+            transparent 74%
+        );
+    }
+
+    body::after {
+        filter: none;
+        animation: none;
+        opacity: 0.85;
+        background: radial-gradient(
+            circle,
+            rgba(255, 0, 127, 0.2) 0%,
+            rgba(255, 0, 127, 0.09) 30%,
+            rgba(255, 0, 127, 0.025) 56%,
+            transparent 75%
+        );
+    }
+
+    /* 2. Isolate stage painting and drop heavy aurora blur(75px) + unused cursor glow */
+    .cyber-bg-stage {
+        contain: strict;
+    }
+
+    .bg-aurora-layer {
+        contain: strict;
+    }
+
+    .aurora-orb {
+        filter: none;
+        will-change: auto;
+        opacity: 0.72;
+    }
+
+    .aurora-orb.orb-1 {
+        background: radial-gradient(
+            circle,
+            rgba(255, 0, 127, 0.24) 0%,
+            rgba(154, 0, 255, 0.1) 36%,
+            rgba(154, 0, 255, 0.025) 60%,
+            transparent 76%
+        );
+    }
+
+    .aurora-orb.orb-2 {
+        background: radial-gradient(
+            circle,
+            rgba(255, 234, 0, 0.19) 0%,
+            rgba(255, 136, 0, 0.07) 36%,
+            rgba(255, 136, 0, 0.02) 58%,
+            transparent 75%
+        );
+    }
+
+    .aurora-orb.orb-3,
+    .bg-cursor-glow {
+        display: none;
+    }
+
+    /* 3. Fix mix-blend-mode + blur(26px) tile flicker glitches on mobile/tablet GPUs */
+    .bg-laser-beams {
+        mix-blend-mode: normal;
+        contain: strict;
+    }
+
+    .laser-beam {
+        filter: none;
+    }
+
+    .laser-beam.beam-left {
+        background: radial-gradient(
+            ellipse 50% 86% at 50% 0%,
+            rgba(255, 234, 0, 0.34) 0%,
+            rgba(255, 234, 0, 0.12) 44%,
+            rgba(255, 234, 0, 0.02) 72%,
+            transparent 100%
+        );
+    }
+
+    .laser-beam.beam-right {
+        background: radial-gradient(
+            ellipse 50% 86% at 50% 0%,
+            rgba(255, 0, 127, 0.36) 0%,
+            rgba(255, 0, 127, 0.13) 44%,
+            rgba(255, 0, 127, 0.02) 72%,
+            transparent 100%
+        );
+    }
+
+    .laser-beam.beam-center {
+        display: none;
+    }
+
+    /* 4. Trim oversized blurred shadow rings */
+    .bg-sound-rings {
+        width: 540px;
+        height: 540px;
+        contain: layout style;
+    }
+
+    .sound-ring {
+        box-shadow: none;
+    }
+
+    .sound-ring.ring-1 {
+        width: 360px;
+        height: 360px;
+    }
+
+    .sound-ring.ring-2 {
+        width: 460px;
+        height: 460px;
+    }
+
+    .sound-ring.ring-3 {
+        display: none;
+    }
+
+    /* 5. Replace CPU-repainting grid background-position + mask-image with GPU-composited transform */
+    .bg-horizon-beam {
+        box-shadow: 0 0 10px rgba(255, 0, 127, 0.36);
+        animation: none;
+        opacity: 0.65;
+    }
+
+    .bg-grid-floor {
+        contain: strict;
+        mask-image: none;
+        -webkit-mask-image: none;
+    }
+
+    .bg-grid-floor::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: linear-gradient(to bottom, var(--background) 0%, transparent 50%);
+    }
+
+    .bg-grid-plane {
+        top: -90%;
+        bottom: -60px;
+        animation: synthGridMoveLite 3.2s linear infinite;
+    }
+
+    /* 6. Lightweight stars (no double box-shadow blurs) */
+    .bg-star-dust {
+        contain: strict;
+    }
+
+    .star-s {
+        box-shadow: none;
+    }
+
+    .star-s:nth-child(n + 7) {
+        display: none;
+    }
+
+    /* 7. Remove per-badge backdrop-filter & drop-shadow passes */
+    .floating-particle {
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        filter: none;
+        translate: none;
+        transition: none;
+        background: rgba(18, 18, 30, 0.84);
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+    }
+
+    html[data-appearance="pure-black"] .floating-particle {
+        background: rgba(10, 10, 16, 0.9);
+    }
+
+    html[data-appearance="light"] .floating-particle {
+        background: rgba(255, 255, 255, 0.88);
+    }
+
+    /* 8. Fix 60-bar EQ horizontal overflow + 60-layer drop-shadow blur storm */
+    .bg-eq-ambient-floor {
+        position: absolute;
+        filter: none;
+        animation: none;
+        opacity: 0.72;
+    }
+
+    .bg-full-eq {
+        position: absolute;
+        mask-image: none;
+        -webkit-mask-image: none;
+        contain: layout style paint;
+    }
+
+    .bg-full-eq .eq-b {
+        min-width: 0;
+        max-width: 18px;
+        will-change: auto;
+        box-shadow: none;
+        filter: none !important;
+        opacity: 0.72;
+        background: linear-gradient(
+            to top,
+            rgba(255, 0, 127, 0.88) 0%,
+            rgba(255, 0, 127, 0.68) 36%,
+            rgba(255, 119, 0, 0.62) 66%,
+            rgba(255, 234, 0, 0.44) 86%,
+            rgba(255, 234, 0, 0) 100%
+        );
+        animation-name: fadedEqBounceLite;
+    }
+
+    .bg-full-eq .eq-b:nth-child(n + 31) {
+        display: none;
+    }
+
+    /* 9. Stabilize login card & loader on small tablets (no backdrop-filter or 60fps conic-rim repaints) */
+    .login-page {
+        perspective: none;
+    }
+
+    .login-container {
+        background: linear-gradient(155deg, rgba(22, 20, 34, 0.95) 0%, rgba(13, 13, 21, 0.97) 100%);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        transform-style: flat;
+        transform: none !important;
+        transition: box-shadow 0.25s ease, border-color 0.25s ease;
+    }
+
+    html[data-appearance="pure-black"] .login-container {
+        background: #08080c;
+    }
+
+    html[data-appearance="light"] .login-container {
+        background: #ffffff;
+    }
+
+    .login-container::before {
+        animation: none;
+    }
+
+    .login-container::after {
+        display: none;
+    }
+
+    .welcome-header h1 .welcome-accent {
+        animation: none;
+        filter: none;
+    }
+
+    .hw-bars span {
+        height: 14px;
+        transform-origin: center;
+        animation-name: miniWavePulseLite;
+    }
+
+    .cbar {
+        height: 48px;
+        transform-origin: bottom;
+        box-shadow: none;
+        animation-name: eqBounceLite;
+    }
+
+    body.is-loading::before,
+    body.is-loading::after,
+    body.is-loading .cyber-bg-stage {
+        display: none;
+    }
+
+    .loader-backdrop {
+        background: rgba(9, 9, 14, 0.96);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+    }
+}
+
+/* Mobile-specific stricter pruning (<= 767px) */
+@media (max-width: 767px) {
+    .aurora-orb.orb-1 {
+        width: 340px;
+        height: 340px;
+    }
+
+    .aurora-orb.orb-2 {
+        width: 320px;
+        height: 320px;
+    }
+
+    .bg-sound-rings {
+        width: 360px;
+        height: 360px;
+    }
+
+    .sound-ring.ring-1 {
+        width: 260px;
+        height: 260px;
+    }
+
+    .sound-ring.ring-2 {
+        width: 330px;
+        height: 330px;
+    }
+
+    .sound-ring.ring-pulse,
+    .bg-scanlines,
+    .floating-particle.p3,
+    .floating-particle.p4,
+    .floating-particle.p5,
+    .floating-particle.p6 {
+        display: none;
+    }
+
+    .star-s:nth-child(n + 5) {
+        display: none;
+    }
+
+    .bg-full-eq {
+        height: 210px;
+        gap: 3px;
+        padding: 0 6px;
+    }
+
+    .bg-full-eq .eq-b:nth-child(n + 21) {
+        display: none;
+    }
+}
+
+/* Mobile / small-tablet soft-keyboard safeguard (prevents background layers from piling behind form) */
+@media (max-width: 1023px) and (max-height: 500px) {
+    .floating-particle,
+    .bg-sound-rings,
+    .bg-grid-floor,
+    .bg-horizon-beam {
+        display: none;
+    }
+
+    .bg-full-eq {
+        height: 120px;
+    }
+}
+
+/* JS-detected low-end hardware profile (covers low-end devices at any screen width) */
+html.login-bg-lite body::before {
+    filter: none;
+    animation: none;
+    opacity: 0.85;
+    background: radial-gradient(
+        circle,
+        rgba(255, 234, 0, 0.17) 0%,
+        rgba(255, 234, 0, 0.08) 28%,
+        rgba(255, 234, 0, 0.025) 54%,
+        transparent 74%
+    );
+}
+
+html.login-bg-lite body::after {
+    filter: none;
+    animation: none;
+    opacity: 0.85;
+    background: radial-gradient(
+        circle,
+        rgba(255, 0, 127, 0.2) 0%,
+        rgba(255, 0, 127, 0.09) 30%,
+        rgba(255, 0, 127, 0.025) 56%,
+        transparent 75%
+    );
+}
+
+html.login-bg-lite .cyber-bg-stage,
+html.login-bg-lite .bg-aurora-layer,
+html.login-bg-lite .bg-laser-beams,
+html.login-bg-lite .bg-grid-floor,
+html.login-bg-lite .bg-star-dust {
+    contain: strict;
+}
+
+html.login-bg-lite .aurora-orb,
+html.login-bg-lite .laser-beam,
+html.login-bg-lite .bg-eq-ambient-floor {
+    filter: none;
+    will-change: auto;
+}
+
+html.login-bg-lite .aurora-orb.orb-1 {
+    background: radial-gradient(
+        circle,
+        rgba(255, 0, 127, 0.24) 0%,
+        rgba(154, 0, 255, 0.1) 36%,
+        rgba(154, 0, 255, 0.025) 60%,
+        transparent 76%
+    );
+}
+
+html.login-bg-lite .aurora-orb.orb-2 {
+    background: radial-gradient(
+        circle,
+        rgba(255, 234, 0, 0.19) 0%,
+        rgba(255, 136, 0, 0.07) 36%,
+        rgba(255, 136, 0, 0.02) 58%,
+        transparent 75%
+    );
+}
+
+html.login-bg-lite .aurora-orb.orb-3,
+html.login-bg-lite .bg-cursor-glow,
+html.login-bg-lite .laser-beam.beam-center,
+html.login-bg-lite .sound-ring.ring-3 {
+    display: none;
+}
+
+html.login-bg-lite .bg-laser-beams {
+    mix-blend-mode: normal;
+}
+
+html.login-bg-lite .laser-beam.beam-left {
+    background: radial-gradient(
+        ellipse 50% 86% at 50% 0%,
+        rgba(255, 234, 0, 0.34) 0%,
+        rgba(255, 234, 0, 0.12) 44%,
+        transparent 100%
+    );
+}
+
+html.login-bg-lite .laser-beam.beam-right {
+    background: radial-gradient(
+        ellipse 50% 86% at 50% 0%,
+        rgba(255, 0, 127, 0.36) 0%,
+        rgba(255, 0, 127, 0.13) 44%,
+        transparent 100%
+    );
+}
+
+html.login-bg-lite .sound-ring,
+html.login-bg-lite .star-s {
+    box-shadow: none;
+}
+
+html.login-bg-lite .bg-horizon-beam {
+    box-shadow: 0 0 10px rgba(255, 0, 127, 0.36);
+    animation: none;
+}
+
+html.login-bg-lite .bg-grid-floor {
+    mask-image: none;
+    -webkit-mask-image: none;
+}
+
+html.login-bg-lite .bg-grid-floor::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: linear-gradient(to bottom, var(--background) 0%, transparent 50%);
+}
+
+html.login-bg-lite .bg-grid-plane {
+    top: -90%;
+    bottom: -60px;
+    animation: synthGridMoveLite 3.2s linear infinite;
+}
+
+html.login-bg-lite .star-s:nth-child(n + 7) {
+    display: none;
+}
+
+html.login-bg-lite .floating-particle {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    filter: none;
+    translate: none;
+    transition: none;
+    background: rgba(18, 18, 30, 0.84);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.28);
+}
+
+html.login-bg-lite[data-appearance="pure-black"] .floating-particle {
+    background: rgba(10, 10, 16, 0.9);
+}
+
+html.login-bg-lite[data-appearance="light"] .floating-particle {
+    background: rgba(255, 255, 255, 0.88);
+}
+
+html.login-bg-lite .bg-eq-ambient-floor {
+    position: absolute;
+    animation: none;
+    opacity: 0.72;
+}
+
+html.login-bg-lite .bg-full-eq {
+    position: absolute;
+    mask-image: none;
+    -webkit-mask-image: none;
+    contain: layout style paint;
+}
+
+html.login-bg-lite .bg-full-eq .eq-b {
+    min-width: 0;
+    max-width: 18px;
+    will-change: auto;
+    box-shadow: none;
+    filter: none !important;
+    opacity: 0.72;
+    background: linear-gradient(
+        to top,
+        rgba(255, 0, 127, 0.88) 0%,
+        rgba(255, 0, 127, 0.68) 36%,
+        rgba(255, 119, 0, 0.62) 66%,
+        rgba(255, 234, 0, 0.44) 86%,
+        rgba(255, 234, 0, 0) 100%
+    );
+    animation-name: fadedEqBounceLite;
+}
+
+html.login-bg-lite .bg-full-eq .eq-b:nth-child(n + 31) {
+    display: none;
+}
+
+html.login-bg-lite .login-page {
+    perspective: none;
+}
+
+html.login-bg-lite .login-container {
+    background: linear-gradient(155deg, rgba(22, 20, 34, 0.95) 0%, rgba(13, 13, 21, 0.97) 100%);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    transform-style: flat;
+    transform: none !important;
+}
+
+html.login-bg-lite[data-appearance="pure-black"] .login-container {
+    background: #08080c;
+}
+
+html.login-bg-lite[data-appearance="light"] .login-container {
+    background: #ffffff;
+}
+
+html.login-bg-lite .login-container::before {
+    animation: none;
+}
+
+html.login-bg-lite .login-container::after {
+    display: none;
+}
+
+html.login-bg-lite .welcome-header h1 .welcome-accent {
+    animation: none;
+    filter: none;
+}
+
+html.login-bg-lite .hw-bars span {
+    height: 14px;
+    transform-origin: center;
+    animation-name: miniWavePulseLite;
+}
+
+html.login-bg-lite .cbar {
+    height: 48px;
+    transform-origin: bottom;
+    box-shadow: none;
+    animation-name: eqBounceLite;
+}
+
+html.login-bg-lite body.is-loading::before,
+html.login-bg-lite body.is-loading::after,
+html.login-bg-lite body.is-loading .cyber-bg-stage {
+    display: none;
+}
+
+html.login-bg-lite .loader-backdrop {
+    background: rgba(9, 9, 14, 0.96);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+}
+
+/* Ultra-low-end devices & automatic FPS watchdog fallback: crisp static cyber backdrop */
+html.login-bg-ultra-lite .aurora-orb,
+html.login-bg-ultra-lite .laser-beam,
+html.login-bg-ultra-lite .sound-ring,
+html.login-bg-ultra-lite .bg-grid-plane,
+html.login-bg-ultra-lite .floating-particle,
+html.login-bg-ultra-lite .avatar-orbit-ring,
+html.login-bg-ultra-lite .tag-pulse-dot,
+html.login-bg-ultra-lite .hw-bars span {
+    animation: none !important;
+}
+
+html.login-bg-ultra-lite .bg-star-dust,
+html.login-bg-ultra-lite .bg-scanlines,
+html.login-bg-ultra-lite .bg-laser-beams,
+html.login-bg-ultra-lite .sound-ring.ring-pulse {
+    display: none;
+}
+
+html.login-bg-ultra-lite .bg-full-eq .eq-b {
+    animation: none !important;
+    transform: scaleY(0.36);
+    opacity: 0.62;
+}
+
+html.login-bg-ultra-lite .bg-full-eq .eq-b:nth-child(2n) {
+    transform: scaleY(0.62);
+}
+
+html.login-bg-ultra-lite .bg-full-eq .eq-b:nth-child(3n) {
+    transform: scaleY(0.28);
+}
+
+html.login-bg-ultra-lite .bg-full-eq .eq-b:nth-child(5n) {
+    transform: scaleY(0.76);
+}
+
+html.login-bg-ultra-lite .bg-full-eq .eq-b:nth-child(7n) {
+    transform: scaleY(0.48);
+}
+
+/* Pause background CSS animations when tab is hidden on lite devices */
+html.login-bg-lite body.bg-is-paused .cyber-bg-stage *,
+html.login-bg-lite body.bg-is-paused .avatar-orbit-ring,
+html.login-bg-lite body.bg-is-paused .hw-bars span {
+    animation-play-state: paused !important;
+}
